@@ -211,4 +211,32 @@ public class TestICBStringUtils extends TestCase {
         }
     }
 
+    public void testBreakString() {
+        assertEquals("string to <br/>break",
+                ICBStringUtils.makeStringWrappable(
+                        "string to break", 12, "<br/>"));
+    }
+
+    public void testBreakStringNoBreak() {
+        assertEquals("string to break",
+                ICBStringUtils.makeStringWrappable(
+                        "string to break", 20, "<br/>"));
+    }
+
+    public void testBreakStringForceBreak() {
+        assertEquals("stringtobrea<br/>k",
+                ICBStringUtils.makeStringWrappable(
+                        "stringtobreak", 12, "<br/>"));
+    }
+
+    public void testBreakStringMultiBreaks() {
+        assertEquals(
+                "this is a <br/>longer string. <br/>with "
+                        + "multiplte <br/>breaks! fun eh?",
+                ICBStringUtils.makeStringWrappable(
+                    "this is a longer string. with "
+                            + "multiplte breaks! fun eh?",
+                        15, "<br/>"));
+    }
+
 }

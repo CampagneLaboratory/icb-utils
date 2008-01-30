@@ -453,4 +453,85 @@ public class ICBStringUtils {
         }
         return curSplit.toString();
     }
+
+    // Change this to line break via html
+    private static String NO_BREAK_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+    /**
+     * This will remove redundent whitespace then add sLineBreakString as
+     * necessary to help eliminate the problem (primary seen in FireFox) where
+     * long names containing no (or very little) whitespace would cause the HTML
+     * table to be excessivly wide. It attempts to preserve words by trying to
+     * not break on within "a..z1..9" (ie words and number sequences) but
+     * prefers to wrap AFTER whitespace or other characters. If a word or number
+     * sequence is longer than maxLength it will split it anyway. This probably
+     * shouldn't be used for editing or to store things in the database just for
+     * the screen on a "view" page.
+     * @param stringToBreak
+     * @param maxLength the maximum length for a line
+     * @param breakStr character to cause a break
+     */
+    public static String makeStringWrappable(String stringToBreak,
+            int maxLength, String breakStr) {
+        String sRemain = null;
+        String sReturn = "";
+
+        // Check if there is no need to break whatsoever
+        // and just return
+        if (stringToBreak == null) {
+            return "";
+        }
+
+        // Remove all beginning, ending, and duplicate whitespace
+        sRemain = stringToBreak.replaceAll("[\t|\n| ]+", " ").trim();
+
+        if (sRemain.length() <= maxLength) {
+            return sRemain;
+        }
+
+        // Intelligently add spaces to allow for nicer
+        // html line breaking
+        int iPos = maxLength;
+        while (true) {
+            // Scan backwards for a non alpha-numeric.
+            if (iPos < 0) {
+                // We never found a char to split on.
+                // We just have to split.
+                iPos = maxLength;
+
+                sReturn += sRemain.substring(0, iPos) + breakStr;
+                sRemain = sRemain.substring(iPos, sRemain.length());
+                if (sRemain.length() <= maxLength) {
+                    // We're done. The remaining text will fit on one line
+                    sReturn += sRemain;
+                    break;
+                }
+                // There is more to split.
+                iPos = maxLength;
+                continue;
+            }
+
+            String sCurChar = sRemain.substring(iPos, iPos + 1).toLowerCase();
+            if (NO_BREAK_CHARS.indexOf(sCurChar) == -1) {
+                // We found a non alpha-numeric char. Split after it.
+                sReturn += sRemain.substring(0, iPos + 1) + breakStr;
+                sRemain = sRemain.substring(iPos + 1, sRemain.length());
+                if (sRemain.length() <= maxLength) {
+                    // We're done. The remaining text will fit on one line
+                    sReturn += sRemain;
+                    break;
+                }
+                // There is more to split.
+                iPos = maxLength;
+                continue;
+            }
+            // The current character wasn't an ideal split. Let's
+            // look at the previous character.
+            iPos = iPos - 1;
+        }
+
+        // Return the more wrappable string.
+        return sReturn;
+    }
+
 }
