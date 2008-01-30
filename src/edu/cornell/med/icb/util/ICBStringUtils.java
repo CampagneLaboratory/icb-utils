@@ -467,14 +467,15 @@ public class ICBStringUtils {
      * sequence is longer than maxLength it will split it anyway. This probably
      * shouldn't be used for editing or to store things in the database just for
      * the screen on a "view" page.
-     * @param stringToBreak
+     * @param stringToBreak the string to break
      * @param maxLength the maximum length for a line
      * @param breakStr character to cause a break
+     * @return the string, wrapped as necessary
      */
     public static String makeStringWrappable(String stringToBreak,
             int maxLength, String breakStr) {
-        String sRemain = null;
-        String sReturn = "";
+        String remain;
+        String returnVal = "";
 
         // Check if there is no need to break whatsoever
         // and just return
@@ -483,55 +484,55 @@ public class ICBStringUtils {
         }
 
         // Remove all beginning, ending, and duplicate whitespace
-        sRemain = stringToBreak.replaceAll("[\t|\n| ]+", " ").trim();
+        remain = stringToBreak.replaceAll("[\t|\n| ]+", " ").trim();
 
-        if (sRemain.length() <= maxLength) {
-            return sRemain;
+        if (remain.length() <= maxLength) {
+            return remain;
         }
 
         // Intelligently add spaces to allow for nicer
         // html line breaking
-        int iPos = maxLength;
+        int pos = maxLength;
         while (true) {
             // Scan backwards for a non alpha-numeric.
-            if (iPos < 0) {
+            if (pos < 0) {
                 // We never found a char to split on.
                 // We just have to split.
-                iPos = maxLength;
+                pos = maxLength;
 
-                sReturn += sRemain.substring(0, iPos) + breakStr;
-                sRemain = sRemain.substring(iPos, sRemain.length());
-                if (sRemain.length() <= maxLength) {
+                returnVal += remain.substring(0, pos) + breakStr;
+                remain = remain.substring(pos, remain.length());
+                if (remain.length() <= maxLength) {
                     // We're done. The remaining text will fit on one line
-                    sReturn += sRemain;
+                    returnVal += remain;
                     break;
                 }
                 // There is more to split.
-                iPos = maxLength;
+                pos = maxLength;
                 continue;
             }
 
-            String sCurChar = sRemain.substring(iPos, iPos + 1).toLowerCase();
-            if (NO_BREAK_CHARS.indexOf(sCurChar) == -1) {
+            String curChar = remain.substring(pos, pos + 1).toLowerCase();
+            if (NO_BREAK_CHARS.indexOf(curChar) == -1) {
                 // We found a non alpha-numeric char. Split after it.
-                sReturn += sRemain.substring(0, iPos + 1) + breakStr;
-                sRemain = sRemain.substring(iPos + 1, sRemain.length());
-                if (sRemain.length() <= maxLength) {
+                returnVal += remain.substring(0, pos + 1) + breakStr;
+                remain = remain.substring(pos + 1, remain.length());
+                if (remain.length() <= maxLength) {
                     // We're done. The remaining text will fit on one line
-                    sReturn += sRemain;
+                    returnVal += remain;
                     break;
                 }
                 // There is more to split.
-                iPos = maxLength;
+                pos = maxLength;
                 continue;
             }
             // The current character wasn't an ideal split. Let's
             // look at the previous character.
-            iPos = iPos - 1;
+            pos = pos - 1;
         }
 
         // Return the more wrappable string.
-        return sReturn;
+        return returnVal;
     }
 
 }
