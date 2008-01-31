@@ -455,7 +455,7 @@ public class ICBStringUtils {
     }
 
     // Change this to line break via html
-    private static String NO_BREAK_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
+    private static String NO_BREAK_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789[]();:";
 
     /**
      * This will remove redundent whitespace then add sLineBreakString as
