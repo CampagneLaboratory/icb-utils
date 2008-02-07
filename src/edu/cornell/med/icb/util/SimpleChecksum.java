@@ -31,7 +31,7 @@ import java.util.zip.Adler32;
 public class SimpleChecksum {
 
     /**
-     * Private constructor.
+     * Private constructor for utility class.
      */
     private SimpleChecksum() {
     }
@@ -39,10 +39,10 @@ public class SimpleChecksum {
     /**
      * The characters to use in the checksum.
      */
-    private final static String[] CHECKSUM_CHARS = {
-            "A", "B", "C", "D", "E", "F", "G", "H", "I",
-            "J", "K", "L", "M", "N", "O", "P", "Q", "R",
-            "S", "T", "U", "V", "W", "X", "Y", "Z"};
+    private final static char[] CHECKSUM_CHARS = {
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
+            'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+            'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
 
     /**
      * Takes a string and returns a that same string
@@ -60,21 +60,11 @@ public class SimpleChecksum {
 
         Adler32 adler = new Adler32();
         adler.update(valToChecksum.getBytes());
-        long checksum = adler.getValue();
+        long[] result = splitLong(adler.getValue());
 
-        // Take the hex value and use HALF of the
-        // left hex digits to make the first character
-        // and half of right hex digits to make the
-        // second character.
-        String checksumString = Long.toHexString(checksum);
-        int leftSize = checksumString.length() / 2;
-        int rightSize = checksumString.length() - leftSize;
-        long leftMask = makeHexMask("F", leftSize, "0", rightSize);
-        long rightMask = makeHexMask("0", leftSize, "F", rightSize);
-        long left = (checksum & leftMask) % CHECKSUM_CHARS.length;
-        long right = (checksum & rightMask) % CHECKSUM_CHARS.length;
-
-        return valToChecksum + CHECKSUM_CHARS[(int)left] + CHECKSUM_CHARS[(int)right];
+        return String.format("%s%c%c", valToChecksum,
+                CHECKSUM_CHARS[(int)result[0]],
+                CHECKSUM_CHARS[(int)result[1]]);
     }
 
     /**
@@ -96,27 +86,89 @@ public class SimpleChecksum {
     }
 
     /**
-     * Make a hex mask of leftSize leftDigits
-     * and rightSize rightDigigs, such as
-     * ("F", 3, "0", 4) would produce the long
-     * value for 0xFFF0000.
-     * @param leftDigit the digit on the left
-     * @param leftSize the number of digits on the left
-     * @param rightDigit the digit on the right
-     * @param rightSize the number of digits on the right
-     * @return the long value for the mask
+     * Splits a long value into two long values, representing
+     * the left and right side. This isn't necessarily the
+     * top four bytes and bottom four bytes, it is based on
+     * the number of bytes that are actually used in the value.
+     * @param inval long value to split
+     * @return two resultant long values in an array
      */
-    private static long makeHexMask(
-            final String leftDigit, final int leftSize,
-            final String rightDigit, final int rightSize) {
-        String mask = "";
+    private static long[] splitLong(final long inval) {
+        // Take the hex value and use HALF of the
+        // left hex digits to make the first character
+        // and half of right hex digits to make the
+        // second character.
+        String checksumString = Long.toHexString(inval);
+        String[] maskStrings = makeHexMaskStrings(checksumString);
+        
+        long[] maskLongs = new long[2];
+        maskLongs[0] = Long.parseLong(maskStrings[0], 16);
+        maskLongs[1] = Long.parseLong(maskStrings[1], 16);
+
+        long[] result = new long[2];
+        result[0] = (inval & maskLongs[0]) % CHECKSUM_CHARS.length;
+        result[1] = (inval & maskLongs[1]) % CHECKSUM_CHARS.length;
+        return result;
+    }
+
+    /**
+     * Make two hex masks of the incoming hex string. The hex string must be
+     * no longer than 16 digits, not be null/empty, and (of course) contain only
+     * hex digits. The two masks will to mask the left and right side of
+     * the string. If you pass in "abcdef" you will receive back
+     * "fff000" and "000fff".
+     * @param hexString hex string to make two masks for
+     * @return two hex mask strings in a String[]
+     * @throws IllegalArgumentException invalid incoming hex string
+     */
+    static String[] makeHexMaskStrings(
+            final String hexString) {
+
+        if (StringUtils.isEmpty(hexString)) {
+            throw new IllegalArgumentException("Hex string must be 1 to 16 characters long.");
+        }
+
+        if (hexString.length() > 16) {
+            throw new IllegalArgumentException("Hex string must be 1 to 16 characters long.");
+        }
+
+        for (int i = 0; i < hexString.length(); i++) {
+            char c = hexString.charAt(i);
+            if ((c >= '0') && (c <= '9')) {
+                continue;
+            }
+            if ((c >= 'A') && (c <= 'F')) {
+                continue;
+            }
+            if ((c >= 'a') && (c <= 'f')) {
+                continue;
+            }
+            throw new IllegalArgumentException("Hex string must contain only hex digits, 0-9A-F");
+        }
+
+        int leftSize;
+        int rightSize;
+        if (hexString.length() == 1) {
+            leftSize = 0;
+            rightSize = 1;
+        } else {
+            leftSize = hexString.length() / 2;
+            rightSize = hexString.length() - leftSize;
+        }
+
+        String[] masks = new String[2];
+        masks[0] = "";
+        masks[1] = "";
         for (int i = 0; i < leftSize; i++) {
-            mask += leftDigit;
+            masks[0] += "F";
+            masks[1] += "0";
         }
         for (int i = 0; i < rightSize; i++) {
-            mask += rightDigit;
+            masks[0] += "0";
+            masks[1] += "F";
         }
-        return Long.parseLong(mask, 16);
+
+        return masks;
     }
 
 }
