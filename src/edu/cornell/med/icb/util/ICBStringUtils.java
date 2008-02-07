@@ -241,11 +241,11 @@ public final class ICBStringUtils {
             return toHighlight;
         }
 
-        StringBuilder input = new StringBuilder(toHighlight);
-        StringBuilder inputLC = new StringBuilder(toHighlight.toLowerCase());
-        StringBuilder output = new StringBuilder();
-        StringBuilder tagStart;
-        StringBuilder tagEnd;
+        final StringBuilder input = new StringBuilder(toHighlight);
+        final StringBuilder inputLC = new StringBuilder(toHighlight.toLowerCase());
+        final StringBuilder output = new StringBuilder();
+        final StringBuilder tagStart;
+        final StringBuilder tagEnd;
 
         if (highlightStart == null) {
             tagStart = new StringBuilder();
@@ -271,7 +271,7 @@ public final class ICBStringUtils {
             size = -1;
             for (String toFind : cleanHighlightWords) {
                 // Find the FIRST of the highlight words
-                int curPos = inputLC.indexOf(toFind);
+                final int curPos = inputLC.indexOf(toFind);
                 if (curPos != -1) {
                     // We have a match
                     if (pos == -1) {
@@ -320,7 +320,7 @@ public final class ICBStringUtils {
         if (strings == null) {
             return null;
         }
-        List<String> cleanList = new LinkedList<String>();
+        final List<String> cleanList = new LinkedList<String>();
         for (String string : strings) {
             if (StringUtils.isNotBlank(string)) {
                 cleanList.add(string);
@@ -382,12 +382,12 @@ public final class ICBStringUtils {
             // Disable the escaping
             escape = null;
         }
-        List<String> output = new LinkedList<String>();
+        final List<String> output = new LinkedList<String>();
         final int length = inval.length();
-        StringBuilder curSplit = new StringBuilder();
+        final StringBuilder curSplit = new StringBuilder();
         boolean inEscape = false;
         for (int i = 0; i < length; i++) {
-            char curChar = inval.charAt(i);
+            final char curChar = inval.charAt(i);
             if ((!inEscape) && (curChar == splitChar)) {
                 output.add(curSplit.toString());
                 curSplit.setLength(0);
@@ -448,11 +448,11 @@ public final class ICBStringUtils {
             // Nothing to do
             return inval;
         }
-        int length = inval.length();
-        StringBuilder curSplit = new StringBuilder();
+        final int length = inval.length();
+        final StringBuilder curSplit = new StringBuilder();
         boolean inEscape = false;
         for (int i = 0; i < length; i++) {
-            char curChar = inval.charAt(i);
+            final char curChar = inval.charAt(i);
             if ((!inEscape) && (curChar == escapeChar)) {
                 // Going into escape. Don't save the
                 // current (escape) character.
@@ -491,7 +491,7 @@ public final class ICBStringUtils {
             final String stringToBreak, final int maxLength,
             final String breakStr) {
         String remain;
-        StringBuffer returnVal = new StringBuffer();
+        final StringBuffer returnVal = new StringBuffer();
 
         // Check if there is no need to break whatsoever
         // and just return
@@ -528,7 +528,7 @@ public final class ICBStringUtils {
                 continue;
             }
 
-            String curChar = remain.substring(pos, pos + 1).toLowerCase();
+            final String curChar = remain.substring(pos, pos + 1).toLowerCase();
             if (NO_BREAK_CHARS.indexOf(curChar) == -1) {
                 // We found a non alpha-numeric char. Split after it.
                 returnVal.append(remain.substring(0, pos + 1)).append(breakStr);

@@ -151,7 +151,7 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
      * maxCapacity of the queue was ensured.
      */
     public boolean add(final E e) {
-        boolean result = super.add(e);
+        final boolean result = super.add(e);
         ensureSize();
         return result;
     }
@@ -166,7 +166,7 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
      */
     @Override
     public boolean addAll(final Collection< ? extends E > c) {
-        boolean result = super.addAll(c);
+        final boolean result = super.addAll(c);
         ensureSize();
         return result;
     }
@@ -181,7 +181,7 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
      */
     @Override
     public boolean offer(final E e) {
-        boolean result = super.offer(e);
+        final boolean result = super.offer(e);
         ensureSize();
         return result;
     }
@@ -198,10 +198,10 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
      * reverse order
      */
     public synchronized List<E> reversedList(final boolean destructive) {
-        int queueSize = this.size();
-        LinkedList<E> reverse = new LinkedList<E>();
+        final int queueSize = this.size();
+        final LinkedList<E> reverse = new LinkedList<E>();
         for (int i = 0; i < queueSize; i++) {
-            E current = this.poll();
+            final E current = this.poll();
             reverse.addFirst(current);
         }
         if (!destructive) {
@@ -219,7 +219,7 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
      * per add(), addAll(), offer(). This is run synchronized
      */
     private synchronized void ensureSize() {
-        int size = this.size();
+        final int size = this.size();
         if (size <= maxCapacity) {
             return;
         }
@@ -231,7 +231,7 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
             // Remove from the END of the queue, which is the
             // same as keep maxSize elements from the front of
             // the queue.
-            List<E> transferQueue = new ArrayList<E>(maxCapacity);
+            final List<E> transferQueue = new ArrayList<E>(maxCapacity);
             for (int i = 0; i < maxCapacity; i++) {
                 transferQueue.add(this.poll());
             }

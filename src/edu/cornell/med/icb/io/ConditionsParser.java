@@ -288,7 +288,7 @@ public class ConditionsParser {
         nameToFieldNumberMap = new HashMap<String, Integer>(fields.size());
         int pos = 0;
         for (ConditionField field : fields) {
-            Integer current = nameToFieldNumberMap.get(field.getFieldName());
+            final Integer current = nameToFieldNumberMap.get(field.getFieldName());
             if (current == null) {
                 // Only use the name for ONE field, the first one
                 nameToFieldNumberMap.put(field.getFieldName(), pos);
@@ -324,7 +324,7 @@ public class ConditionsParser {
                                             final Class<T> templateClass,
                                             final Map<String, String> valuesMap)
             throws IOException, ConditionsParsingException {
-        List<T> resultObjs = new ArrayList<T>();
+        final List<T> resultObjs = new ArrayList<T>();
         beginParse(sourceReader);
         while (hasNext()) {
             T object;
@@ -382,7 +382,7 @@ public class ConditionsParser {
             throw new ConditionsParsingException(
                     "templateObject cannot be is null when calling parseAllFieldsBean");
         }
-        List<T> resultObjs = new ArrayList<T>();
+        final List<T> resultObjs = new ArrayList<T>();
         beginParse(sourceReader);
         while (hasNext()) {
             T object;
@@ -441,7 +441,7 @@ public class ConditionsParser {
                     tsvReader.skip();
                 } else {
                     tsvReader.next();
-                    int numFields = tsvReader.numTokens();
+                    final int numFields = tsvReader.numTokens();
                     if (numFields > fields.size()) {
                         // Too many fields. This is a problem.
                         tsvReader.close();
@@ -483,7 +483,7 @@ public class ConditionsParser {
      */
     private int getFieldNumber(final String fieldName)
             throws ConditionsParsingException {
-        Integer fieldNumber = nameToFieldNumberMap.get(fieldName);
+        final Integer fieldNumber = nameToFieldNumberMap.get(fieldName);
         if (fieldNumber == null) {
             throw new ConditionsParsingException("Field name "
                     + fieldName + " does not exist in specified fields");
@@ -508,15 +508,15 @@ public class ConditionsParser {
             throw new ConditionsParsingException(
                     "No line to parse. Did you call beginParse(...) and hasNext()?");
         }
-        int fieldNumber = getFieldNumber(fieldName);
-        ConditionField field = fields.get(fieldNumber);
+        final int fieldNumber = getFieldNumber(fieldName);
+        final ConditionField field = fields.get(fieldNumber);
         String wholeValue = field.getCurrentValue();
         if (wholeValue == null) {
             wholeValue = "";
         }
         if (field.isList()) {
             // Only return the first one
-            String[] listVals = ICBStringUtils.split(wholeValue,
+            final String[] listVals = ICBStringUtils.split(wholeValue,
                     field.getListSeparator(), escapeChar);
             if (listVals.length == 0) {
                 return "";
@@ -548,8 +548,8 @@ public class ConditionsParser {
             throw new ConditionsParsingException(
                     "No line to parse. Did you call beginParse(...) and hasNext()?");
         }
-        int fieldNumber = getFieldNumber(fieldName);
-        ConditionField field = fields.get(fieldNumber);
+        final int fieldNumber = getFieldNumber(fieldName);
+        final ConditionField field = fields.get(fieldNumber);
         String wholeValue = field.getCurrentValue();
         if (wholeValue == null) {
             wholeValue = "";
@@ -584,7 +584,7 @@ public class ConditionsParser {
      */
     public int parseFieldValueInt(final String fieldName)
             throws ConditionsParsingException {
-        String fieldValue = parseFieldValueString(fieldName);
+        final String fieldValue = parseFieldValueString(fieldName);
         return Integer.parseInt(fieldValue);
     }
 
@@ -604,7 +604,7 @@ public class ConditionsParser {
      */
     public int[] parseFieldValueIntArray(final String fieldName)
             throws ConditionsParsingException {
-        String[] fieldValues = parseFieldValueStringArray(fieldName);
+        final String[] fieldValues = parseFieldValueStringArray(fieldName);
         int[] outValues = new int[fieldValues.length];
         for (int i = 0; i < fieldValues.length; i++) {
             outValues[i] = Integer.parseInt(fieldValues[i]);
@@ -627,7 +627,7 @@ public class ConditionsParser {
      */
     public double parseFieldValueDouble(final String fieldName)
             throws ConditionsParsingException {
-        String fieldValue = parseFieldValueString(fieldName);
+        final String fieldValue = parseFieldValueString(fieldName);
         return Double.parseDouble(fieldValue);
     }
 
@@ -647,7 +647,7 @@ public class ConditionsParser {
      */
     public double[] parseFieldValueDoubleArray(final String fieldName)
             throws ConditionsParsingException {
-        String[] fieldValues = parseFieldValueStringArray(fieldName);
+        final String[] fieldValues = parseFieldValueStringArray(fieldName);
         double[] outValues = new double[fieldValues.length];
         for (int i = 0; i < fieldValues.length; i++) {
             outValues[i] = Double.parseDouble(fieldValues[i]);
@@ -670,7 +670,7 @@ public class ConditionsParser {
      */
     public boolean parseFieldValueBoolean(final String fieldName)
             throws ConditionsParsingException {
-        String fieldValue = parseFieldValueString(fieldName);
+        final String fieldValue = parseFieldValueString(fieldName);
         return Boolean.parseBoolean(fieldValue);
     }
 
@@ -690,7 +690,7 @@ public class ConditionsParser {
      */
     public boolean[] parseFieldValueBooleanArray(final String fieldName)
             throws ConditionsParsingException {
-        String[] fieldValues = parseFieldValueStringArray(fieldName);
+        final String[] fieldValues = parseFieldValueStringArray(fieldName);
         boolean[] outValues = new boolean[fieldValues.length];
         for (int i = 0; i < fieldValues.length; i++) {
             outValues[i] = Boolean.parseBoolean(fieldValues[i]);
@@ -713,19 +713,19 @@ public class ConditionsParser {
      */
     public Map<String, String> parseFieldMap(final String fieldName)
             throws ConditionsParsingException {
-        String[] fieldValues = parseFieldValueStringArray(fieldName);
-        ConditionField field = fields.get(getFieldNumber(fieldName));
-        char valueSeparator = field.getKeyValueSeparator();
-        Map<String, String> outValues = new HashMap<String, String>();
+        final String[] fieldValues = parseFieldValueStringArray(fieldName);
+        final ConditionField field = fields.get(getFieldNumber(fieldName));
+        final char valueSeparator = field.getKeyValueSeparator();
+        final Map<String, String> outValues = new HashMap<String, String>();
         for (String fieldValue : fieldValues) {
-            int pos = fieldValue.indexOf(valueSeparator);
+            final int pos = fieldValue.indexOf(valueSeparator);
             if (pos == -1) {
                 // No "=". Just place an empty string
                 outValues.put(fieldValue,  "");
                 continue;
             }
-            String left = fieldValue.substring(0, pos);
-            String right = fieldValue.substring(pos + 1, fieldValue.length());
+            final String left = fieldValue.substring(0, pos);
+            final String right = fieldValue.substring(pos + 1, fieldValue.length());
             outValues.put(left, right);
         }
         return outValues;
@@ -805,8 +805,8 @@ public class ConditionsParser {
                                  final Map<String, String> valuesMap)
             throws ConditionsParsingException {
 
-        int fieldNumber = getFieldNumber(fieldName);
-        ConditionField field = fields.get(fieldNumber);
+        final int fieldNumber = getFieldNumber(fieldName);
+        final ConditionField field = fields.get(fieldNumber);
 
         if (field.getFieldType() == ConditionField.FieldType.VALUE) {
             if ((targetObject != null) && (StringUtils.isNotBlank(
@@ -816,8 +816,8 @@ public class ConditionsParser {
             return targetObject;
         }
 
-        Map<String, String> fieldValues = parseFieldMap(fieldName);
-        String classname = fieldValues.get(field.getClassnameKey());
+        final Map<String, String> fieldValues = parseFieldMap(fieldName);
+        final String classname = fieldValues.get(field.getClassnameKey());
 
         String prependObjectBean = "";
         if (StringUtils.isNotBlank(field.getValueBeanProperty())
@@ -833,7 +833,7 @@ public class ConditionsParser {
                     + " is not specified for line " + lineNumber);
             }
             try {
-                Object newObject = Class.forName(classname).newInstance();
+                final Object newObject = Class.forName(classname).newInstance();
                 if (prependObjectBean.length() > 0) {
                     BeanUtils.setProperty(object, prependObjectBean, newObject);
                     prependObjectBean = prependObjectBean + ".";
@@ -863,7 +863,7 @@ public class ConditionsParser {
             if (key.equals(field.getClassnameKey())) {
                 continue;
             }
-            String value = fieldValues.get(key);
+            final String value = fieldValues.get(key);
             try {
                 BeanUtils.setProperty(object, prependObjectBean + key, value);
                 if (valuesMap != null) {
@@ -928,7 +928,7 @@ public class ConditionsParser {
         }
         try {
             if (isClassname) {
-                Object newObject =
+                final Object newObject =
                         Class.forName((String) fieldValue).newInstance();
                 BeanUtils.setProperty(targetObject,
                         field.getValueBeanProperty(), newObject);

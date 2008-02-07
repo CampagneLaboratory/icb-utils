@@ -58,9 +58,9 @@ public final class SimpleChecksum {
             return valToChecksum;
         }
 
-        Adler32 adler = new Adler32();
+        final Adler32 adler = new Adler32();
         adler.update(valToChecksum.getBytes());
-        long[] result = splitLong(adler.getValue());
+        final long[] result = splitLong(adler.getValue());
 
         return String.format("%s%c%c", valToChecksum,
                 CHECKSUM_CHARS[(int) result[0]],
@@ -78,10 +78,10 @@ public final class SimpleChecksum {
         if ((checksumString == null) || (checksumString.length() < 3)) {
             return false;
         }
-        String baseString = checksumString.substring(
+        final String baseString = checksumString.substring(
                 0, checksumString.length() - 2);
 
-        String newVal = simpleChecksum(baseString);
+        final String newVal = simpleChecksum(baseString);
         return checksumString.equals(newVal);
     }
 
@@ -98,14 +98,14 @@ public final class SimpleChecksum {
         // left hex digits to make the first character
         // and half of right hex digits to make the
         // second character.
-        String checksumString = Long.toHexString(inval);
-        String[] maskStrings = makeHexMaskStrings(checksumString);
+        final String checksumString = Long.toHexString(inval);
+        final String[] maskStrings = makeHexMaskStrings(checksumString);
 
-        long[] maskLongs = new long[2];
+        final long[] maskLongs = new long[2];
         maskLongs[0] = Long.parseLong(maskStrings[0], 16);
         maskLongs[1] = Long.parseLong(maskStrings[1], 16);
 
-        long[] result = new long[2];
+        final long[] result = new long[2];
         result[0] = (inval & maskLongs[0]) % CHECKSUM_CHARS.length;
         result[1] = (inval & maskLongs[1]) % CHECKSUM_CHARS.length;
         return result;
@@ -132,7 +132,7 @@ public final class SimpleChecksum {
         }
 
         for (int i = 0; i < hexString.length(); i++) {
-            char c = hexString.charAt(i);
+            final char c = hexString.charAt(i);
             if ((c >= '0') && (c <= '9')) {
                 continue;
             }
@@ -155,18 +155,20 @@ public final class SimpleChecksum {
             rightSize = hexString.length() - leftSize;
         }
 
-        String[] masks = new String[2];
-        masks[0] = "";
-        masks[1] = "";
+        final StringBuffer leftMask = new StringBuffer();
+        final StringBuffer rightMask = new StringBuffer();
         for (int i = 0; i < leftSize; i++) {
-            masks[0] += "F";
-            masks[1] += "0";
+            leftMask.append("F");
+            rightMask.append("0");
         }
         for (int i = 0; i < rightSize; i++) {
-            masks[0] += "0";
-            masks[1] += "F";
+            leftMask.append("0");
+            rightMask.append("F");
         }
 
+        final String[] masks = new String[2];
+        masks[0] = leftMask.toString();
+        masks[1] = rightMask.toString();
         return masks;
     }
 

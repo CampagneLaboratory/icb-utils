@@ -279,7 +279,7 @@ public final class TSVReader implements Closeable {
      * @return true if the current line is empty
      */
     public boolean isEmptyLine() {
-        return currentLine.trim().length() == 0;
+        return StringUtils.isBlank(currentLine);
     }
 
     /**
