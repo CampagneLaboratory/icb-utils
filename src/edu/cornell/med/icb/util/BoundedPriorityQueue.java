@@ -38,37 +38,46 @@ import java.util.PriorityQueue;
  * of the PriorityQueue.iterator() method and the lack of random access
  * to the queue.
  * @author Kevin Dorff (Oct 19, 2007)
+ * @param <E> the type of bounded priority queue to make
  */
 public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
 
+    /**
+     * The maximum capacity for this boudned priority queue.
+     */
     private int maxCapacity;
+
+    /**
+     * If true, removed items will be removed form the front
+     * of the queue.
+     */
     private boolean removeFromFront;
 
     /**
      * Create a BoundedPriorityQueue specifying the max capacity,
      * the comparator to use to order the queue, and if surplus
      * elements should be removed form the head or tail.
-     * @param maxCapacity the maximum capacity of the queue
+     * @param maxCapacityVal the maximum capacity of the queue
      * @param c the comparator to use to order the queue
-     * @param removeFromFront if true, surplus elements will
+     * @param removeFromFrontVal if true, surplus elements will
      * be removed from the front of the queue.
      */
-    public BoundedPriorityQueue(final int maxCapacity, final Comparator<E> c,
-                        final boolean removeFromFront) {
-        super(maxCapacity + 1, c);
-        this.maxCapacity = maxCapacity;
-        this.removeFromFront = removeFromFront;
+    public BoundedPriorityQueue(final int maxCapacityVal, final Comparator<E> c,
+                        final boolean removeFromFrontVal) {
+        super(maxCapacityVal + 1, c);
+        this.maxCapacity = maxCapacityVal;
+        this.removeFromFront = removeFromFrontVal;
     }
 
     /**
      * Create a BoundedPriorityQueue specifying the max capacity,
      * the comparator to use to order the queue. Any surplus
      * will be removed from the tail of the queue.
-     * @param maxCapacity the maximum capacity of the queue
+     * @param maxCapacityVal the maximum capacity of the queue
      * @param c the comparator to use to order the queue
      */
-    public BoundedPriorityQueue(final int maxCapacity, final Comparator<E> c) {
-        this(maxCapacity, c, false);
+    public BoundedPriorityQueue(final int maxCapacityVal, final Comparator<E> c) {
+        this(maxCapacityVal, c, false);
     }
 
     /**
@@ -76,14 +85,14 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
      * Since no comparator is provided, the queue will be built
      * in natural order. You can also specify if surplus elements
      * should be removed form the head or tail.
-     * @param maxCapacity the maximum capacity of the queue
-     * @param removeFromFront if true, surplus elements will
+     * @param maxCapacityVal the maximum capacity of the queue
+     * @param removeFromFrontVal if true, surplus elements will
      * be removed from the front of the queue.
      */
-    public BoundedPriorityQueue(final int maxCapacity, final boolean removeFromFront) {
-        super(maxCapacity);
-        this.maxCapacity = maxCapacity;
-        this.removeFromFront = removeFromFront;
+    public BoundedPriorityQueue(final int maxCapacityVal, final boolean removeFromFrontVal) {
+        super(maxCapacityVal);
+        this.maxCapacity = maxCapacityVal;
+        this.removeFromFront = removeFromFrontVal;
     }
 
     /**
@@ -91,10 +100,10 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
      * Since no comparator is provided, the queue will be built
      * in natural order. Surplus elements will be removed from
      * the tail of the queue.
-     * @param maxCapacity the maximum capacity of the queue
+     * @param maxCapacityVal the maximum capacity of the queue
      */
-    public BoundedPriorityQueue(final int maxCapacity) {
-        this(maxCapacity, false);
+    public BoundedPriorityQueue(final int maxCapacityVal) {
+        this(maxCapacityVal, false);
     }
 
     /**
@@ -126,22 +135,22 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
     /**
      * Set if surplus elements should be removed from the
      * front of the queue.
-     * @param removeFromFront true if surplus elements should
+     * @param removeFromFrontVal true if surplus elements should
      * be removed from the front of the queue.
      */
-    public void setRemoveFromFrontSize(final boolean removeFromFront) {
-        this.removeFromFront = removeFromFront;
+    public void setRemoveFromFrontSize(final boolean removeFromFrontVal) {
+        this.removeFromFront = removeFromFrontVal;
     }
 
     /**
      * Add a element to the queue then ensure then queue isn't
-     * larger than maxCapacity
+     * larger than maxCapacity.
      * @param e the element to add to the queue
      * @return true. The return value doesn't say anything about
      * if the element (or any element)  was clipped when the
      * maxCapacity of the queue was ensured.
      */
-    public boolean add(E e) {
+    public boolean add(final E e) {
         boolean result = super.add(e);
         ensureSize();
         return result;
@@ -149,14 +158,14 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
 
     /**
      * Add a collection of elements to the queue then ensure
-     * the queue isn't larger than maxCapacity
+     * the queue isn't larger than maxCapacity.
      * @param c the collection of elements to add to the queue
      * @return true. The return value doesn't say anything about
      * if the element (or any element)  was clipped when the
      * maxCapacity of the queue was ensured.
      */
     @Override
-    public boolean addAll(Collection<? extends E> c) {
+    public boolean addAll(final Collection< ? extends E > c) {
         boolean result = super.addAll(c);
         ensureSize();
         return result;
@@ -164,14 +173,14 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
 
     /**
      * Offer (add) an element to the queue then ensure then queue isn't
-     * larger than maxCapacity
+     * larger than maxCapacity.
      * @param e the element to add to the queue
      * @return true. The return value doesn't say anything about
      * if the element (or any element)  was clipped when the
      * maxCapacity of the queue was ensured.
      */
     @Override
-    public boolean offer(E e) {
+    public boolean offer(final E e) {
         boolean result = super.offer(e);
         ensureSize();
         return result;
@@ -188,7 +197,7 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
      * @return the values of the queue in a List but in
      * reverse order
      */
-    public synchronized List<E> reversedList(boolean destructive) {
+    public synchronized List<E> reversedList(final boolean destructive) {
         int queueSize = this.size();
         LinkedList<E> reverse = new LinkedList<E>();
         for (int i = 0; i < queueSize; i++) {

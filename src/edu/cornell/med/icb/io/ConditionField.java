@@ -26,39 +26,98 @@ import org.apache.commons.lang.StringUtils;
  * @author Kevin Dorff (Nov 21, 2007)
  */
 public class ConditionField {
+
+    /**
+     * Enum for field type.
+     */
     public enum FieldType {
+        /** A map field. */
         MAP,
+        /** A value field. */
         VALUE
     }
 
-    private final static char LIST_SEPARATOR_DEFAULT = ',';
-    private final static char KEY_VALUE_SEPERATOR_DEFAULT = '=';
-    private final static String CLASSNAME_KEY_DEFAULT = "_CLASSNAME_";
-    private final static String DEFAULT_VALUE_DEFAULT = "";
+    /**
+     * The default list separator.
+     */
+    private static final char LIST_SEPARATOR_DEFAULT = ',';
 
+    /**
+     * The default key/value separator.
+     */
+    private static final char KEY_VALUE_SEPERATOR_DEFAULT = '=';
+
+    /**
+     * The default classname key.
+     */
+    private static final String CLASSNAME_KEY_DEFAULT = "_CLASSNAME_";
+
+    /**
+     * The default value.
+     */
+    private static final String DEFAULT_VALUE_DEFAULT = "";
+
+    /**
+     * The list separator in use.
+     */
     private char listSeparator = LIST_SEPARATOR_DEFAULT;
+
+    /**
+     * The key/value separator in use.
+     */
     private char keyValueSeparator = KEY_VALUE_SEPERATOR_DEFAULT;
+
+    /**
+     * The default value in use.
+     */
     private String defaultValue = DEFAULT_VALUE_DEFAULT;
+
+    /**
+     * The current value.
+     */
     private String currentValue = DEFAULT_VALUE_DEFAULT;
+
+    /**
+     * The classname key in use.
+     */
     private String classnameKey = CLASSNAME_KEY_DEFAULT;
 
+    /**
+     * The type of field for this field.
+     */
     private FieldType fieldType;
+
+    /**
+     * Thie field name for this field.
+     */
     private String fieldName;
+
+    /**
+     * True if this is a list.
+     */
     private boolean list;
+
+    /**
+     * The value bean property.
+     */
     private String valueBeanProperty;
+
+    /**
+     * True of this is a classname.
+     */
     private boolean isClassname;
 
     /**
      * Create a new field, specifying the type and the name.
      * List defaults true if fieldType is
      * MAP, otherwise it defaults to false.
-     * @param fieldType the type of field to create
-     * @param name the name of the field.
+     * @param fieldTypeVal the type of field to create
+     * @param nameVal the name of the field.
      */
-    public ConditionField(final FieldType fieldType, String name) {
-        this.fieldType = fieldType;
-        this.fieldName = name;
-        list = (fieldType == FieldType.MAP);
+    public ConditionField(final FieldType fieldTypeVal, final String nameVal) {
+        this.fieldType = fieldTypeVal;
+        this.fieldName = nameVal;
+        this.list = (this.fieldType == FieldType.MAP);
     }
 
     /**
@@ -72,12 +131,12 @@ public class ConditionField {
     /**
      * Set if this field contains list values, separated
      * by listSeparator.
-     * @param list true of this field contains list values
+     * @param listVal true of this field contains list values
      * @return this ConditionField object, so configuration can be
      * chained.
      */
-    public ConditionField setList(final boolean list) {
-        this.list = list;
+    public ConditionField setList(final boolean listVal) {
+        this.list = listVal;
         return this;
     }
 
@@ -99,13 +158,13 @@ public class ConditionField {
      * will have two entries a being equal to 123, b being equal to 456.
      * or if "123,456" was retrieved as an int array, itwould have two
      * values 123 and 456. This is NOT a regex.
-     * @param listSeparator the char which is used to separate
+     * @param listSeparatorVal the char which is used to separate
      * list values in a field
      * @return this ConditionField object, so configuration can be
      * chained.
      */
-    public ConditionField setListSeparator(final char listSeparator) {
-        this.listSeparator = listSeparator;
+    public ConditionField setListSeparator(final char listSeparatorVal) {
+        this.listSeparator = listSeparatorVal;
         return this;
     }
 
@@ -129,13 +188,13 @@ public class ConditionField {
      * "_CLASSNAME_=edu.cornell.med.icb.SampleBean,oneInt=543"
      * and the object edu.cornell.med.icb.SampleBean will be
      * created and setOneInt(543) will be called on that object.
-     * @param classnameKey the key to use to specify the class
+     * @param classnameKeyVal the key to use to specify the class
      * to b created.
      * @return this ConditionField object, so configuration can be
      * chained.
      */
-    public ConditionField setClassnameKey(final String classnameKey) {
-        this.classnameKey = classnameKey;
+    public ConditionField setClassnameKey(final String classnameKeyVal) {
+        this.classnameKey = classnameKeyVal;
         return this;
     }
 
@@ -153,13 +212,13 @@ public class ConditionField {
      * MAP. The default is '='. Such as with a
      * MAP "a=123,b=456" will have two entries a being
      * equal to 123, b being equal to 456. This is NOT a regex.
-     * @param keyValueSeparator the char value that will separate
+     * @param keyValueSeparatorVal the char value that will separate
      * the key from the value.
      * @return this ConditionField object, so configuration can be
      * chained.
      */
-    public ConditionField setKeyValueSeparator(final char keyValueSeparator) {
-        this.keyValueSeparator = keyValueSeparator;
+    public ConditionField setKeyValueSeparator(final char keyValueSeparatorVal) {
+        this.keyValueSeparator = keyValueSeparatorVal;
         return this;
     }
 
@@ -184,12 +243,12 @@ public class ConditionField {
      * Set the default value for this field, if no value is provided
      * (or if the field is omitted). An empty string in the source data
      * will be returned as default value.
-     * @param defaultValue the default value to use for this field
+     * @param defaultValueVal the default value to use for this field
      * @return this ConditionField object, so configuration can be
      * chained.
      */
-    public ConditionField setDefaultValue(final String defaultValue) {
-        this.defaultValue = defaultValue;
+    public ConditionField setDefaultValue(final String defaultValueVal) {
+        this.defaultValue = defaultValueVal;
         return this;
     }
 
@@ -205,13 +264,13 @@ public class ConditionField {
      * Set the bean property that will automatically be set
      * if (a) FieldType is VALUE and (b) parsing for the field
      * is done via parseFieldBean.
-     * @param valueBeanProperty the property name that will be
+     * @param valueBeanPropertyVal the property name that will be
      * set for this bean property
      * @return this ConditionField object, so configuration can be
      * chained.
      */
-    public ConditionField setValueBeanProperty(final String valueBeanProperty) {
-        this.valueBeanProperty = valueBeanProperty;
+    public ConditionField setValueBeanProperty(final String valueBeanPropertyVal) {
+        this.valueBeanProperty = valueBeanPropertyVal;
         return this;
     }
 
@@ -261,7 +320,7 @@ public class ConditionField {
      * @return this ConditionField object, so configuration can be
      * chained.
      */
-    public ConditionField setClassname(boolean classname) {
+    public ConditionField setClassname(final boolean classname) {
         isClassname = classname;
         return this;
     }

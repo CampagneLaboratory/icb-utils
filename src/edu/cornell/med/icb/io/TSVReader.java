@@ -36,67 +36,139 @@ import edu.cornell.med.icb.util.ICBStringUtils;
  *         Time: 2:03:33 PM
  */
 public final class TSVReader implements Closeable {
+
+    /**
+     * The buffered reading being used.
+     */
     private final BufferedReader bufferedReader;
+
+    /**
+     * The current line that has been read.
+     */
     private String currentLine;
 
-    private final static char ESCAPE_CHAR_DEFAULT = '\\';
+    /**
+     * The default escape character.
+     */
+    private static final char ESCAPE_CHAR_DEFAULT = '\\';
 
+    /**
+     * The current line parsed into tokens.
+     */
     private String[] currentTokens;
+
+    /**
+     * The current token number.
+     */
     private int currentTokenIndex;
+
+    /**
+     * The line delimiter character (for tokenizing the line).
+     */
     private char delimiter;
+
+    /**
+     * The comment prefix.
+     */
     private String commentPrefix;
+
+    /**
+     * The escape character.
+     */
     private Character escapeChar = ESCAPE_CHAR_DEFAULT;
+
+    /**
+     * If true, the results will be unescaped.
+     */
     private boolean unescapeResults = true;
 
+    /**
+     * Create a new TSVReader based on the supplied reader
+     * with a tab delimiter.
+     * @param reader the reader to obtain the data from
+     */
     public TSVReader(final Reader reader) {
         this(reader, '\t');
     }
 
-    public TSVReader(final Reader reader, final char delimiter) {
+    /**
+     * Create a new TSVReader based on the supplied reader
+     * with the supplied delimiter.
+     * @param reader the reader to obtain the data from
+     * @param delimiterVal the delimiter used to tokenize the line of text
+     */
+    public TSVReader(final Reader reader, final char delimiterVal) {
         super();
         if (reader instanceof BufferedReader) {
             this.bufferedReader = (BufferedReader) reader;
         } else {
             this.bufferedReader = new BufferedReader(reader);
         }
-        this.delimiter = delimiter;
+        this.delimiter = delimiterVal;
         this.commentPrefix = "#";
     }
 
-    public TSVReader setCommentPrefix(final String commentPrefix) {
-        if (StringUtils.isBlank(commentPrefix)) {
+    /**
+     * Set the comment prefix that will be used to ignore
+     * commented lines.
+     * @param commentPrefixVal the new comment prefix.
+     * @return this TSVReader for command chaining
+     */
+    public TSVReader setCommentPrefix(final String commentPrefixVal) {
+        if (StringUtils.isBlank(commentPrefixVal)) {
             this.commentPrefix = null;
         } else {
-            this.commentPrefix = commentPrefix.trim();
+            this.commentPrefix = commentPrefixVal.trim();
         }
         return this;
     }
 
+    /**
+     * Get the comment prefix being used.
+     * @return the comment prefix being used.
+     */
     public String getCommentPrefix() {
         return this.commentPrefix;
     }
 
-    public TSVReader setEscapeChar(final Character escapeChar) {
-        this.escapeChar = escapeChar;
+    /**
+     * Set the escape character being used.
+     * @param escapeCharVal the escape character being used.
+     * @return this TSVReader for command chaining
+     */
+    public TSVReader setEscapeChar(final Character escapeCharVal) {
+        this.escapeChar = escapeCharVal;
         return this;
     }
 
+    /**
+     * Get the escape character being used.
+     * @return the escape character being used.
+     */
     public Character getEscapeChar() {
         return this.escapeChar;
     }
 
-    public TSVReader setUnescapeResults(final boolean unescapeResults) {
-        this.unescapeResults = unescapeResults;
+    /**
+     * Set the if the results should be unescaped.
+     * @param unescapeResultsVal if results should be unescaped.
+     * @return this TSVReader for command chaining
+     */
+    public TSVReader setUnescapeResults(final boolean unescapeResultsVal) {
+        this.unescapeResults = unescapeResultsVal;
         return this;
     }
 
+    /**
+     * Get the if the results should be unescaped.
+     * @return if results should be unescaped.
+     */
     public boolean getUnescapeResults() {
         return this.unescapeResults;
     }
 
     /**
      * Check if the file has more lines.
-     *
      * @return true of there is another line of text
      * @throws java.io.IOException problem reading from file
      */
@@ -113,11 +185,18 @@ public final class TSVReader implements Closeable {
         return true;
     }
 
+    /**
+     * Get if the current line is a comment line.
+     * @return true of the current line is a comment line
+     */
     public boolean isCommentLine() {
-        return !StringUtils.isBlank(this.commentPrefix) &&
-                currentLine.startsWith(this.commentPrefix);
+        return !StringUtils.isBlank(this.commentPrefix)
+                && currentLine.startsWith(this.commentPrefix);
     }
 
+    /**
+     * Skip the current line.
+     */
     public void skip() {
         currentTokenIndex = 0;
         currentLine = null;
@@ -138,36 +217,67 @@ public final class TSVReader implements Closeable {
         currentLine = null;
     }
 
+    /**
+     * Get the current field as an int.
+     * Advances to the next field.
+     * @return the current field as an int
+     */
     public int getInt() {
         ensureNextField();
         return Integer.parseInt(currentTokens[currentTokenIndex++]);
     }
 
+    /**
+     * Get the current field as a float.
+     * Advances to the next field.
+     * @return the current field as a float
+     */
     public float getFloat() {
         ensureNextField();
         return Float.parseFloat(currentTokens[currentTokenIndex++]);
     }
 
+    /**
+     * Get the current field as a double.
+     * Advances to the next field.
+     * @return the current field as a double
+     */
     public double getDouble() {
         ensureNextField();
         return Double.parseDouble(currentTokens[currentTokenIndex++]);
     }
 
+    /**
+     * Get the current field as a String.
+     * Advances to the next field.
+     * @return the current field as a String
+     */
     public String getString() {
         ensureNextField();
         return currentTokens[currentTokenIndex++];
     }
 
+    /**
+     * Ensures we have a next field.
+     */
     private void ensureNextField() {
         if (currentTokens == null || currentTokenIndex >= currentTokens.length) {
             throw new NoSuchElementException();
         }
     }
 
+    /**
+     * Get the number of fields on the current line.
+     * @return the number of fields on the current line
+     */
     public int numTokens() {
         return currentTokens.length;
     }
 
+    /**
+     * Return true if the current line is empty.
+     * @return true if the current line is empty
+     */
     public boolean isEmptyLine() {
         return currentLine.trim().length() == 0;
     }

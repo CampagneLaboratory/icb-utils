@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @author Kevin Dorff (Oct 25, 2007)
  */
-public class ICBStringUtils {
+public final class ICBStringUtils {
 
     /** Html character replacement for ampersand (&). */
     private static final String HTML_AMP = "&amp;";
@@ -106,6 +106,11 @@ public class ICBStringUtils {
         return outval;
     }
 
+    /**
+     * Fix a URL, encode special characters to hex values.
+     * @param toEncode url to encode
+     * @return the encoded url
+     */
     public static String urlFix(final String toEncode) {
         String outval = StringUtils.replace(toEncode, "%", "%25"); // Do this one FIRST
 
@@ -171,8 +176,8 @@ public class ICBStringUtils {
             return origFilename + mod;
         }
         return origFilename.substring(
-                0, origFilename.length() - foundExt.length()) +
-                mod + foundExt;
+                0, origFilename.length() - foundExt.length())
+                + mod + foundExt;
     }
 
     /**
@@ -230,8 +235,8 @@ public class ICBStringUtils {
         for (int i = 0; i < cleanHighlightWords.length; i++) {
             cleanHighlightWords[i] = cleanHighlightWords[i].toLowerCase();
         }
-        if (StringUtils.isBlank(highlightStart) &&
-                StringUtils.isBlank(highlightEnd)) {
+        if (StringUtils.isBlank(highlightStart)
+                && StringUtils.isBlank(highlightEnd)) {
             // No markup tags, nothing to do.
             return toHighlight;
         }
@@ -256,7 +261,7 @@ public class ICBStringUtils {
 
         int pos;
         int size;
-        while(true) {
+        while (true) {
             if (input.length() == 0) {
                 // No more text to search.
                 break;
@@ -329,16 +334,22 @@ public class ICBStringUtils {
      * @param t number of milliseconds
      * @return nicely formatted value
      */
-    public static String millis2hms( final long t ) {
+    public static String millis2hms(final long t) {
         if (t < 0) {
             return "INVALID MILLISECONDS: " + t;
         }
-        if ( t < 1000 ) return t + "ms";
-        final long s = ( t / 1000 ) % 60;
-        final long m = ( ( t / 1000 ) / 60 ) % 60;
-        final long h = t / ( 3600 * 1000 );
-        if ( h == 0 && m == 0 ) return s + "s";
-        if ( h == 0 ) return m + "m " + s + "s";
+        if (t < 1000) {
+            return t + "ms";
+        }
+        final long s = (t / 1000) % 60;
+        final long m = ((t / 1000) / 60) % 60;
+        final long h = t / (3600 * 1000);
+        if (h == 0 && m == 0) {
+            return s + "s";
+        }
+        if (h == 0) {
+            return m + "m " + s + "s";
+        }
         return h + "h " + m + "m " + s + "s";
     }
 
@@ -356,7 +367,9 @@ public class ICBStringUtils {
      * can be escaped and the string will not be split at that position
      * @return array of strings, split
      */
-    public static String[] split(final String inval, final char splitChar, final Character escapeChar) {
+    public static String[] split(
+            final String inval, final char splitChar,
+            final Character escapeChar) {
         if (inval == null) {
             return null;
         }
@@ -454,8 +467,10 @@ public class ICBStringUtils {
         return curSplit.toString();
     }
 
-    // Change this to line break via html
-    private static String NO_BREAK_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789[]();:";
+    /**
+     * Characters to not breakup, preferably.
+     */
+    private static final String NO_BREAK_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789[]();:";
 
     /**
      * This will remove redundent whitespace then add sLineBreakString as
@@ -472,10 +487,11 @@ public class ICBStringUtils {
      * @param breakStr character to cause a break
      * @return the string, wrapped as necessary
      */
-    public static String makeStringWrappable(String stringToBreak,
-            int maxLength, String breakStr) {
+    public static String makeStringWrappable(
+            final String stringToBreak, final int maxLength,
+            final String breakStr) {
         String remain;
-        String returnVal = "";
+        StringBuffer returnVal = new StringBuffer();
 
         // Check if there is no need to break whatsoever
         // and just return
@@ -500,11 +516,11 @@ public class ICBStringUtils {
                 // We just have to split.
                 pos = maxLength;
 
-                returnVal += remain.substring(0, pos) + breakStr;
+                returnVal.append(remain.substring(0, pos)).append(breakStr);
                 remain = remain.substring(pos, remain.length());
                 if (remain.length() <= maxLength) {
                     // We're done. The remaining text will fit on one line
-                    returnVal += remain;
+                    returnVal.append(remain);
                     break;
                 }
                 // There is more to split.
@@ -515,11 +531,11 @@ public class ICBStringUtils {
             String curChar = remain.substring(pos, pos + 1).toLowerCase();
             if (NO_BREAK_CHARS.indexOf(curChar) == -1) {
                 // We found a non alpha-numeric char. Split after it.
-                returnVal += remain.substring(0, pos + 1) + breakStr;
+                returnVal.append(remain.substring(0, pos + 1)).append(breakStr);
                 remain = remain.substring(pos + 1, remain.length());
                 if (remain.length() <= maxLength) {
                     // We're done. The remaining text will fit on one line
-                    returnVal += remain;
+                    returnVal.append(remain);
                     break;
                 }
                 // There is more to split.
@@ -532,7 +548,7 @@ public class ICBStringUtils {
         }
 
         // Return the more wrappable string.
-        return returnVal;
+        return returnVal.toString();
     }
 
 }

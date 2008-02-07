@@ -24,19 +24,35 @@ package edu.cornell.med.icb.io;
  */
 public class ConditionsParsingException extends Exception {
 
+    /**
+     * No args exception.
+     */
     public ConditionsParsingException() {
-	    super();
+        super();
     }
 
+    /**
+     * Message only exception.
+     * @param message the exception message
+     */
     public ConditionsParsingException(final String message) {
-	    super(message);
+        super(message);
     }
 
+    /**
+     * Message and throwable exception.
+     * @param message the exception message
+     * @param cause the root cause of the exception
+     */
     public ConditionsParsingException(final String message, final Throwable cause) {
-	    super(message, cause);
+        super(message, cause);
     }
 
+    /**
+     * Throwable exception (no message).
+     * @param cause the root cause of the exception
+     */
     public ConditionsParsingException(final Throwable cause) {
-	    super(cause);
+        super(cause);
     }
 }

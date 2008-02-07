@@ -28,7 +28,7 @@ import java.util.zip.Adler32;
  * the correct checksum.
  * @author Kevin Dorff
  */
-public class SimpleChecksum {
+public final class SimpleChecksum {
 
     /**
      * Private constructor for utility class.
@@ -39,7 +39,7 @@ public class SimpleChecksum {
     /**
      * The characters to use in the checksum.
      */
-    private final static char[] CHECKSUM_CHARS = {
+    private static final char[] CHECKSUM_CHARS = {
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I',
             'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
             'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
@@ -63,8 +63,8 @@ public class SimpleChecksum {
         long[] result = splitLong(adler.getValue());
 
         return String.format("%s%c%c", valToChecksum,
-                CHECKSUM_CHARS[(int)result[0]],
-                CHECKSUM_CHARS[(int)result[1]]);
+                CHECKSUM_CHARS[(int) result[0]],
+                CHECKSUM_CHARS[(int) result[1]]);
     }
 
     /**
@@ -100,7 +100,7 @@ public class SimpleChecksum {
         // second character.
         String checksumString = Long.toHexString(inval);
         String[] maskStrings = makeHexMaskStrings(checksumString);
-        
+
         long[] maskLongs = new long[2];
         maskLongs[0] = Long.parseLong(maskStrings[0], 16);
         maskLongs[1] = Long.parseLong(maskStrings[1], 16);
@@ -119,7 +119,6 @@ public class SimpleChecksum {
      * "fff000" and "000fff".
      * @param hexString hex string to make two masks for
      * @return two hex mask strings in a String[]
-     * @throws IllegalArgumentException invalid incoming hex string
      */
     static String[] makeHexMaskStrings(
             final String hexString) {

@@ -24,8 +24,11 @@ import org.apache.commons.lang.ArrayUtils;
 
 import java.io.Reader;
 import java.io.IOException;
-import java.util.*;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import edu.cornell.med.icb.util.ICBStringUtils;
 
@@ -72,24 +75,64 @@ import edu.cornell.med.icb.util.ICBStringUtils;
  *   "_CLASSNAME_") and targetObject isn't specified (null),
  *   the object will be created and the bean properties
  *   set.
+ * </ul>
  * @author Kevin Dorff (Nov 21, 2007)
  */
 public class ConditionsParser {
 
+    /**
+     * The condition fields.
+     */
     private List<ConditionField> fields;
 
-    private final static char FIELD_SEPARATOR_DEFAULT = '\t';
-    private final static String COMMENT_PREFIX_DEFAULT = "#";
-    private final static char ESCAPE_CHAR_DEFAULT = '\\';
+    /**
+     * Default field separator (tab).
+     */
+    private static final char FIELD_SEPARATOR_DEFAULT = '\t';
 
+    /**
+     * Default comment prefix.
+     */
+    private static final String COMMENT_PREFIX_DEFAULT = "#";
+
+    /**
+     * Default escape character.
+     */
+    private static final char ESCAPE_CHAR_DEFAULT = '\\';
+
+    /**
+     * The field separator that is being used.
+     */
     private char fieldSeparator = FIELD_SEPARATOR_DEFAULT;
+
+    /**
+     * The comment prefix that is being used.
+     */
     private String commentPrefix = COMMENT_PREFIX_DEFAULT;
+
+    /**
+     * The escape character that is being used.
+     */
     private Character escapeChar = ESCAPE_CHAR_DEFAULT;
 
+    /**
+     * The TSV reader that is being used.
+     */
     private TSVReader tsvReader;
+
+    /**
+     * True if hasNext.
+     */
     private boolean hasNext;
+
+    /**
+     * The current line number.
+     */
     private int lineNumber = 0;
 
+    /**
+     * A map of the field name to the field number.
+     */
     private Map<String, Integer> nameToFieldNumberMap;
 
     /**
@@ -104,13 +147,13 @@ public class ConditionsParser {
     /**
      * Create a new ConditionsParser with a List[ConditionField]
      * of fields.
-     * @param fields the ConditionFields to use in the parsing.
+     * @param fieldsVal the ConditionFields to use in the parsing.
      */
-    public ConditionsParser(final List<ConditionField> fields) {
-        this.fields = new ArrayList<ConditionField>(fields.size());
-        this.fields.addAll(fields);
-        tsvReader = null;
-        hasNext = false;
+    public ConditionsParser(final List<ConditionField> fieldsVal) {
+        this.fields = new ArrayList<ConditionField>(fieldsVal.size());
+        this.fields.addAll(fieldsVal);
+        this.tsvReader = null;
+        this.hasNext = false;
     }
 
     /**
@@ -141,13 +184,13 @@ public class ConditionsParser {
      * will define two fields, the first field has a value of
      * "123" and the second field has a value of "456".
      * This is NOT a regex.
-     * @param fieldSeparator the char which is used to separate
+     * @param fieldSeparatorVal the char which is used to separate
      * multiple fields in the input
      * @return this ConditionsParser object, so configuration can be
      * chained.
      */
-    public ConditionsParser setFieldSeparator(final char fieldSeparator) {
-        this.fieldSeparator = fieldSeparator;
+    public ConditionsParser setFieldSeparator(final char fieldSeparatorVal) {
+        this.fieldSeparator = fieldSeparatorVal;
         return this;
     }
 
@@ -190,13 +233,13 @@ public class ConditionsParser {
      * String is the VERY FIRST THING on the line,
      * no extra whitespace, etc. will be tolerated.
      * This is NOT a regex.
-     * @param commentPrefix the String which specify a line
+     * @param commentPrefixVal the String which specify a line
      * is a comment if the line starts with this String
      * @return this ConditionsParser object, so configuration can be
      * chained.
      */
-    public ConditionsParser setCommentPrefix(final String commentPrefix) {
-        this.commentPrefix = commentPrefix;
+    public ConditionsParser setCommentPrefix(final String commentPrefixVal) {
+        this.commentPrefix = commentPrefixVal;
         return this;
     }
 
@@ -211,13 +254,13 @@ public class ConditionsParser {
     /**
      * Set the escape character that will be used when
      * parsing.
-     * @param escapeChar which escape char to use, or null
+     * @param escapeCharVal which escape char to use, or null
      * to not use any escape char
      * @return this ConditionsParser object, so configuration can be
      * chained.
      */
-    public ConditionsParser setEscapeChar(final Character escapeChar) {
-        this.escapeChar = escapeChar;
+    public ConditionsParser setEscapeChar(final Character escapeCharVal) {
+        this.escapeChar = escapeCharVal;
         return this;
     }
 
@@ -267,6 +310,7 @@ public class ConditionsParser {
      * and all values that are set on the bean will be
      * placed in this map. It is fine to pass null for this
      * paramter.
+     * @param <T> the generic type in question
      * @throws IOException Error reading the source file
      * @throws ConditionsParsingException no data to parse,
      * beginParse or hasNext probably wasn't called (or called
@@ -282,18 +326,18 @@ public class ConditionsParser {
             throws IOException, ConditionsParsingException {
         List<T> resultObjs = new ArrayList<T>();
         beginParse(sourceReader);
-        while(hasNext()) {
+        while (hasNext()) {
             T object;
             try {
                 object = templateClass.newInstance();
             } catch (IllegalAccessException e) {
-                throw new ConditionsParsingException("Could not create new object " +
-                    "for classname " + templateClass.getName() +
-                        " - IllegalAccessException for line " + lineNumber, e);
+                throw new ConditionsParsingException("Could not create new object "
+                    + "for classname " + templateClass.getName()
+                    + " - IllegalAccessException for line " + lineNumber, e);
             } catch (InstantiationException e) {
-                throw new ConditionsParsingException("Could not create new object " +
-                    "for classname " + templateClass.getName() +
-                        " - InstantiationException for line " + lineNumber, e);
+                throw new ConditionsParsingException("Could not create new object "
+                    + "for classname " + templateClass.getName()
+                    + " - InstantiationException for line " + lineNumber, e);
             }
             resultObjs.add(object);
             parseAllFieldsBean(object, valuesMap);
@@ -305,6 +349,7 @@ public class ConditionsParser {
      * This does complete parsing of the entire file into objects.
      * All fields should have ConditionField.valueBeanProperty
      * set or else they will get ignored.
+     * @param <T> the generic type in question
      * @param sourceReader the reader for the condition data
      * to parse
      * @param templateObject the template Object. Each item in
@@ -339,26 +384,26 @@ public class ConditionsParser {
         }
         List<T> resultObjs = new ArrayList<T>();
         beginParse(sourceReader);
-        while(hasNext()) {
+        while (hasNext()) {
             T object;
             try {
                 object = (T) BeanUtils.cloneBean(templateObject);
             } catch (IllegalAccessException e) {
-                throw new ConditionsParsingException("Could not create new object " +
-                        "for classname " + templateObject.getClass().getName() +
-                        " - IllegalAccessException for line " + lineNumber, e);
+                throw new ConditionsParsingException("Could not create new object "
+                        + "for classname " + templateObject.getClass().getName()
+                        + " - IllegalAccessException for line " + lineNumber, e);
             } catch (InvocationTargetException e) {
-                throw new ConditionsParsingException("Could not create new object " +
-                    "for classname " + templateObject.getClass().getName() +
-                    " - InvocationTargetException for line " + lineNumber, e);
+                throw new ConditionsParsingException("Could not create new object "
+                    + "for classname " + templateObject.getClass().getName()
+                    + " - InvocationTargetException for line " + lineNumber, e);
             } catch (NoSuchMethodException e) {
-                throw new ConditionsParsingException("Could not create new object " +
-                    "for classname " + templateObject.getClass().getName() +
-                    " - NoSuchMethodException for line " + lineNumber, e);
+                throw new ConditionsParsingException("Could not create new object "
+                    + "for classname " + templateObject.getClass().getName()
+                    + " - NoSuchMethodException for line " + lineNumber, e);
             } catch (InstantiationException e) {
-                throw new ConditionsParsingException("Could not create new object " +
-                    "for classname " + templateObject.getClass().getName() +
-                    " - InstantiationException for line " + lineNumber, e);
+                throw new ConditionsParsingException("Could not create new object "
+                    + "for classname " + templateObject.getClass().getName()
+                    + " - InstantiationException for line " + lineNumber, e);
             }
             resultObjs.add(object);
             parseAllFieldsBean(object, valuesMap);
@@ -403,8 +448,8 @@ public class ConditionsParser {
                         tsvReader = null;
                         hasNext = false;
                         throw new ConditionsParsingException(
-                                "Source file has too many fields on line " +
-                                        lineNumber);
+                                "Source file has too many fields on line "
+                                + lineNumber);
                     }
                     for (int i = 0; i < numFields; i++) {
                         fields.get(i).setCurrentValue(tsvReader.getString());
@@ -420,12 +465,16 @@ public class ConditionsParser {
         return hasNext;
     }
 
+    /**
+     * Get the current line number.
+     * @return the current line number
+     */
     public int getLineNumber() {
         return lineNumber;
     }
 
     /**
-     * Return the field number for the given field name
+     * Return the field number for the given field name.
      * @param fieldName the field name
      * @return the field number for that field name
      * @throws ConditionsParsingException the field name
@@ -436,8 +485,8 @@ public class ConditionsParser {
             throws ConditionsParsingException {
         Integer fieldNumber = nameToFieldNumberMap.get(fieldName);
         if (fieldNumber == null) {
-            throw new ConditionsParsingException("Field name " +
-                    fieldName + " does not exist in specified fields");
+            throw new ConditionsParsingException("Field name "
+                    + fieldName + " does not exist in specified fields");
         }
         return fieldNumber;
     }
@@ -455,8 +504,10 @@ public class ConditionsParser {
      */
     public String parseFieldValueString(final String fieldName)
             throws ConditionsParsingException {
-        if (!hasNext) throw new ConditionsParsingException(
-                "No line to parse. Did you call beginParse(...) and hasNext()?");
+        if (!hasNext) {
+            throw new ConditionsParsingException(
+                    "No line to parse. Did you call beginParse(...) and hasNext()?");
+        }
         int fieldNumber = getFieldNumber(fieldName);
         ConditionField field = fields.get(fieldNumber);
         String wholeValue = field.getCurrentValue();
@@ -493,8 +544,10 @@ public class ConditionsParser {
      */
     public String[] parseFieldValueStringArray(final String fieldName)
             throws ConditionsParsingException {
-        if (!hasNext) throw new ConditionsParsingException(
-                "No line to parse. Did you call beginParse(...) and hasNext()?");
+        if (!hasNext) {
+            throw new ConditionsParsingException(
+                    "No line to parse. Did you call beginParse(...) and hasNext()?");
+        }
         int fieldNumber = getFieldNumber(fieldName);
         ConditionField field = fields.get(fieldNumber);
         String wholeValue = field.getCurrentValue();
@@ -665,8 +718,8 @@ public class ConditionsParser {
         char valueSeparator = field.getKeyValueSeparator();
         Map<String, String> outValues = new HashMap<String, String>();
         for (String fieldValue : fieldValues) {
-            int pos;
-            if ((pos = fieldValue.indexOf(valueSeparator)) == -1) {
+            int pos = fieldValue.indexOf(valueSeparator);
+            if (pos == -1) {
                 // No "=". Just place an empty string
                 outValues.put(fieldValue,  "");
                 continue;
@@ -767,17 +820,17 @@ public class ConditionsParser {
         String classname = fieldValues.get(field.getClassnameKey());
 
         String prependObjectBean = "";
-        if (StringUtils.isNotBlank(field.getValueBeanProperty()) &&
-                StringUtils.isNotBlank(classname)) {
+        if (StringUtils.isNotBlank(field.getValueBeanProperty())
+                && StringUtils.isNotBlank(classname)) {
             prependObjectBean = field.getValueBeanProperty();
         }
 
         Object object = targetObject;
         if ((object == null) || (prependObjectBean.length() > 0)) {
             if (classname == null) {
-                throw new ConditionsParsingException("targetObject is null and " +
-                    field.getClassnameKey() +
-                        " is not specified for line " + lineNumber);
+                throw new ConditionsParsingException("targetObject is null and "
+                    + field.getClassnameKey()
+                    + " is not specified for line " + lineNumber);
             }
             try {
                 Object newObject = Class.forName(classname).newInstance();
@@ -788,21 +841,21 @@ public class ConditionsParser {
                     object = newObject;
                 }
             } catch (InvocationTargetException e) {
-                throw new ConditionsParsingException("Could not create new object " +
-                    "for classname " + classname +
-                        " - InvocationTargetException for line " + lineNumber, e);
+                throw new ConditionsParsingException("Could not create new object "
+                    + "for classname " + classname
+                    + " - InvocationTargetException for line " + lineNumber, e);
             } catch (InstantiationException e) {
-                throw new ConditionsParsingException("Could not create new object " +
-                    "for classname " + classname +
-                        " - InstantiationException for line " + lineNumber, e);
+                throw new ConditionsParsingException("Could not create new object "
+                    + "for classname " + classname
+                    + " - InstantiationException for line " + lineNumber, e);
             } catch (IllegalAccessException e) {
-                throw new ConditionsParsingException("Could not create new object " +
-                    "for classname " + classname +
-                        " - IllegalAccessException for line " + lineNumber, e);
+                throw new ConditionsParsingException("Could not create new object "
+                    + "for classname " + classname
+                    + " - IllegalAccessException for line " + lineNumber, e);
             } catch (ClassNotFoundException e) {
-                throw new ConditionsParsingException("Could not create new object " +
-                    "for classname " + classname +
-                        " - ClassNotFoundException for line " + lineNumber, e);
+                throw new ConditionsParsingException("Could not create new object "
+                    + "for classname " + classname
+                    + " - ClassNotFoundException for line " + lineNumber, e);
             }
         }
 
@@ -818,18 +871,18 @@ public class ConditionsParser {
                 }
             } catch (IllegalAccessException e) {
                 throw new ConditionsParsingException(
-                    "Could not create new object " +
-                    "for classname " + classname +
-                    " - IllegalAccessException for line " + lineNumber +
-                    " key = " + prependObjectBean + key +
-                    " / value = " + value, e);
+                    "Could not create new object "
+                    + "for classname " + classname
+                    + " - IllegalAccessException for line " + lineNumber
+                    + " key = " + prependObjectBean + key
+                    + " / value = " + value, e);
             } catch (InvocationTargetException e) {
                 throw new ConditionsParsingException(
-                    "Could not create new object " +
-                    "for classname " + classname +
-                    " - InvocationTargetException for line " + lineNumber +
-                    " key = " + prependObjectBean + key +
-                    " / value = " + value, e);
+                    "Could not create new object "
+                    + "for classname " + classname
+                    + " - InvocationTargetException for line " + lineNumber
+                    + " key = " + prependObjectBean + key
+                    + " / value = " + value, e);
             }
         }
         return object;
@@ -876,7 +929,7 @@ public class ConditionsParser {
         try {
             if (isClassname) {
                 Object newObject =
-                        Class.forName((String)fieldValue).newInstance();
+                        Class.forName((String) fieldValue).newInstance();
                 BeanUtils.setProperty(targetObject,
                         field.getValueBeanProperty(), newObject);
             } else {
@@ -888,25 +941,25 @@ public class ConditionsParser {
                 }
             }
         } catch (InvocationTargetException e) {
-            throw new ConditionsParsingException("BeanUtils problem " +
-                " - InvocationTargetException for line " + lineNumber +
-                " key = " + field.getValueBeanProperty() +
-                    " / value = " + fieldValue, e);
+            throw new ConditionsParsingException("BeanUtils problem "
+                + " - InvocationTargetException for line " + lineNumber
+                + " key = " + field.getValueBeanProperty()
+                + " / value = " + fieldValue, e);
         } catch (InstantiationException e) {
-            throw new ConditionsParsingException("BeanUtils problem " +
-                " - InstantiationException for line " + lineNumber +
-                " key = " + field.getValueBeanProperty() +
-                    " / value = " + fieldValue, e);
+            throw new ConditionsParsingException("BeanUtils problem "
+                + " - InstantiationException for line " + lineNumber
+                + " key = " + field.getValueBeanProperty()
+                + " / value = " + fieldValue, e);
         } catch (IllegalAccessException e) {
-            throw new ConditionsParsingException("BeanUtils problem " +
-                " - IllegalAccessException for line " + lineNumber +
-                " key = " + field.getValueBeanProperty() +
-                    " / value = " + fieldValue, e);
+            throw new ConditionsParsingException("BeanUtils problem "
+                + " - IllegalAccessException for line " + lineNumber
+                + " key = " + field.getValueBeanProperty()
+                + " / value = " + fieldValue, e);
         } catch (ClassNotFoundException e) {
-            throw new ConditionsParsingException("Could not create new object " +
-                " - ClassNotFoundException for line " + lineNumber +
-                " key = " + field.getValueBeanProperty() +
-                    " / value = " + fieldValue, e);
+            throw new ConditionsParsingException("Could not create new object "
+                + " - ClassNotFoundException for line " + lineNumber
+                + " key = " + field.getValueBeanProperty()
+                + " / value = " + fieldValue, e);
         }
     }
 
