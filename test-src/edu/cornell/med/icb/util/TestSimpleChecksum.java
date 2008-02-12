@@ -39,7 +39,7 @@ public class TestSimpleChecksum {
     public final void testSimpleChecksumNormal() {
         String toTry = "fish";
         String checked = SimpleChecksum.simpleChecksum(toTry);
-        assertEquals("fishYL", checked);
+        assertEquals("fishyl", checked);
         assertTrue(SimpleChecksum.validate(checked));
     }
 
@@ -51,7 +51,7 @@ public class TestSimpleChecksum {
     public final void testSimpleChecksumShort() {
         String toTry = "a";
         String checked = SimpleChecksum.simpleChecksum(toTry);
-        assertEquals("aIU", checked);
+        assertEquals("aiu", checked);
         assertTrue(SimpleChecksum.validate(checked));
     }
 
@@ -63,7 +63,7 @@ public class TestSimpleChecksum {
     public final void testSimpleChecksumSpace() {
         String toTry = " ";
         String checked = SimpleChecksum.simpleChecksum(toTry);
-        assertEquals(" IH", checked);
+        assertEquals(" ih", checked);
         assertTrue(SimpleChecksum.validate(checked));
     }
 
@@ -99,7 +99,7 @@ public class TestSimpleChecksum {
     public final void testSimpleChecksumLonger() {
         String toTry = "this is a somewhat longer string";
         String checked = SimpleChecksum.simpleChecksum(toTry);
-        assertEquals("this is a somewhat longer stringOG", checked);
+        assertEquals("this is a somewhat longer stringog", checked);
         assertTrue(SimpleChecksum.validate(checked));
     }
 
