@@ -36,7 +36,7 @@ public class SampleBean {
         return oneInt;
     }
 
-    public void setOneInt(int oneInt) {
+    public void setOneInt(final int oneInt) {
         this.oneInt = oneInt;
     }
 
@@ -44,7 +44,7 @@ public class SampleBean {
         return twoDouble;
     }
 
-    public void setTwoDouble(double twoDouble) {
+    public void setTwoDouble(final double twoDouble) {
         this.twoDouble = twoDouble;
     }
 
@@ -52,7 +52,7 @@ public class SampleBean {
         return threeString;
     }
 
-    public void setThreeString(String threeString) {
+    public void setThreeString(final String threeString) {
         this.threeString = threeString;
     }
 
@@ -60,7 +60,7 @@ public class SampleBean {
         return oneBeeIntArray;
     }
 
-    public void setOneBeeIntArray(int[] oneBeeIntArray) {
+    public void setOneBeeIntArray(final int[] oneBeeIntArray) {
         this.oneBeeIntArray = oneBeeIntArray;
     }
 
@@ -68,7 +68,7 @@ public class SampleBean {
         return twoBeeDoubleArray;
     }
 
-    public void setTwoBeeDoubleArray(double[] twoBeeDoubleArray) {
+    public void setTwoBeeDoubleArray(final double[] twoBeeDoubleArray) {
         this.twoBeeDoubleArray = twoBeeDoubleArray;
     }
 
@@ -76,7 +76,7 @@ public class SampleBean {
         return threeBeeStringArray;
     }
 
-    public void setThreeBeeStringArray(String[] threeBeeStringArray) {
+    public void setThreeBeeStringArray(final String[] threeBeeStringArray) {
         this.threeBeeStringArray = threeBeeStringArray;
     }
 
@@ -84,7 +84,7 @@ public class SampleBean {
         return subBean;
     }
 
-    public void setSubBean(SampleBean subBean) {
+    public void setSubBean(final SampleBean subBean) {
         this.subBean = subBean;
     }
 }

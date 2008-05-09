@@ -31,12 +31,14 @@ import java.util.Set;
 /**
  * Read a compound file.
  * TODO: Improve the data storage, change from the maps to a map of objects.
+ * TODO: May want to investigate MultipleStream from fastutil - this would allow iterating files
  * @author Kevin Dorff
  */
 public class CompoundFileReader implements Closeable {
-
-    /** The filename of the compound file. */
-    final private String filename;
+    /**
+     * The filename of the compound file.
+     */
+    private final String filename;
 
     /**
      * The stream we are reading from.
@@ -62,8 +64,9 @@ public class CompoundFileReader implements Closeable {
      * @throws IOException problem opening the file
      */
     public CompoundFileReader(final String filename) throws IOException {
+        super();
         this.filename = filename;
-        stream = new RandomAccessFile(new File(filename), "rw");
+        stream = new RandomAccessFile(new File(filename), "rw");  // TODO - why "rw"?
         scanDirectory();
     }
 
@@ -159,5 +162,4 @@ public class CompoundFileReader implements Closeable {
         stream.close();
         stream = null;
     }
-
 }

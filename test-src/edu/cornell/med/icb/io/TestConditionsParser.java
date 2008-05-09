@@ -35,13 +35,13 @@ import java.util.List;
  */
 public class TestConditionsParser extends TestCase {
     public void testBasic() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "field1\tfield2\tfield3\n" +
                 "#comment\n" +
                 "field1a\tfield2a";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "one").setDefaultValue("1default"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "two").setDefaultValue("2default"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "three").setDefaultValue("3default"));
@@ -64,11 +64,11 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testTooManyFields() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "field1\tfield2\tfield3\tfield4\n";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "one").setDefaultValue("1default"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "two").setDefaultValue("2default"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "three").setDefaultValue("3default"));
@@ -87,11 +87,11 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testInvalidFieldException() throws IOException {
-        String input =
+        final String input =
                 "field1\tfield2\tfield3\n" +
                 "#comment\n" +
                 "field1a\tfield2a";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
         ConditionsParser parser = null;
         try {
             parser = new ConditionsParser();
@@ -113,11 +113,11 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testParseBeforeStartException() throws IOException {
-        String input =
+        final String input =
                 "field1\tfield2\tfield3\n" +
                 "#comment\n" +
                 "field1a\tfield2a";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
         ConditionsParser parser = null;
         try {
             parser = new ConditionsParser();
@@ -137,11 +137,11 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testNoHasNextException() throws IOException {
-        String input =
+        final String input =
                 "field1\tfield2\tfield3\n" +
                 "#comment\n" +
                 "field1a\tfield2a";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
         ConditionsParser parser = null;
         try {
             parser = new ConditionsParser();
@@ -162,11 +162,11 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testReadAfterNotHasNextException() throws IOException {
-        String input =
+        final String input =
                 "field1\tfield2\tfield3\n" +
                 "#comment\n" +
                 "field1a\tfield2a";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
         ConditionsParser parser = null;
         try {
             parser = new ConditionsParser();
@@ -191,7 +191,7 @@ public class TestConditionsParser extends TestCase {
 
 
     public void testMultiValsBlankLines() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "\n\n\n" +
                 "1,2,3:1.0,2.1,3.2:4|5|6:someval1\n" +
                 "\n\n\n" +
@@ -199,9 +199,9 @@ public class TestConditionsParser extends TestCase {
                 "\n\n\n" +
                 ":1.3,2.4,3.5\n" +
                 "\n\n\n";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.setFieldSeparator(':');
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "one").setList(true).setDefaultValue("-1"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "two").setList(true).setDefaultValue("-2"));
@@ -234,11 +234,11 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testMultiValsAndBoolean() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "1:2:3\ttrue,xxx,TRUE,false,True,yes";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "one").setListSeparator(':').setList(true));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "two").setList(true));
 
@@ -254,20 +254,20 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testDictionary() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "a=123,b=456,c=def\t123\t5,6,7\n" +
                 "#comment\n" +
                 "c=567,d=843,e=3bf";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.MAP, "one"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "two"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "three").setList(true));
 
         parser.beginParse(source);
 
-        Map<String, String> expectedDict = new HashMap<String, String>();
+        final Map<String, String> expectedDict = new HashMap<String, String>();
 
         assertTrue(parser.hasNext());
         expectedDict.clear();
@@ -294,13 +294,13 @@ public class TestConditionsParser extends TestCase {
 
 
     public void testBean() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "oneInt=123,twoDouble=456,threeString=def\t123\t5,6,7\n" +
                 "#comment\n" +
                 "oneInt=567,twoDouble=8.367,threeString=3bf,fourNada=abc";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.MAP, "one"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "two"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "three").setList(true));
@@ -308,8 +308,8 @@ public class TestConditionsParser extends TestCase {
         parser.beginParse(source);
         SampleBean testBean;
 
-        Map<String, String> expValues = new HashMap<String, String>();
-        Map<String, String> foundValues = new HashMap<String, String>();
+        final Map<String, String> expValues = new HashMap<String, String>();
+        final Map<String, String> foundValues = new HashMap<String, String>();
 
         assertTrue(parser.hasNext());
         testBean = new SampleBean();
@@ -352,20 +352,20 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testBeanWithCreation() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "_CLASSNAME_=edu.cornell.med.icb.io.SampleBean," +
                         "oneInt=123,twoDouble=456,threeString=def\t123\t5,6,7\n";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.MAP, "one"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "two"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "three").setList(true));
 
         parser.beginParse(source);
 
-        Map<String, String> expValues = new HashMap<String, String>();
-        Map<String, String> foundValues = new HashMap<String, String>();
+        final Map<String, String> expValues = new HashMap<String, String>();
+        final Map<String, String> foundValues = new HashMap<String, String>();
 
         assertTrue(parser.hasNext());
 
@@ -374,9 +374,9 @@ public class TestConditionsParser extends TestCase {
         expValues.put("twoDouble", "456");
         expValues.put("threeString", "def");
         foundValues.clear();
-        Object testBeanObj = parser.parseFieldBean("one", null, foundValues);
+        final Object testBeanObj = parser.parseFieldBean("one", null, foundValues);
         assertTrue(testBeanObj instanceof SampleBean);
-        SampleBean testBean = (SampleBean)testBeanObj;
+        final SampleBean testBean = (SampleBean)testBeanObj;
         checkMap(expValues, foundValues);
         assertEquals("123", parser.parseFieldValueString("two"));
         checkIntArray(new int[] {5, 6, 7}, parser.parseFieldValueIntArray("three"));
@@ -397,14 +397,14 @@ public class TestConditionsParser extends TestCase {
      * @throws ConditionsParsingException error parsing
      */
     public void testValueBeanSingleValues() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "50\t3.5\tfield3\n" +
                 "#comment\n" +
                 "40";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
         SampleBean testBean;
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "one").setDefaultValue("1").setValueBeanProperty("oneInt"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "two").setDefaultValue("2.2").setValueBeanProperty("twoDouble"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "three").setDefaultValue("threedefault").setValueBeanProperty("threeString"));
@@ -442,14 +442,14 @@ public class TestConditionsParser extends TestCase {
      * @throws ConditionsParsingException error parsing
      */
     public void testValueBeanLists() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "50,40,30\t3.5, 2.5, 1.5\tfield3, field3b, field 3c\n" +
                 "#comment\n" +
                 "40";
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
         SampleBean testBean;
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "one").setList(true).setDefaultValue("1").setValueBeanProperty("oneBeeIntArray"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "two").setList(true).setDefaultValue("2.2").setValueBeanProperty("twoBeeDoubleArray"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "three").setList(true).setDefaultValue("threedefault").setValueBeanProperty("threeBeeStringArray"));
@@ -481,15 +481,15 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testSubBean() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "50\t_CLASSNAME_=edu.cornell.med.icb.io.SampleBean\t60.4\n" +
                 "#comment\n" +
                 "40\t_CLASSNAME_=edu.cornell.med.icb.io.SampleBean,oneInt=80\t70.3\n";
 
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
         SampleBean testBean;
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "one").setValueBeanProperty("oneInt"));
         parser.addField(new ConditionField(ConditionField.FieldType.MAP, "two").setValueBeanProperty("subBean"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "three").setValueBeanProperty("subBean.twoDouble"));
@@ -519,15 +519,15 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testSubBeanNotMap() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "50\tedu.cornell.med.icb.io.SampleBean\t60.4\t10\n" +
                 "#comment\n" +
                 "40\tedu.cornell.med.icb.io.SampleBean\t70.3\t20\n";
 
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
         SampleBean testBean;
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "one").setValueBeanProperty("oneInt"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "two").setClassname(true).setValueBeanProperty("subBean"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "three").setValueBeanProperty("subBean.twoDouble"));
@@ -555,22 +555,22 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testSubBeanAllAtOnceObject() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "50\t_CLASSNAME_=edu.cornell.med.icb.io.SampleBean\t60.4\n" +
                 "#comment\n" +
                 "40\t_CLASSNAME_=edu.cornell.med.icb.io.SampleBean,oneInt=80\t70.3\n";
 
-        Reader source = new StringReader(input);
-        SampleBean templateBean = new SampleBean();
+        final Reader source = new StringReader(input);
+        final SampleBean templateBean = new SampleBean();
         SampleBean testBean;
         templateBean.setThreeString("came from template");
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "one").setValueBeanProperty("oneInt"));
         parser.addField(new ConditionField(ConditionField.FieldType.MAP, "two").setValueBeanProperty("subBean"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "three").setValueBeanProperty("subBean.twoDouble"));
 
-        List<SampleBean> results = parser.beginParseAllToBeans(source, templateBean, null);
+        final List<SampleBean> results = parser.beginParseAllToBeans(source, templateBean, null);
         assertEquals(2, results.size());
 
         testBean = results.get(0);
@@ -588,20 +588,20 @@ public class TestConditionsParser extends TestCase {
     }
 
     public void testSubBeanAllAtOnceClass() throws IOException, ConditionsParsingException {
-        String input =
+        final String input =
                 "50\t_CLASSNAME_=edu.cornell.med.icb.io.SampleBean\t60.4\n" +
                 "#comment\n" +
                 "40\t_CLASSNAME_=edu.cornell.med.icb.io.SampleBean,oneInt=80\t70.3\n";
 
-        Reader source = new StringReader(input);
+        final Reader source = new StringReader(input);
         SampleBean testBean;
 
-        ConditionsParser parser = new ConditionsParser();
+        final ConditionsParser parser = new ConditionsParser();
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "one").setValueBeanProperty("oneInt"));
         parser.addField(new ConditionField(ConditionField.FieldType.MAP, "two").setValueBeanProperty("subBean"));
         parser.addField(new ConditionField(ConditionField.FieldType.VALUE, "three").setValueBeanProperty("subBean.twoDouble"));
 
-        List<SampleBean> results = parser.beginParseAllToBeans(source, SampleBean.class, null);
+        final List<SampleBean> results = parser.beginParseAllToBeans(source, SampleBean.class, null);
         assertEquals(2, results.size());
 
         testBean = results.get(0);
@@ -728,7 +728,7 @@ public class TestConditionsParser extends TestCase {
             return;
         }
         for (int i = 0; i < expected.length; i++) {
-            if (!(expected[i].equals(found[i]))) {
+            if (!expected[i].equals(found[i])) {
                 fail("Arrays differ. Expected was " + ArrayUtils.toString(expected)
                         + " and found was " + ArrayUtils.toString(found));
                 return;
@@ -756,13 +756,13 @@ public class TestConditionsParser extends TestCase {
                     + " and found was " + ArrayUtils.toString(found));
             return;
         }
-        for (String key : found.keySet() ) {
+        for (final String key : found.keySet() ) {
             if (!expected.containsKey(key)) {
                 fail("Missing Key. Expected keys were " + ArrayUtils.toString(expected.keySet())
                         + " and found keys were " + ArrayUtils.toString(found.keySet()));
             }
-            String foundValue = found.get(key);
-            String expectedValue = expected.get(key);
+            final String foundValue = found.get(key);
+            final String expectedValue = expected.get(key);
             if (!foundValue.equals(expectedValue)) {
                 fail("Missing Key. Value at key " + key + " was incorrect. "
                         + " Expected " + expectedValue + " but found " +

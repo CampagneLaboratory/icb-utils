@@ -57,9 +57,9 @@ public class TestCompoundFile {
         cfw.finishAddFile();
         cfw.setBulkLoadMode(false);
 
-        CompoundFileReader cfr = cfw.getCompoundFileReader();
-        Set<String> files = cfr.getFileNames();
-        for (String file : files) {
+        final CompoundFileReader cfr = cfw.getCompoundFileReader();
+        final Set<String> files = cfr.getFileNames();
+        for (final String file : files) {
             System.out.println("Compound file contains file named " + file);
         }
         DataInput input = cfr.readFile("file1");
@@ -97,9 +97,9 @@ public class TestCompoundFile {
     public void testLotsOfSmallFiles() throws IOException {
         System.out.println("Testing lots of small files");
         new File("test-data/CompoundFile2.dat").delete();
-        CompoundFileWriter cfw = new CompoundFileWriter("test-data/CompoundFile2.dat");
+        final CompoundFileWriter cfw = new CompoundFileWriter("test-data/CompoundFile2.dat");
         for (int x = 0; x < 20000; x++) {
-            DataOutput output = cfw.addFile("file" + x);
+            final DataOutput output = cfw.addFile("file" + x);
             output.writeUTF("Data for file " + x);
             if (x % 500 == 0) {
                 System.out.println("Loaded " + x + " files");
@@ -107,11 +107,7 @@ public class TestCompoundFile {
         }
         cfw.close();
 
-        CompoundFileReader cfr = new CompoundFileReader("test-data/CompoundFile2.dat");
+        final CompoundFileReader cfr = new CompoundFileReader("test-data/CompoundFile2.dat");
         assertEquals(20000,cfr.getFileNames().size());
-    }
-
-    @Before
-    public void setup() {
     }
 }

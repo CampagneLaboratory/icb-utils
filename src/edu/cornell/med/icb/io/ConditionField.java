@@ -85,12 +85,12 @@ public class ConditionField {
     /**
      * The type of field for this field.
      */
-    private FieldType fieldType;
+    private final FieldType fieldType;
 
     /**
      * Thie field name for this field.
      */
-    private String fieldName;
+    private final String fieldName;
 
     /**
      * True if this is a list.
@@ -115,9 +115,10 @@ public class ConditionField {
      * @param nameVal the name of the field.
      */
     public ConditionField(final FieldType fieldTypeVal, final String nameVal) {
+        super();
         this.fieldType = fieldTypeVal;
         this.fieldName = nameVal;
-        this.list = (this.fieldType == FieldType.MAP);
+        this.list = this.fieldType == FieldType.MAP;
     }
 
     /**

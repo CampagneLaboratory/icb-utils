@@ -18,6 +18,8 @@
 
 package edu.cornell.med.icb.io;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.File;
@@ -30,7 +32,6 @@ import java.io.Closeable;
  * @author Kevin Dorff
  */
 public class CompoundFileWriter implements Closeable {
-
     /**
      * The stream we are writing to.
      */
@@ -55,24 +56,28 @@ public class CompoundFileWriter implements Closeable {
 
     /**
      * This state denotes that a file in the compound file is normal
-     * (ie NOT deleted).
+     * (i.e., NOT deleted).
      */
-    public final static int FILE_STATE_NORMAL = 0;
+    public static final int FILE_STATE_NORMAL = 0;
 
     /**
      * This state denotes that a file in the compound file is deleted.
      */
-    public final static int FILE_STATE_DELETED = 1;
+    public static final int FILE_STATE_DELETED = 1;
 
     /**
      * A file reader, to scan the file at startup, etc.
      */
-    final private CompoundFileReader compoundFileReader;
+    private final CompoundFileReader compoundFileReader;
 
-    /** The filename of the compound file. */
-    final private String filename;
+    /**
+     * The filename of the compound file.
+     */
+    private final String filename;
 
-    /** If we are in bulk load mode. */
+    /**
+     * If we are in bulk load mode.
+     */
     private boolean bulkLoadMode;
 
     /**
@@ -82,6 +87,7 @@ public class CompoundFileWriter implements Closeable {
      * @throws IOException problem opening the file
      */
     public CompoundFileWriter(final String filename) throws IOException {
+        super();
         compoundFileReader = new CompoundFileReader(filename);
 
         this.filename = filename;
@@ -120,9 +126,10 @@ public class CompoundFileWriter implements Closeable {
     /**
      * Set if in bulk load mode.
      * @param bulkLoadMode if in bulk load mode.
+     * @throws java.io.IOException
      */
     public void setBulkLoadMode(final boolean bulkLoadMode) throws IOException {
-        if (bulkLoadMode == false) {
+        if (!bulkLoadMode) {
             compoundFileReader.scanDirectory();
         }
         this.bulkLoadMode = bulkLoadMode;
@@ -134,14 +141,17 @@ public class CompoundFileWriter implements Closeable {
      * by calling finishAddFile().
      * @param name the internal filename (any string is valid)
      * @throws IOException problem adding a file
+     * @return
      */
     public DataOutput addFile(final String name) throws IOException {
         if (stream == null) {
-            throw new IOException("CompoundFileWriter is not open.");
+            throw new IllegalStateException("CompoundFileWriter is not open.");
         }
-        if (name == null || name.length() == 0) {
-            throw new IOException("The name specified to addFile was null or empty.");
+
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("The name specified to addFile was null or empty.");
         }
+
         finishAddFile();
 
         if (containsFile(name)) {
@@ -176,7 +186,7 @@ public class CompoundFileWriter implements Closeable {
      * @param name the name of the file to check for
      * @return true of the file exists in the compound file
      */
-    public boolean containsFile(final String name) throws IOException {
+    public boolean containsFile(final String name) {
         return compoundFileReader.nameToDataPositionMap.containsKey(name);
     }
 
@@ -189,17 +199,18 @@ public class CompoundFileWriter implements Closeable {
      * @throws IOException problem deleting the file
      */
     public void deleteFile(final String name) throws IOException {
-        if (!containsFile(name)) {
+        if (containsFile(name)) {
+            finishAddFile(false);
+            final long position = compoundFileReader.nameToFileStartPositionMap.get(name);
+            // System.out.println("Marking file deleted at position " + position);
+            stream.seek(position);
+            stream.writeInt(FILE_STATE_DELETED);
+            // System.out.println("Rescanning directory");
+            compoundFileReader.scanDirectory();
+        } else {
             // System.out.println("Not deleting, not in compound file");
             return;
         }
-        finishAddFile(false);
-        long position = compoundFileReader.nameToFileStartPositionMap.get(name);
-        // System.out.println("Marking file deleted at position " + position);
-        stream.seek(position);
-        stream.writeInt(FILE_STATE_DELETED);
-        // System.out.println("Rescanning directory");
-        compoundFileReader.scanDirectory();
     }
 
     /**
@@ -234,7 +245,7 @@ public class CompoundFileWriter implements Closeable {
         }
         try {
             // System.out.println("running finish add...");
-            long dataSize = stream.length() - lengthAtAddStart;
+            final long dataSize = stream.length() - lengthAtAddStart;
             if (dataSize > 0) {
                 // System.out.println("++ data size was " + dataSize + " writing at position " + sizePositionAtAddStart);
                 stream.seek(sizePositionAtAddStart);

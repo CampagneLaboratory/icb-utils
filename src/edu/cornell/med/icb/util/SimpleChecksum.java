@@ -29,11 +29,11 @@ import java.util.zip.Adler32;
  * @author Kevin Dorff
  */
 public final class SimpleChecksum {
-
     /**
      * Private constructor for utility class.
      */
     private SimpleChecksum() {
+        super();
     }
 
     /**
@@ -46,7 +46,7 @@ public final class SimpleChecksum {
 
     /**
      * Takes a string and returns a that same string
-     * with two additional characeters which are a simple
+     * with two additional characters which are a simple
      * checksum, each char will be "A".."Z". An empty
      * (no characters) or null string will just be
      * returned with no change.
@@ -75,7 +75,7 @@ public final class SimpleChecksum {
      * @return true of the checksum is correct
      */
     public static boolean validate(final String checksumString) {
-        if ((checksumString == null) || (checksumString.length() < 3)) {
+        if (checksumString == null || checksumString.length() < 3) {
             return false;
         }
         final String baseString = checksumString.substring(
@@ -120,33 +120,23 @@ public final class SimpleChecksum {
      * @param hexString hex string to make two masks for
      * @return two hex mask strings in a String[]
      */
-    static String[] makeHexMaskStrings(
-            final String hexString) {
-
-        if (StringUtils.isEmpty(hexString)) {
-            throw new IllegalArgumentException("Hex string must be 1 to 16 characters long.");
-        }
-
-        if (hexString.length() > 16) {
-            throw new IllegalArgumentException("Hex string must be 1 to 16 characters long.");
+    static String[] makeHexMaskStrings(final String hexString) {
+        if (StringUtils.isEmpty(hexString) || hexString.length() > 16) {
+            throw new IllegalArgumentException("Hex string '" + hexString
+                    + "' must be 1 to 16 characters long and not null.");
         }
 
         for (int i = 0; i < hexString.length(); i++) {
             final char c = hexString.charAt(i);
-            if ((c >= '0') && (c <= '9')) {
+            if (c >= '0' && c <= '9' || c >= 'A' && c <= 'F' || c >= 'a' && c <= 'f') {
                 continue;
             }
-            if ((c >= 'A') && (c <= 'F')) {
-                continue;
-            }
-            if ((c >= 'a') && (c <= 'f')) {
-                continue;
-            }
-            throw new IllegalArgumentException("Hex string must contain only hex digits, 0-9A-F");
+            throw new IllegalArgumentException("Hex string '" + hexString
+                    + "' must contain only hex digits, 0-9A-F");
         }
 
-        int leftSize;
-        int rightSize;
+        final int leftSize;
+        final int rightSize;
         if (hexString.length() == 1) {
             leftSize = 0;
             rightSize = 1;
@@ -155,15 +145,15 @@ public final class SimpleChecksum {
             rightSize = hexString.length() - leftSize;
         }
 
-        final StringBuffer leftMask = new StringBuffer();
-        final StringBuffer rightMask = new StringBuffer();
+        final StringBuilder leftMask = new StringBuilder();
+        final StringBuilder rightMask = new StringBuilder();
         for (int i = 0; i < leftSize; i++) {
-            leftMask.append("F");
-            rightMask.append("0");
+            leftMask.append('F');
+            rightMask.append('0');
         }
         for (int i = 0; i < rightSize; i++) {
-            leftMask.append("0");
-            rightMask.append("F");
+            leftMask.append('0');
+            rightMask.append('F');
         }
 
         final String[] masks = new String[2];
@@ -171,5 +161,4 @@ public final class SimpleChecksum {
         masks[1] = rightMask.toString();
         return masks;
     }
-
 }

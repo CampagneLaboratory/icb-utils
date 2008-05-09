@@ -34,6 +34,7 @@
         <JAVADOC />
         <SOURCES>
           <root url="file://$MODULE_DIR$/../../../java/commons-lang-2.3-src/src/java" />
+          <root url="jar://$MODULE_DIR$/../../../../../../java/commons-lang-2.3-src.zip!/commons-lang-2.3-src/src/java" />
         </SOURCES>
       </library>
     </orderEntry>

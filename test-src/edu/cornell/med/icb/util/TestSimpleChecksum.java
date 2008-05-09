@@ -27,7 +27,7 @@ import static org.junit.Assert.assertNull;
 
 /**
  * Test the simple checksum class, also tests the
- * simple checksum classes hex mask creation. 
+ * simple checksum classes hex mask creation.
  */
 public class TestSimpleChecksum {
 
@@ -37,8 +37,8 @@ public class TestSimpleChecksum {
      */
     @Test
     public final void testSimpleChecksumNormal() {
-        String toTry = "fish";
-        String checked = SimpleChecksum.simpleChecksum(toTry);
+        final String toTry = "fish";
+        final String checked = SimpleChecksum.simpleChecksum(toTry);
         assertEquals("fishyl", checked);
         assertTrue(SimpleChecksum.validate(checked));
     }
@@ -49,8 +49,8 @@ public class TestSimpleChecksum {
      */
     @Test
     public final void testSimpleChecksumShort() {
-        String toTry = "a";
-        String checked = SimpleChecksum.simpleChecksum(toTry);
+        final String toTry = "a";
+        final String checked = SimpleChecksum.simpleChecksum(toTry);
         assertEquals("aiu", checked);
         assertTrue(SimpleChecksum.validate(checked));
     }
@@ -61,8 +61,8 @@ public class TestSimpleChecksum {
      */
     @Test
     public final void testSimpleChecksumSpace() {
-        String toTry = " ";
-        String checked = SimpleChecksum.simpleChecksum(toTry);
+        final String toTry = " ";
+        final String checked = SimpleChecksum.simpleChecksum(toTry);
         assertEquals(" ih", checked);
         assertTrue(SimpleChecksum.validate(checked));
     }
@@ -73,8 +73,8 @@ public class TestSimpleChecksum {
      */
     @Test
     public final void testSimpleChecksumEmpty() {
-        String toTry = "";
-        String checked = SimpleChecksum.simpleChecksum(toTry);
+        final String toTry = "";
+        final String checked = SimpleChecksum.simpleChecksum(toTry);
         assertTrue(checked.equals(toTry));
         assertFalse(SimpleChecksum.validate(checked));
     }
@@ -85,8 +85,8 @@ public class TestSimpleChecksum {
      */
     @Test
     public final void testSimpleChecksumNull() {
-        String toTry = null;
-        String checked = SimpleChecksum.simpleChecksum(toTry);
+        final String toTry = null;
+        final String checked = SimpleChecksum.simpleChecksum(toTry);
         assertNull(checked);
         assertFalse(SimpleChecksum.validate(checked));
     }
@@ -97,8 +97,8 @@ public class TestSimpleChecksum {
      */
     @Test
     public final void testSimpleChecksumLonger() {
-        String toTry = "this is a somewhat longer string";
-        String checked = SimpleChecksum.simpleChecksum(toTry);
+        final String toTry = "this is a somewhat longer string";
+        final String checked = SimpleChecksum.simpleChecksum(toTry);
         assertEquals("this is a somewhat longer stringog", checked);
         assertTrue(SimpleChecksum.validate(checked));
     }
@@ -146,7 +146,7 @@ public class TestSimpleChecksum {
      */
     @Test
      public void testMakeHexMaskStringEvenSplit() {
-        String[] masks = SimpleChecksum.makeHexMaskStrings("aBcDef");
+        final String[] masks = SimpleChecksum.makeHexMaskStrings("aBcDef");
         assertEquals("FFF000", masks[0]);
         assertEquals("000FFF", masks[1]);
      }
@@ -157,7 +157,7 @@ public class TestSimpleChecksum {
      */
     @Test
     public void testMakeHexMaskStringOddSplit() {
-       String[] masks = SimpleChecksum.makeHexMaskStrings("ABCDEF0");
+       final String[] masks = SimpleChecksum.makeHexMaskStrings("ABCDEF0");
        assertEquals("FFF0000", masks[0]);
        assertEquals("000FFFF", masks[1]);
     }
@@ -168,7 +168,7 @@ public class TestSimpleChecksum {
      */
     @Test
     public void testMakeHexMaskStringShort() {
-       String[] masks = SimpleChecksum.makeHexMaskStrings("A");
+       final String[] masks = SimpleChecksum.makeHexMaskStrings("A");
        assertEquals("0", masks[0]);
        assertEquals("F", masks[1]);
     }

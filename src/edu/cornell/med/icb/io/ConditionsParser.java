@@ -83,7 +83,7 @@ public class ConditionsParser {
     /**
      * The condition fields.
      */
-    private List<ConditionField> fields;
+    private final List<ConditionField> fields;
 
     /**
      * Default field separator (tab).
@@ -128,7 +128,7 @@ public class ConditionsParser {
     /**
      * The current line number.
      */
-    private int lineNumber = 0;
+    private int lineNumber;
 
     /**
      * A map of the field name to the field number.
@@ -150,6 +150,7 @@ public class ConditionsParser {
      * @param fieldsVal the ConditionFields to use in the parsing.
      */
     public ConditionsParser(final List<ConditionField> fieldsVal) {
+        super();
         this.fields = new ArrayList<ConditionField>(fieldsVal.size());
         this.fields.addAll(fieldsVal);
         this.tsvReader = null;
@@ -287,7 +288,7 @@ public class ConditionsParser {
         tsvReader.setUnescapeResults(false);
         nameToFieldNumberMap = new HashMap<String, Integer>(fields.size());
         int pos = 0;
-        for (ConditionField field : fields) {
+        for (final ConditionField field : fields) {
             final Integer current = nameToFieldNumberMap.get(field.getFieldName());
             if (current == null) {
                 // Only use the name for ONE field, the first one
@@ -327,7 +328,7 @@ public class ConditionsParser {
         final List<T> resultObjs = new ArrayList<T>();
         beginParse(sourceReader);
         while (hasNext()) {
-            T object;
+            final T object;
             try {
                 object = templateClass.newInstance();
             } catch (IllegalAccessException e) {
@@ -385,7 +386,7 @@ public class ConditionsParser {
         final List<T> resultObjs = new ArrayList<T>();
         beginParse(sourceReader);
         while (hasNext()) {
-            T object;
+            final T object;
             try {
                 object = (T) BeanUtils.cloneBean(templateObject);
             } catch (IllegalAccessException e) {
@@ -427,7 +428,7 @@ public class ConditionsParser {
                     "No tsvReader, did you call beginParse(...)?");
         }
 
-        for (ConditionField field : fields) {
+        for (final ConditionField field : fields) {
             // Reset back to "defaults"
             field.resetValueToDefault();
         }
@@ -562,7 +563,7 @@ public class ConditionsParser {
             return listVals;
         } else {
             // Make an array with the single element
-            String[] listVals = new String[1];
+            final String[] listVals = new String[1];
             listVals[0] = ICBStringUtils.unescape(field.getCurrentValue(),
                     escapeChar);
             return listVals;
@@ -605,7 +606,7 @@ public class ConditionsParser {
     public int[] parseFieldValueIntArray(final String fieldName)
             throws ConditionsParsingException {
         final String[] fieldValues = parseFieldValueStringArray(fieldName);
-        int[] outValues = new int[fieldValues.length];
+        final int[] outValues = new int[fieldValues.length];
         for (int i = 0; i < fieldValues.length; i++) {
             outValues[i] = Integer.parseInt(fieldValues[i]);
         }
@@ -648,7 +649,7 @@ public class ConditionsParser {
     public double[] parseFieldValueDoubleArray(final String fieldName)
             throws ConditionsParsingException {
         final String[] fieldValues = parseFieldValueStringArray(fieldName);
-        double[] outValues = new double[fieldValues.length];
+        final double[] outValues = new double[fieldValues.length];
         for (int i = 0; i < fieldValues.length; i++) {
             outValues[i] = Double.parseDouble(fieldValues[i]);
         }
@@ -691,7 +692,7 @@ public class ConditionsParser {
     public boolean[] parseFieldValueBooleanArray(final String fieldName)
             throws ConditionsParsingException {
         final String[] fieldValues = parseFieldValueStringArray(fieldName);
-        boolean[] outValues = new boolean[fieldValues.length];
+        final boolean[] outValues = new boolean[fieldValues.length];
         for (int i = 0; i < fieldValues.length; i++) {
             outValues[i] = Boolean.parseBoolean(fieldValues[i]);
         }
@@ -717,7 +718,7 @@ public class ConditionsParser {
         final ConditionField field = fields.get(getFieldNumber(fieldName));
         final char valueSeparator = field.getKeyValueSeparator();
         final Map<String, String> outValues = new HashMap<String, String>();
-        for (String fieldValue : fieldValues) {
+        for (final String fieldValue : fieldValues) {
             final int pos = fieldValue.indexOf(valueSeparator);
             if (pos == -1) {
                 // No "=". Just place an empty string
@@ -757,7 +758,7 @@ public class ConditionsParser {
             throw new ConditionsParsingException(
                     "targetObject cannot be is null when calling parseAllFieldsBean");
         }
-        for (ConditionField field : fields) {
+        for (final ConditionField field : fields) {
             if (StringUtils.isNotBlank(field.getValueBeanProperty())) {
                 parseFieldBean(field.getFieldName(), targetObject, valuesMap);
             }
@@ -809,8 +810,7 @@ public class ConditionsParser {
         final ConditionField field = fields.get(fieldNumber);
 
         if (field.getFieldType() == ConditionField.FieldType.VALUE) {
-            if ((targetObject != null) && (StringUtils.isNotBlank(
-                    field.getValueBeanProperty()))) {
+            if (targetObject != null && StringUtils.isNotBlank(field.getValueBeanProperty())) {
                 parseFieldBeanValue(field, targetObject, valuesMap);
             }
             return targetObject;
@@ -826,7 +826,7 @@ public class ConditionsParser {
         }
 
         Object object = targetObject;
-        if ((object == null) || (prependObjectBean.length() > 0)) {
+        if (object == null || prependObjectBean.length() > 0) {
             if (classname == null) {
                 throw new ConditionsParsingException("targetObject is null and "
                     + field.getClassnameKey()
@@ -859,7 +859,7 @@ public class ConditionsParser {
             }
         }
 
-        for (String key : fieldValues.keySet()) {
+        for (final String key : fieldValues.keySet()) {
             if (key.equals(field.getClassnameKey())) {
                 continue;
             }
@@ -916,7 +916,7 @@ public class ConditionsParser {
                                      final Object targetObject,
                                  final Map<String, String> valuesMap)
             throws ConditionsParsingException {
-        Object fieldValue;
+        final Object fieldValue;
         boolean isClassname = false;
         if (field.isList()) {
             fieldValue = parseFieldValueStringArray(field.getFieldName());

@@ -65,7 +65,7 @@ public final class TSVReader implements Closeable {
     /**
      * The line delimiter character (for tokenizing the line).
      */
-    private char delimiter;
+    private final char delimiter;
 
     /**
      * The comment prefix.

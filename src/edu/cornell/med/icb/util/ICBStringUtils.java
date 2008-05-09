@@ -52,6 +52,7 @@ public final class ICBStringUtils {
 
     /** Private constructor. */
     private ICBStringUtils() {
+        super();
     }
 
     /**
@@ -95,7 +96,7 @@ public final class ICBStringUtils {
      */
     public static String xmlFix(final String inval) {
         if (StringUtils.isBlank(inval)) {
-            return ("");
+            return StringUtils.EMPTY;
         }
         String outval = StringUtils.replace(inval, "&", HTML_AMP);
         outval = StringUtils.replace(outval, "\"", HTML_DOUBLE_QUOTE);
@@ -164,7 +165,7 @@ public final class ICBStringUtils {
         }
         String foundExt = null;
         if (extensions != null) {
-            for (String ext : extensions) {
+            for (final String ext : extensions) {
                 if (origFilename.endsWith(ext)) {
                     foundExt = ext;
                     break;
@@ -181,7 +182,7 @@ public final class ICBStringUtils {
     }
 
     /**
-     * Highlight occurances of highlightWords within
+     * Highlight occurrences of highlightWords within
      * toHighlight. Place the value highlightStart before
      * the word and highlightEnd after it. You must provide
      * at least one of highlightStart & highlightEnd.
@@ -198,14 +199,14 @@ public final class ICBStringUtils {
             final String highlightWord,
             final String highlightStart,
             final String highlightEnd) {
-        String[] highlightWords = new String[1];
+        final String[] highlightWords = new String[1];
         highlightWords[0] = highlightWord;
         return highlightStrings(toHighlight, highlightWords,
                 highlightStart, highlightEnd);
     }
 
     /**
-     * Highlight occurances of highlightWords within
+     * Highlight occurrences of highlightWords within
      * toHighlight. Place the value highlightStart before
      * the word and highlightEnd after it. You must provide
      * at least one of highlightStart & highlightEnd.
@@ -227,7 +228,7 @@ public final class ICBStringUtils {
             // Source word is empty, nothing to do.
             return toHighlight;
         }
-        String[] cleanHighlightWords = cleanStringArray(highlightWords);
+        final String[] cleanHighlightWords = cleanStringArray(highlightWords);
         if (cleanHighlightWords == null || cleanHighlightWords.length == 0) {
             // No words to highlight, nothing to do
             return toHighlight;
@@ -269,7 +270,7 @@ public final class ICBStringUtils {
 
             pos = -1;
             size = -1;
-            for (String toFind : cleanHighlightWords) {
+            for (final String toFind : cleanHighlightWords) {
                 // Find the FIRST of the highlight words
                 final int curPos = inputLC.indexOf(toFind);
                 if (curPos != -1) {
@@ -321,7 +322,7 @@ public final class ICBStringUtils {
             return null;
         }
         final List<String> cleanList = new LinkedList<String>();
-        for (String string : strings) {
+        for (final String string : strings) {
             if (StringUtils.isNotBlank(string)) {
                 cleanList.add(string);
             }
@@ -388,13 +389,13 @@ public final class ICBStringUtils {
         boolean inEscape = false;
         for (int i = 0; i < length; i++) {
             final char curChar = inval.charAt(i);
-            if ((!inEscape) && (curChar == splitChar)) {
+            if (!inEscape && curChar == splitChar) {
                 output.add(curSplit.toString());
                 curSplit.setLength(0);
                 continue;
             }
             if (escape != null) {
-                if ((!inEscape) && (curChar == escape)) {
+                if (!inEscape && curChar == escape) {
                     // Going into escape. Don't save the
                     // current (escape) character.
                     inEscape = true;
@@ -421,7 +422,7 @@ public final class ICBStringUtils {
         if (inval == null) {
             return null;
         }
-        if ((escapeChar == null) || (inval.length == 0)) {
+        if (escapeChar == null || inval.length == 0) {
             // Nothing to do
             return inval;
         }
@@ -444,7 +445,7 @@ public final class ICBStringUtils {
         if (inval == null) {
             return null;
         }
-        if ((escapeChar == null) || (inval.length() == 0)) {
+        if (escapeChar == null || inval.length() == 0) {
             // Nothing to do
             return inval;
         }
@@ -453,7 +454,7 @@ public final class ICBStringUtils {
         boolean inEscape = false;
         for (int i = 0; i < length; i++) {
             final char curChar = inval.charAt(i);
-            if ((!inEscape) && (curChar == escapeChar)) {
+            if (!inEscape && curChar == escapeChar) {
                 // Going into escape. Don't save the
                 // current (escape) character.
                 inEscape = true;
@@ -473,10 +474,10 @@ public final class ICBStringUtils {
     private static final String NO_BREAK_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789[]();:";
 
     /**
-     * This will remove redundent whitespace then add sLineBreakString as
+     * This will remove redundant whitespace then add sLineBreakString as
      * necessary to help eliminate the problem (primary seen in FireFox) where
      * long names containing no (or very little) whitespace would cause the HTML
-     * table to be excessivly wide. It attempts to preserve words by trying to
+     * table to be excessively wide. It attempts to preserve words by trying to
      * not break on within "a..z1..9" (ie words and number sequences) but
      * prefers to wrap AFTER whitespace or other characters. If a word or number
      * sequence is longer than maxLength it will split it anyway. This probably
@@ -491,7 +492,7 @@ public final class ICBStringUtils {
             final String stringToBreak, final int maxLength,
             final String breakStr) {
         String remain;
-        final StringBuffer returnVal = new StringBuffer();
+        final StringBuilder returnVal = new StringBuilder();
 
         // Check if there is no need to break whatsoever
         // and just return
@@ -529,7 +530,7 @@ public final class ICBStringUtils {
             }
 
             final String curChar = remain.substring(pos, pos + 1).toLowerCase();
-            if (NO_BREAK_CHARS.indexOf(curChar) == -1) {
+            if (!NO_BREAK_CHARS.contains(curChar)) {
                 // We found a non alpha-numeric char. Split after it.
                 returnVal.append(remain.substring(0, pos + 1)).append(breakStr);
                 remain = remain.substring(pos + 1, remain.length());
@@ -544,7 +545,7 @@ public final class ICBStringUtils {
             }
             // The current character wasn't an ideal split. Let's
             // look at the previous character.
-            pos = pos - 1;
+            pos--;
         }
 
         // Return the more wrappable string.

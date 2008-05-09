@@ -35,7 +35,7 @@ public class TestBoundedPriorityQueue extends TestCase {
     /**
      * The list of objects to test the LimitedQueue with.
      */
-    private static List<Integer> wholeSet = new LinkedList<Integer>();
+    private static final List<Integer> wholeSet = new LinkedList<Integer>();
     static {
         wholeSet.add(1);
         wholeSet.add(2);
@@ -48,7 +48,7 @@ public class TestBoundedPriorityQueue extends TestCase {
         wholeSet.add(9);
     }
 
-    private static List<Integer> unorderedSet = new LinkedList<Integer>();
+    private static final List<Integer> unorderedSet = new LinkedList<Integer>();
     static {
         unorderedSet.add(3);
         unorderedSet.add(9);
@@ -65,7 +65,7 @@ public class TestBoundedPriorityQueue extends TestCase {
      * This doesn't add enough to limit the Queue.
      */
     public void testLimitedQueueNoop() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5);
         queue.add(1);
         queue.add(2);
@@ -79,9 +79,9 @@ public class TestBoundedPriorityQueue extends TestCase {
      * This doesn't add enough to limit the Queue.
      */
     public void testLimitedQueueNatural() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5);
-        for (int i : wholeSet) {
+        for (final int i : wholeSet) {
             queue.add(i);
         }
         verifyContents(queue, 1, 2, 3, 4, 5);
@@ -91,9 +91,9 @@ public class TestBoundedPriorityQueue extends TestCase {
      * Add each object individually. Default (remove from tail).
      */
     public void testLimitedQueueBasic() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5);
-        for (int e : wholeSet) {
+        for (final int e : wholeSet) {
             queue.add(e);
         }
         verifyContents(queue, 1, 2, 3, 4, 5);
@@ -103,9 +103,9 @@ public class TestBoundedPriorityQueue extends TestCase {
      * Add each object individually. Specify remove from tail.
      */
     public void testLimitedQueueBasicFromTail() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5, false);
-        for (int e : wholeSet) {
+        for (final int e : wholeSet) {
             queue.add(e);
         }
         verifyContents(queue, 1, 2, 3, 4, 5);
@@ -115,9 +115,9 @@ public class TestBoundedPriorityQueue extends TestCase {
      * Add each object individually. Specify remove from front.
      */
     public void testLimitedQueueBasicFromFront() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5, true);
-        for (int e : wholeSet) {
+        for (final int e : wholeSet) {
             queue.add(e);
         }
         verifyContents(queue, 5, 6, 7, 8, 9);
@@ -127,7 +127,7 @@ public class TestBoundedPriorityQueue extends TestCase {
      * Use addAll to add objects in bulk. Specify remove from tail.
      */
     public void testLimitedQueueGroupFromTail() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5, false);
         queue.addAll(wholeSet);
         verifyContents(queue, 1, 2, 3, 4, 5);
@@ -137,7 +137,7 @@ public class TestBoundedPriorityQueue extends TestCase {
      * Use addAll to add objects in bulk. Specify remove from front.
      */
     public void testLimitedQueueGroupFromFront() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5, true);
         queue.addAll(wholeSet);
         verifyContents(queue, 5, 6, 7, 8, 9);
@@ -147,7 +147,7 @@ public class TestBoundedPriorityQueue extends TestCase {
      * Use addAll to add objects in bulk. Specify remove from tail.
      */
     public void testLimitedQueuePriQueueTailLessThan() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5, new LessThanComparator(), false);
         queue.addAll(unorderedSet);
         verifyContents(queue, 1, 2, 3, 4, 5);
@@ -157,7 +157,7 @@ public class TestBoundedPriorityQueue extends TestCase {
      * Use addAll to add objects in bulk. Specify remove from tail.
      */
     public void testLimitedQueuePriQueueFrontLessThan() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5, new LessThanComparator(), true);
         queue.addAll(unorderedSet);
         verifyContents(queue, 5, 6, 7, 8, 9);
@@ -167,7 +167,7 @@ public class TestBoundedPriorityQueue extends TestCase {
      * Use addAll to add objects in bulk. Specify remove from tail.
      */
     public void testLimitedQueuePriQueueTailGreaterThan() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5, new GreaterThanComparator(), false);
         queue.addAll(unorderedSet);
         verifyContents(queue, 9, 8, 7, 6, 5);
@@ -177,7 +177,7 @@ public class TestBoundedPriorityQueue extends TestCase {
      * Use addAll to add objects in bulk. Specify remove from tail.
      */
     public void testLimitedQueuePriQueueFrontGreaterThan() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5, new GreaterThanComparator(), true);
         queue.addAll(unorderedSet);
         verifyContents(queue, 5, 4, 3, 2, 1);
@@ -187,10 +187,10 @@ public class TestBoundedPriorityQueue extends TestCase {
      * Use addAll to add objects in bulk. Specify remove from front.
      */
     public void testQueueReverseNonDestructive() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5, true);
         queue.addAll(wholeSet);
-        List<Integer> reverse = queue.reversedList(false);
+        final List<Integer> reverse = queue.reversedList(false);
         // Check the reverse
         verifyContents(reverse, 9, 8, 7, 6, 5);
         // Make sure the queue is intact with expected order
@@ -201,10 +201,10 @@ public class TestBoundedPriorityQueue extends TestCase {
      * Use addAll to add objects in bulk. Specify remove from front.
      */
     public void testQueueReverseDestructive() {
-        BoundedPriorityQueue<Integer> queue =
+        final BoundedPriorityQueue<Integer> queue =
                 new BoundedPriorityQueue<Integer>(5, true);
         queue.addAll(wholeSet);
-        List<Integer> reverse = queue.reversedList(true);
+        final List<Integer> reverse = queue.reversedList(true);
         // Check the reverse
         verifyContents(reverse, 9, 8, 7, 6, 5);
         // Make sure the queue is intact with expected order
@@ -217,10 +217,10 @@ public class TestBoundedPriorityQueue extends TestCase {
      * @param existing the values that are in the queue
      * @param expected that values that should be in the queue
      */
-    private void verifyContents(final Collection<Integer> existing, int... expected) {
+    private void verifyContents(final Collection<Integer> existing, final int... expected) {
         assertEquals("Collection size problem", expected.length, existing.size());
         int pos = 0;
-        for (int e : expected) {
+        for (final int e : expected) {
             int current = -1;
             if (existing instanceof Queue) {
                 current = ((Queue<Integer>)existing).poll();
@@ -232,7 +232,7 @@ public class TestBoundedPriorityQueue extends TestCase {
     }
 
     private class LessThanComparator implements Comparator<Integer> {
-        public int compare(Integer i1, Integer i2) {
+        public int compare(final Integer i1, final Integer i2) {
             if (i1.equals(i2)) {
                 return 0;
             } else if (i1 < i2) {
@@ -244,7 +244,7 @@ public class TestBoundedPriorityQueue extends TestCase {
     }
 
     private class GreaterThanComparator implements Comparator<Integer> {
-        public int compare(Integer i1, Integer i2) {
+        public int compare(final Integer i1, final Integer i2) {
             if (i1.equals(i2)) {
                 return 0;
             } else if (i1 > i2) {

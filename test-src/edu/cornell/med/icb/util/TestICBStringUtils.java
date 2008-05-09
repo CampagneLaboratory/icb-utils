@@ -76,7 +76,7 @@ public class TestICBStringUtils extends TestCase {
     }
 
     public final void testModifyFilename() {
-        String[] exts = {".txt", ".gz"};
+        final String[] exts = {".txt", ".gz"};
         assertNull(ICBStringUtils.modifyFilename(null, null, null));
         assertEquals("-test", ICBStringUtils.modifyFilename(null, null, "-test"));
         assertEquals("TEST-test", ICBStringUtils.modifyFilename("TEST", null, "-test"));
@@ -87,7 +87,7 @@ public class TestICBStringUtils extends TestCase {
     }
 
     public void testHighlightStrings() {
-        String[] toFind = {"cat", "hat"};
+        final String[] toFind = {"cat", "hat"};
         assertEquals("[Cat] eat [Hat]",
                 ICBStringUtils.highlightStrings("Cat eat Hat", toFind, "[", "]"));
         assertEquals("[Cat]s eat [Hat]s",
