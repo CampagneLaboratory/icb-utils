@@ -419,15 +419,11 @@ public final class ICBStringUtils {
      * @return the array of Strings, unescaped.
      */
     public static String[] unescape(final String[] inval, final Character escapeChar) {
-        if (inval == null) {
-            return null;
-        }
-        if (escapeChar == null || inval.length == 0) {
-            // Nothing to do
-            return inval;
-        }
-        for (int i = 0; i < inval.length; i++) {
-            inval[i] = unescape(inval[i], escapeChar);
+        // if nothing was passed in, just pass back the same thing
+        if (inval != null && escapeChar != null && inval.length != 0) {
+            for (int i = 0; i < inval.length; i++) {
+                inval[i] = unescape(inval[i], escapeChar);
+            }
         }
         return inval;
     }
@@ -442,13 +438,11 @@ public final class ICBStringUtils {
      * @return the string, unescaped
      */
     public static String unescape(final String inval, final Character escapeChar) {
-        if (inval == null) {
-            return null;
-        }
-        if (escapeChar == null || inval.length() == 0) {
+        if (inval == null || escapeChar == null || inval.length() == 0) {
             // Nothing to do
             return inval;
         }
+
         final int length = inval.length();
         final StringBuilder curSplit = new StringBuilder();
         boolean inEscape = false;
@@ -465,6 +459,7 @@ public final class ICBStringUtils {
             }
             curSplit.append(curChar);
         }
+
         return curSplit.toString();
     }
 
@@ -488,64 +483,61 @@ public final class ICBStringUtils {
      * @param breakStr character to cause a break
      * @return the string, wrapped as necessary
      */
-    public static String makeStringWrappable(
-            final String stringToBreak, final int maxLength,
-            final String breakStr) {
-        String remain;
+    public static String makeStringWrappable(final String stringToBreak,
+                                             final int maxLength,
+                                             final String breakStr) {
         final StringBuilder returnVal = new StringBuilder();
 
         // Check if there is no need to break whatsoever
         // and just return
-        if (stringToBreak == null) {
-            return "";
-        }
+        if (stringToBreak != null) {
+            // Remove all beginning, ending, and duplicate whitespace
+            String remain = stringToBreak.replaceAll("[\t|\n| ]+", " ").trim();
 
-        // Remove all beginning, ending, and duplicate whitespace
-        remain = stringToBreak.replaceAll("[\t|\n| ]+", " ").trim();
-
-        if (remain.length() <= maxLength) {
-            return remain;
-        }
-
-        // Intelligently add spaces to allow for nicer
-        // html line breaking
-        int pos = maxLength;
-        while (true) {
-            // Scan backwards for a non alpha-numeric.
-            if (pos < 0) {
-                // We never found a char to split on.
-                // We just have to split.
-                pos = maxLength;
-
-                returnVal.append(remain.substring(0, pos)).append(breakStr);
-                remain = remain.substring(pos, remain.length());
-                if (remain.length() <= maxLength) {
-                    // We're done. The remaining text will fit on one line
-                    returnVal.append(remain);
-                    break;
-                }
-                // There is more to split.
-                pos = maxLength;
-                continue;
+            if (remain.length() <= maxLength) {
+                return remain;
             }
 
-            final String curChar = remain.substring(pos, pos + 1).toLowerCase();
-            if (!NO_BREAK_CHARS.contains(curChar)) {
-                // We found a non alpha-numeric char. Split after it.
-                returnVal.append(remain.substring(0, pos + 1)).append(breakStr);
-                remain = remain.substring(pos + 1, remain.length());
-                if (remain.length() <= maxLength) {
-                    // We're done. The remaining text will fit on one line
-                    returnVal.append(remain);
-                    break;
+            // Intelligently add spaces to allow for nicer
+            // html line breaking
+            int pos = maxLength;
+            while (true) {
+                // Scan backwards for a non alpha-numeric.
+                if (pos < 0) {
+                    // We never found a char to split on.
+                    // We just have to split.
+                    pos = maxLength;
+
+                    returnVal.append(remain.substring(0, pos)).append(breakStr);
+                    remain = remain.substring(pos, remain.length());
+                    if (remain.length() <= maxLength) {
+                        // We're done. The remaining text will fit on one line
+                        returnVal.append(remain);
+                        break;
+                    }
+                    // There is more to split.
+                    pos = maxLength;
+                    continue;
                 }
-                // There is more to split.
-                pos = maxLength;
-                continue;
+
+                final String curChar = remain.substring(pos, pos + 1).toLowerCase();
+                if (!NO_BREAK_CHARS.contains(curChar)) {
+                    // We found a non alpha-numeric char. Split after it.
+                    returnVal.append(remain.substring(0, pos + 1)).append(breakStr);
+                    remain = remain.substring(pos + 1, remain.length());
+                    if (remain.length() <= maxLength) {
+                        // We're done. The remaining text will fit on one line
+                        returnVal.append(remain);
+                        break;
+                    }
+                    // There is more to split.
+                    pos = maxLength;
+                    continue;
+                }
+                // The current character wasn't an ideal split. Let's
+                // look at the previous character.
+                pos--;
             }
-            // The current character wasn't an ideal split. Let's
-            // look at the previous character.
-            pos--;
         }
 
         // Return the more wrappable string.

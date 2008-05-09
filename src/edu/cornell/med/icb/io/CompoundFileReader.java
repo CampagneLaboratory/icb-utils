@@ -18,6 +18,10 @@
 
 package edu.cornell.med.icb.io;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.File;
@@ -35,6 +39,11 @@ import java.util.Set;
  * @author Kevin Dorff
  */
 public class CompoundFileReader implements Closeable {
+    /**
+     * Used to log debug and informational messages.
+     */
+    private static final Log LOG = LogFactory.getLog(CompoundFileReader.class);
+
     /**
      * The filename of the compound file.
      */
@@ -86,8 +95,13 @@ public class CompoundFileReader implements Closeable {
      */
     public DataInput readFile(final String name) throws IOException {
         if (stream == null) {
-            throw new IOException("CompoundFileReader is not open.");
+            throw new IllegalStateException("CompoundFileReader is not open.");
         }
+
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("The name specified was null or empty.");
+        }
+
         final Long position = nameToDataPositionMap.get(name);
         if (position == null) {
             throw new FileNotFoundException("The compound file " + filename
@@ -129,28 +143,35 @@ public class CompoundFileReader implements Closeable {
         nameToFileStartPositionMap = new LinkedHashMap<String, Long>();
         nameToSizeMap = new LinkedHashMap<String, Long>();
 
-        // System.out.println("Scanning directory...");
-        if (stream.length() == 0) {
-            // System.out.println("Empty file.");
-            return;
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Scanning directory from " + filename);
         }
-        stream.seek(0);
-        totalNumberOfFiles = stream.readLong();
-        // System.out.println("Total number of files " + totalNumberOfFiles);
-        for (int i = 0; i < totalNumberOfFiles; i++) {
-            final long fileStartPosition = stream.getFilePointer();
-            // System.out.println("Reading file starting at position " + fileStartPosition);
-            final int fileState = stream.readInt();
-            final String fileName = stream.readUTF();
-            final long fileSize = stream.readLong();
-            final long dataPosition = stream.getFilePointer();
-            // System.out.printf("File %s has a state %d, size %d%n", fileName, fileState, fileSize);
-            if (fileState == CompoundFileWriter.FILE_STATE_NORMAL) {
-                nameToFileStartPositionMap.put(fileName, fileStartPosition);
-                nameToDataPositionMap.put(fileName, dataPosition);
-                nameToSizeMap.put(fileName, fileSize);
+        if (stream.length() != 0) {
+            stream.seek(0);
+            totalNumberOfFiles = stream.readLong();
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Total number of files " + totalNumberOfFiles);
             }
-            stream.seek(dataPosition + fileSize);
+            for (int i = 0; i < totalNumberOfFiles; i++) {
+                final long fileStartPosition = stream.getFilePointer();
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Reading file starting at position " + fileStartPosition);
+                }
+                final int fileState = stream.readInt();
+                final String fileName = stream.readUTF();
+                final long fileSize = stream.readLong();
+                final long dataPosition = stream.getFilePointer();
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("File " + fileName + " has a state " + fileState
+                            + " size " + fileSize);
+                }
+                if (fileState == CompoundFileWriter.FILE_STATE_NORMAL) {
+                    nameToFileStartPositionMap.put(fileName, fileStartPosition);
+                    nameToDataPositionMap.put(fileName, dataPosition);
+                    nameToSizeMap.put(fileName, fileSize);
+                }
+                stream.seek(dataPosition + fileSize);
+            }
         }
     }
 
@@ -159,7 +180,9 @@ public class CompoundFileReader implements Closeable {
      * @throws IOException error closing the compound file
      */
     public void close() throws IOException {
-        stream.close();
-        stream = null;
+        if (stream != null) {
+            stream.close();
+            stream = null;
+        }
     }
 }

@@ -19,6 +19,8 @@
 package edu.cornell.med.icb.io;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -32,6 +34,11 @@ import java.io.Closeable;
  * @author Kevin Dorff
  */
 public class CompoundFileWriter implements Closeable {
+    /**
+     * Used to log debug and informational messages.
+     */
+    private static final Log LOG = LogFactory.getLog(CompoundFileWriter.class);
+
     /**
      * The stream we are writing to.
      */
@@ -149,7 +156,7 @@ public class CompoundFileWriter implements Closeable {
         }
 
         if (StringUtils.isBlank(name)) {
-            throw new IllegalArgumentException("The name specified to addFile was null or empty.");
+            throw new IllegalArgumentException("The name specified was null or empty.");
         }
 
         finishAddFile();
@@ -219,9 +226,11 @@ public class CompoundFileWriter implements Closeable {
      * finishAddFile(), if so the CompoundFile is probably un-usable.
      */
     public void close() throws IOException {
-        finishAddFile();
-        stream.close();
-        stream = null;
+        if (stream != null) {
+            finishAddFile();
+            stream.close();
+            stream = null;
+        }
     }
 
     /**
