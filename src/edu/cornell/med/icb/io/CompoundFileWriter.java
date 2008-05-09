@@ -22,13 +22,14 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.DataOutput;
+import java.io.Closeable;
 
 /**
  * Write a compound file. Only one thread should be writing to the compound
  * file at a time. NOT THREAD SAFE!
  * @author Kevin Dorff
  */
-public class CompoundFileWriter {
+public class CompoundFileWriter implements Closeable {
 
     /**
      * The stream we are writing to.

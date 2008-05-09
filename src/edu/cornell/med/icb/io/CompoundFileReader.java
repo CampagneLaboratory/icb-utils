@@ -23,6 +23,7 @@ import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.DataInput;
 import java.io.FileNotFoundException;
+import java.io.Closeable;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -32,7 +33,7 @@ import java.util.Set;
  * TODO: Improve the data storage, change from the maps to a map of objects.
  * @author Kevin Dorff
  */
-public class CompoundFileReader {
+public class CompoundFileReader implements Closeable {
 
     /** The filename of the compound file. */
     final private String filename;
