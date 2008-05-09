@@ -14,8 +14,6 @@
     <property name="javadocs" location="javadocs"/>
     <property name="logs" location="logs"/>
     <property name="config" location="config"/>
-    <property name="test-src" location="test-src"/>
-    <property name="test-results" location="test-results"/>
     <property name="jarfile" value="icb-utils.jar"/>
 
     <!-- compiler and javadoc settings -->
@@ -46,9 +44,7 @@
         <mkdir dir="${classes}"/>
         <!--  Create the logs directory -->
         <mkdir dir="${logs}"/>
-        <!-- Create directory for test results -->
-        <mkdir dir="${test-results}"/>
-        <mkdir dir="${test-results}/html"/>
+        <mkdir dir="test-data"/>
     </target>
 
     <target name="compile" depends="init" description="compiles the source code">
@@ -99,9 +95,10 @@
 
         <delete file="${jarfile}"/>
         <delete dir="${logs}"/>
+        <delete dir="test-data"/>
     </target>
 
-    <target name="distclean">
+    <target name="distclean" depends="clean">
         <delete includeemptydirs="true">
             <fileset dir="${basedir}">
                 <include name="release*/**"/>
