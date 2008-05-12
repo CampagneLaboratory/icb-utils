@@ -27,13 +27,21 @@ import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.DataOutput;
 import java.io.Closeable;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 
 /**
  * Write a compound file. Only one thread should be writing to the compound
  * file at a time. NOT THREAD SAFE!
+ * TODO: * Add a semaphore and make it thread safe? This will probably require
+ * TODO: that finishAddFile be a required operation, not do it automatically.
+ * TODO: * Locally track the file contents so we don't need to rely on the
+ * TODO: CompoundFileReader and the bulk mode.
  * @author Kevin Dorff
  */
 public class CompoundFileWriter implements Closeable {
+
     /**
      * Used to log debug and informational messages.
      */
@@ -95,10 +103,10 @@ public class CompoundFileWriter implements Closeable {
      */
     public CompoundFileWriter(final String filename) throws IOException {
         super();
-        compoundFileReader = new CompoundFileReader(filename);
 
         this.filename = filename;
         stream = new RandomAccessFile(new File(filename), "rw");
+        compoundFileReader = new CompoundFileReader(filename);
         sizePositionAtAddStart = -1;
         lengthAtAddStart = -1;
         stream.seek(0);
@@ -133,7 +141,7 @@ public class CompoundFileWriter implements Closeable {
     /**
      * Set if in bulk load mode.
      * @param bulkLoadMode if in bulk load mode.
-     * @throws java.io.IOException
+     * @throws java.io.IOException error reading the directory
      */
     public void setBulkLoadMode(final boolean bulkLoadMode) throws IOException {
         if (!bulkLoadMode) {
@@ -148,7 +156,8 @@ public class CompoundFileWriter implements Closeable {
      * by calling finishAddFile().
      * @param name the internal filename (any string is valid)
      * @throws IOException problem adding a file
-     * @return
+     * @return a DataOutput which can be used to write the contents
+     * of the file
      */
     public DataOutput addFile(final String name) throws IOException {
         if (stream == null) {
@@ -166,22 +175,49 @@ public class CompoundFileWriter implements Closeable {
                     + " already contains a file named " + name);
         }
 
-        // System.out.println("Adding a new file named " + name);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Adding a new file named " + name);
+        }
         totalNumberOfFiles++;
-        // System.out.println("Seeking to 0 to write new totalNumberOfFiles " + totalNumberOfFiles);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Seeking to 0 to write new totalNumberOfFiles " + totalNumberOfFiles);
+        }
         stream.seek(0);
         stream.writeLong(totalNumberOfFiles);
 
-        // System.out.println("Seeking to " + stream.length());
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Seeking to " + stream.length());
+        }
         stream.seek(stream.length());
         stream.writeInt(FILE_STATE_NORMAL);
         stream.writeUTF(name);
         sizePositionAtAddStart = stream.length();
-        // System.out.println("Remebering size position " + sizePositionAtAddStart);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Remebering size position " + sizePositionAtAddStart);
+        }
         stream.writeLong(0);  // Length will go here
-        // System.out.println("Data starting at " + stream.length());
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Data starting at " + stream.length());
+        }
         lengthAtAddStart = stream.length();
         return stream;
+    }
+
+    /**
+     * Write an object to the current stream position.
+     * @param objToWrite the object to write
+     * @throws IOException error reading the object
+     */
+    public void writeObject(final Object objToWrite) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream() ;
+        ObjectOutput out = new ObjectOutputStream(bos);
+        out.writeObject(objToWrite);
+        out.close();
+        // Get the bytes of the serialized object
+        byte[] buf = bos.toByteArray();
+        // save the position and length of the serialized object
+        stream.writeInt(buf.length);
+        stream.write(buf);
     }
 
     /**
@@ -209,14 +245,19 @@ public class CompoundFileWriter implements Closeable {
         if (containsFile(name)) {
             finishAddFile(false);
             final long position = compoundFileReader.nameToFileStartPositionMap.get(name);
-            // System.out.println("Marking file deleted at position " + position);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Marking file deleted at position " + position);
+            }
             stream.seek(position);
             stream.writeInt(FILE_STATE_DELETED);
-            // System.out.println("Rescanning directory");
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Rescanning directory");
+            }
             compoundFileReader.scanDirectory();
         } else {
-            // System.out.println("Not deleting, not in compound file");
-            return;
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Not deleting, not in compound file");
+            }
         }
     }
 
@@ -236,7 +277,7 @@ public class CompoundFileWriter implements Closeable {
     /**
      * Finish adding a file (calling addFile again or close will do this
      * automatically). Setting bulkLoadMode to true will make this faster.
-     * @throws IOException
+     * @throws IOException error scanning the directory
      */
     public void finishAddFile() throws IOException {
         finishAddFile(!bulkLoadMode);
@@ -244,23 +285,32 @@ public class CompoundFileWriter implements Closeable {
 
     /**
      * Finish adding a file to the compound file.
+     * @param updateDirectory if true, the directory will be rescanned after the add is finished
      * @throws IOException problem finishing addFile. The CompoundFile
      * is probably un-usable.
      */
     private void finishAddFile(final boolean updateDirectory) throws IOException {
         if (lengthAtAddStart == -1) {
-            // System.out.println("skipping finish add...");
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("skipping finish add...");
+            }
             return;
         }
         try {
-            // System.out.println("running finish add...");
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("running finish add...");
+            }
             final long dataSize = stream.length() - lengthAtAddStart;
             if (dataSize > 0) {
-                // System.out.println("++ data size was " + dataSize + " writing at position " + sizePositionAtAddStart);
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("++ data size was " + dataSize + " writing at position " + sizePositionAtAddStart);
+                }
                 stream.seek(sizePositionAtAddStart);
                 stream.writeLong(dataSize);
             } else {
-                // System.out.println("++ ZERO data size.");
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("++ ZERO data size.");
+                }
             }
         } finally {
             sizePositionAtAddStart = -1;

@@ -19,7 +19,6 @@
 package edu.cornell.med.icb.io;
 
 import org.junit.Test;
-import org.junit.Before;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -36,18 +35,21 @@ import java.util.Set;
 public class TestCompoundFile {
 
     @Test
-    public void testCompoundFile() throws IOException {
+    public void testCompoundFile() throws IOException, ClassNotFoundException {
         new File("test-data/CompoundFile.dat").delete();
         CompoundFileWriter cfw = new CompoundFileWriter("test-data/CompoundFile.dat");
         DataOutput output = cfw.addFile("file1");
         output.writeUTF("File 1 string");
         output.writeLong(45);
         output.writeUTF("File 1 string B");
+        cfw.writeObject("File 1 StringC serialized");
 
         output = cfw.addFile("file2");
         output.writeUTF("File 2 string");
         output.writeLong(35);
         output.writeLong(54);
+        cfw.writeObject("File 2 String serialized");
+
         cfw.close();
 
         cfw = new CompoundFileWriter("test-data/CompoundFile.dat");
@@ -66,6 +68,7 @@ public class TestCompoundFile {
         assertEquals("File 1 string", input.readUTF());
         assertEquals(45, input.readLong());
         assertEquals("File 1 string B", input.readUTF());
+        assertEquals("File 1 StringC serialized", (String) cfr.readObject());
 
         cfw.deleteFile("file1");
         output = cfw.addFile("file1");
@@ -81,6 +84,7 @@ public class TestCompoundFile {
         assertEquals("File 2 string", input.readUTF());
         assertEquals(35, input.readLong());
         assertEquals(54, input.readLong());
+        assertEquals("File 2 String serialized", (String) cfr.readObject());
 
         input = cfr.readFile("file3");
         assertEquals("File 3 string", input.readUTF());

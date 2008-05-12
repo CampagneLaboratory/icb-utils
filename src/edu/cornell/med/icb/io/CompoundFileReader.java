@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.DataInput;
 import java.io.FileNotFoundException;
 import java.io.Closeable;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -75,7 +77,7 @@ public class CompoundFileReader implements Closeable {
     public CompoundFileReader(final String filename) throws IOException {
         super();
         this.filename = filename;
-        stream = new RandomAccessFile(new File(filename), "rw");  // TODO - why "rw"?
+        stream = new RandomAccessFile(new File(filename), "r");
         scanDirectory();
     }
 
@@ -109,6 +111,23 @@ public class CompoundFileReader implements Closeable {
         }
         stream.seek(position);
         return stream;
+    }
+
+    /**
+     * Read an object from the current stream position.
+     * @return the object
+     * @throws IOException error reading the object
+     * @throws ClassNotFoundException error de-serializing the object
+     */
+    public Object readObject() throws IOException, ClassNotFoundException {
+        int size = stream.readInt();
+        byte[] buf = new byte[size];
+        stream.readFully(buf);
+        ByteArrayInputStream bis = new ByteArrayInputStream(buf);
+        ObjectInputStream ois = new ObjectInputStream(bis);
+        Object deserializedObject = ois.readObject();
+        ois.close();
+        return deserializedObject;
     }
 
     /**
