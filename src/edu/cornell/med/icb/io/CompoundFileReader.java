@@ -195,6 +195,17 @@ public class CompoundFileReader implements Closeable {
     }
 
     /**
+     * Returns true of a file with the specified name exists in this
+     * compound file. To be completely up to date call
+     * compoundFileReader.scanDirectory() first.
+     * @param name the name of the file to check for
+     * @return true of the file exists in the compound file
+     */
+    public boolean containsFile(final String name) {
+        return nameToDataPositionMap.containsKey(name);
+    }
+
+    /**
      * Close the compound file.
      * @throws IOException error closing the compound file
      */

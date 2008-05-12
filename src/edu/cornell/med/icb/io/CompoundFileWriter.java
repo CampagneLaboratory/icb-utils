@@ -38,6 +38,8 @@ import java.io.ObjectOutputStream;
  * TODO: that finishAddFile be a required operation, not do it automatically.
  * TODO: * Locally track the file contents so we don't need to rely on the
  * TODO: CompoundFileReader and the bulk mode.
+ * TODO: * Utility to copy a set of files to a compound file, and extract a set of files
+ * TODO: from a compound file
  * @author Kevin Dorff
  */
 public class CompoundFileWriter implements Closeable {
