@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.cornell.med.icb.io;
+package edu.cornell.med.icb.io.compound;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +37,7 @@ public class CompoundDataInput implements DataInput {
     /**
      * Used to log debug and informational messages.
      */
-    private static final Log LOG = LogFactory.getLog(CompoundFileReader.class);
+    private static final Log LOG = LogFactory.getLog(CompoundDataInput.class);
 
     /** The delegate DataInput object. */
     private RandomAccessFile dataInput;
@@ -53,21 +53,21 @@ public class CompoundDataInput implements DataInput {
     /**
      * {@inheritDoc}
      */
-    public void readFully(byte[] b) throws IOException {
+    public void readFully(final byte[] b) throws IOException {
         dataInput.readFully(b);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void readFully(byte[] b, int off, int len) throws IOException {
+    public void readFully(final byte[] b, final int off, final int len) throws IOException {
         dataInput.readFully(b, off, len);
     }
 
     /**
      * {@inheritDoc}
      */
-    public int skipBytes(int n) throws IOException {
+    public int skipBytes(final int n) throws IOException {
         return dataInput.skipBytes(n);
     }
 
@@ -162,15 +162,15 @@ public class CompoundDataInput implements DataInput {
      * @throws ClassNotFoundException error de-serializing the object
      */
     public Object readObject() throws IOException, ClassNotFoundException {
-        int size = dataInput.readInt();
+        final int size = dataInput.readInt();
         if (LOG.isInfoEnabled()) {
             LOG.info("Reading an object that should be " + (size + 4) + " bytes long");
         }
-        byte[] buf = new byte[size];
+        final byte[] buf = new byte[size];
         dataInput.readFully(buf);
-        ByteArrayInputStream bis = new ByteArrayInputStream(buf);
-        ObjectInputStream ois = new ObjectInputStream(bis);
-        Object deserializedObject = ois.readObject();
+        final ByteArrayInputStream bis = new ByteArrayInputStream(buf);
+        final ObjectInputStream ois = new ObjectInputStream(bis);
+        final Object deserializedObject = ois.readObject();
         ois.close();
         return deserializedObject;
     }

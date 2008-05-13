@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.cornell.med.icb.io;
+package edu.cornell.med.icb.io.compound;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -27,6 +27,7 @@ import java.io.File;
 import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collection;
 
 /**
  * Test the compound file reader / writer.
@@ -38,12 +39,14 @@ public class TestCompoundFile {
     public void testCompoundFile() throws IOException, ClassNotFoundException {
         new File("test-data/CompoundFile.dat").delete();
         CompoundFileWriter cfw = new CompoundFileWriter("test-data/CompoundFile.dat");
+        CompoundFileReader cfr = cfw.getCompoundFileReader();
         CompoundDataOutput output = cfw.addFile("file1");
         output.writeUTF("File 1 string");
         output.writeLong(45);
         output.writeUTF("File 1 string B");
         output.writeObject("File 1 StringC serialized");
         output.close();
+        assertEquals(1, cfr.getFileNames().size());
 
         output = cfw.addFile("file2");
         output.writeUTF("File 2 string");
@@ -51,17 +54,18 @@ public class TestCompoundFile {
         output.writeLong(54);
         output.writeObject("File 2 String serialized");
         output.close();
+        assertEquals(2, cfr.getFileNames().size());
 
         cfw.close();
 
         cfw = new CompoundFileWriter("test-data/CompoundFile.dat");
+        cfr = cfw.getCompoundFileReader();
         output = cfw.addFile("file3");
         output.writeUTF("File 3 string");
         output.writeDouble(3.14159);
         output.close();
-        cfw.setBulkLoadMode(false);
+        assertEquals(3, cfr.getFileNames().size());
 
-        final CompoundFileReader cfr = cfw.getCompoundFileReader();
         final Set<String> files = cfr.getFileNames();
         for (final String file : files) {
             System.out.println("Compound file contains file named " + file);
@@ -73,10 +77,12 @@ public class TestCompoundFile {
         assertEquals("File 1 StringC serialized", input.readObject());
 
         cfw.deleteFile("file1");
+        assertEquals(2, cfr.getFileNames().size());
         output = cfw.addFile("file1");
         output.writeUTF("File 1b string");
         output.writeDouble(2.73);
         output.close();
+        assertEquals(3, cfr.getFileNames().size());
 
         input = cfr.readFile("file1");
         assertEquals("File 1b string", input.readUTF());
@@ -92,9 +98,6 @@ public class TestCompoundFile {
         assertEquals("File 3 string", input.readUTF());
         assertEquals(3.14159, input.readDouble(), 0.001);
 
-        assertEquals(4, cfr.getTotalNumberOfFiles());
-        assertEquals(3, cfr.getFileNames().size());
-
         cfr.close();
         cfw.close();
     }
@@ -104,17 +107,19 @@ public class TestCompoundFile {
         System.out.println("Testing lots of small files");
         new File("test-data/CompoundFile2.dat").delete();
         final CompoundFileWriter cfw = new CompoundFileWriter("test-data/CompoundFile2.dat");
+        CompoundFileReader cfr = cfw.getCompoundFileReader();
         for (int x = 0; x < 20000; x++) {
             final CompoundDataOutput output = cfw.addFile("file" + x);
             output.writeUTF("Data for file " + x);
             output.close();
             if (x % 500 == 0) {
-                System.out.println("Loaded " + x + " files");
+            //     System.out.println("Loaded " + x + " files");
+                assertEquals(x + 1, cfr.getFileNames().size());
             }
         }
         cfw.close();
 
-        final CompoundFileReader cfr = new CompoundFileReader("test-data/CompoundFile2.dat");
+        cfr = new CompoundFileReader("test-data/CompoundFile2.dat");
         assertEquals(20000,cfr.getFileNames().size());
     }
 
@@ -195,6 +200,20 @@ public class TestCompoundFile {
         assertSameMap(map, mapRead2);
         assertSameMap(map, mapRead3);
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void testMultiAddFileWrong() throws IOException, ClassNotFoundException {
+        new File("test-data/CompoundFile4.dat").delete();
+        CompoundFileWriter cfw = new CompoundFileWriter("test-data/CompoundFile4.dat");
+        CompoundDataOutput output = cfw.addFile("file1");
+        output.writeObject("hello");
+        // Shouldn't be able to do this -  need to output.close() first
+        output = cfw.addFile("file2");
+        output.writeObject("hello again");
+        output.close();
+        cfw.close();
+    }
+
     public void assertSameMap(final Map<Long, String> expected, final Map<Long, String> actual) {
         assertEquals("Map sizes differ.", expected.size(), actual.size());
         for (Long key : expected.keySet()) {

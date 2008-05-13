@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.cornell.med.icb.io;
+package edu.cornell.med.icb.io.compound;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -30,10 +30,10 @@ import java.io.Closeable;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.Collection;
 
 /**
  * Read a compound file.
- * TODO: Improve the data storage, change from the maps to a map of objects.
  * TODO: May want to investigate MultipleStream from fastutil - this would allow iterating files
  * @author Kevin Dorff
  */
@@ -53,14 +53,8 @@ public class CompoundFileReader implements Closeable {
      */
     private RandomAccessFile stream;
 
-    /** Name of file in the container to the position the file starts at. */
-    Map<String, Long> nameToFileStartPositionMap;
-
-    /** Name of file in the container to the position the file's data starts at. */
-    Map<String, Long> nameToDataPositionMap;
-
-    /** Name of file in the container to the size of the file. */
-    Map<String, Long> nameToSizeMap;
+    /** Name of file in the container to directory entry data. */
+    private Map<String, CompoundDirectoryEntry> nameToDirEntryMap;
 
     /** The total number of files stored in the compound file, included deleted files. */
     private long totalNumberOfFiles;
@@ -68,13 +62,13 @@ public class CompoundFileReader implements Closeable {
     /**
      * Create (if it doesn't exist) or open to (if it does exist)
      * a compound file.
-     * @param filename the compound file to read from
+     * @param physicalFilename the compound file to read from
      * @throws IOException problem opening the file
      */
-    public CompoundFileReader(final String filename) throws IOException {
+    public CompoundFileReader(final String physicalFilename) throws IOException {
         super();
-        this.filename = filename;
-        stream = new RandomAccessFile(new File(filename), "r");
+        this.filename = physicalFilename;
+        stream = new RandomAccessFile(new File(physicalFilename), "r");
         scanDirectory();
     }
 
@@ -101,13 +95,16 @@ public class CompoundFileReader implements Closeable {
             throw new IllegalArgumentException("The name specified was null or empty.");
         }
 
-        final Long position = nameToDataPositionMap.get(name);
-        if (position == null) {
+
+        final CompoundDirectoryEntry entry = nameToDirEntryMap.get(name);
+        if (entry == null) {
             throw new FileNotFoundException("The compound file " + filename
                     + " does not contain the file " + name);
         }
+        final long position = entry.getDataPosition();
+
         if (LOG.isInfoEnabled()) {
-            LOG.info("Reading an file that should be " + nameToSizeMap.get(name) + " bytes long");
+            LOG.info("Reading an file that should be " + entry.getFileSize() + " bytes long");
         }
         stream.seek(position);
         return new CompoundDataInput(stream);
@@ -118,7 +115,7 @@ public class CompoundFileReader implements Closeable {
      * @return the set of non-deleted filenames in the compound file
      */
     public Set<String> getFileNames() {
-        return nameToDataPositionMap.keySet();
+        return nameToDirEntryMap.keySet();
     }
 
     /**
@@ -128,12 +125,13 @@ public class CompoundFileReader implements Closeable {
      * @throws FileNotFoundException if the file named does not exist in the compound file
      */
     public long getFileSize(final String name) throws FileNotFoundException {
-        final Long size = nameToSizeMap.get(name);
-        if (size == null) {
+        final CompoundDirectoryEntry entry = nameToDirEntryMap.get(name);
+        if (entry == null) {
             throw new FileNotFoundException("The compound file " + filename
                     + " does not contain the file " + name);
+        } else {
+            return entry.getFileSize();
         }
-        return size;
     }
 
     /**
@@ -141,9 +139,7 @@ public class CompoundFileReader implements Closeable {
      * @throws IOException problem reading the compound file
      */
     public void scanDirectory() throws IOException {
-        nameToDataPositionMap = new LinkedHashMap<String, Long>();
-        nameToFileStartPositionMap = new LinkedHashMap<String, Long>();
-        nameToSizeMap = new LinkedHashMap<String, Long>();
+        nameToDirEntryMap = new LinkedHashMap<String, CompoundDirectoryEntry>();
 
         if (LOG.isTraceEnabled()) {
             LOG.trace("Scanning directory from " + filename);
@@ -168,9 +164,9 @@ public class CompoundFileReader implements Closeable {
                             + " size " + fileSize);
                 }
                 if (fileState == CompoundFileWriter.FILE_STATE_NORMAL) {
-                    nameToFileStartPositionMap.put(fileName, fileStartPosition);
-                    nameToDataPositionMap.put(fileName, dataPosition);
-                    nameToSizeMap.put(fileName, fileSize);
+                    final CompoundDirectoryEntry dirEntry = new CompoundDirectoryEntry(
+                                    fileName, fileStartPosition, dataPosition, fileSize);
+                    nameToDirEntryMap.put(fileName, dirEntry);
                 }
                 stream.seek(dataPosition + fileSize);
             }
@@ -185,7 +181,7 @@ public class CompoundFileReader implements Closeable {
      * @return true of the file exists in the compound file
      */
     public boolean containsFile(final String name) {
-        return nameToDataPositionMap.containsKey(name);
+        return nameToDirEntryMap.containsKey(name);
     }
 
     /**
@@ -197,5 +193,50 @@ public class CompoundFileReader implements Closeable {
             stream.close();
             stream = null;
         }
+    }
+
+    /**
+     * Add a directory entry.
+     * NOTE this does NOT
+     * change the underlying compound file, just the in-memory
+     * directory entries map that was created when
+     * scanDirectory() was called. This allows CompoundFileWriter to update
+     * the directory when addFile() is called.
+     * @param entry the entry to add
+     */
+    void addToDirectory(final CompoundDirectoryEntry entry) {
+        nameToDirEntryMap.put(entry.getName(), entry);
+    }
+
+    /**
+     * Remove a directory entry.
+     * NOTE this does NOT
+     * change the underlying compound file, just the in-memory
+     * directory entries map that was created when
+     * scanDirectory() was called. This allows CompoundFileWriter to update
+     * the directory when deleteFile() is called.
+     * @param entryName the file name of the entry to remove
+     * from the directory.
+     */
+    void removeFromDirectory(final String entryName) {
+        nameToDirEntryMap.remove(entryName);
+    }
+
+    /**
+     * Get the directory entry for a specific file or null
+     * of a file with that name is not in the directory.
+     * @param name filename to get the directory entry for
+     * @return the direcotry entry for the named file
+     */
+    public CompoundDirectoryEntry getDirectoryEntry(final String name) {
+        return nameToDirEntryMap.get(name);
+    }
+
+    /**
+     * Get the complete directory.
+     * @return the complete directory.
+     */
+    public Collection<CompoundDirectoryEntry> getDirectory() {
+        return nameToDirEntryMap.values();
     }
 }

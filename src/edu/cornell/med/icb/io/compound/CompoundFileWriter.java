@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.cornell.med.icb.io;
+package edu.cornell.med.icb.io.compound;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -30,10 +30,7 @@ import java.io.Closeable;
 /**
  * Write a compound file. Only one thread should be writing to the compound
  * file at a time. NOT THREAD SAFE!
- * TODO: * Add a semaphore and make it thread safe? This will probably require
- * TODO: that finishAddFile be a required operation, not do it automatically.
- * TODO: * Locally track the file contents so we don't need to rely on the
- * TODO: CompoundFileReader and the bulk mode.
+ * TODO: * Add a semaphore and make it thread safe?
  * TODO: * Utility to copy a set of files to a compound file, and extract a set of files
  * TODO: from a compound file
  * @author Kevin Dorff
@@ -49,18 +46,6 @@ public class CompoundFileWriter implements Closeable {
      * The stream we are writing to.
      */
     private RandomAccessFile stream;
-
-    /**
-     * The position of the current data-size element in the current "addFile"
-     * or -1 if we aren't currently in an "addFile".
-     */
-    private long sizePositionAtAddStart;
-
-    /**
-     * The total length of the file at the start of "addFile". This is
-     * used to determine the size of the data in finishAddFile.
-     */
-    private long lengthAtAddStart;
 
     /**
      * The current total number of files in this compound file.
@@ -89,24 +74,23 @@ public class CompoundFileWriter implements Closeable {
     private final String filename;
 
     /**
-     * If we are in bulk load mode.
+     * The filename of the compound file.
      */
-    private boolean bulkLoadMode;
+    private CompoundDirectoryEntry entryBeingAdded;
 
     /**
      * Create (if it doesn't exist) or append to (if it does exist)
      * a compound file.
-     * @param filename the compound file to write to
+     * @param physicalFilename the compound file to write to
      * @throws IOException problem opening the file
      */
-    public CompoundFileWriter(final String filename) throws IOException {
+    public CompoundFileWriter(final String physicalFilename) throws IOException {
         super();
 
-        this.filename = filename;
-        stream = new RandomAccessFile(new File(filename), "rw");
-        compoundFileReader = new CompoundFileReader(filename);
-        sizePositionAtAddStart = -1;
-        lengthAtAddStart = -1;
+        entryBeingAdded = null;
+        this.filename = physicalFilename;
+        stream = new RandomAccessFile(new File(physicalFilename), "rw");
+        compoundFileReader = new CompoundFileReader(physicalFilename);
         stream.seek(0);
         if (stream.length() == 0) {
             stream.writeLong(0);
@@ -114,14 +98,10 @@ public class CompoundFileWriter implements Closeable {
         } else {
             totalNumberOfFiles = stream.readLong();
         }
-        bulkLoadMode = true;
     }
 
     /**
      * Get the compoundFileReader associated with this compoundFileWriter.
-     * If in bulkLoadMode the reader will not stay up to date.
-     * Either turn off bulkLoadMode or call reader.scanDirectory()
-     * to update.
      * @return the compoundFileReader associated with this compoundFileWriter.
      */
     public CompoundFileReader getCompoundFileReader() {
@@ -129,32 +109,12 @@ public class CompoundFileWriter implements Closeable {
     }
 
     /**
-     * Get if in bulk load mode.
-     * @return if in bulk load mode.
-     */
-    public boolean getBulkLoadMode() {
-        return bulkLoadMode;
-    }
-
-    /**
-     * Set if in bulk load mode.
-     * @param bulkLoadMode if in bulk load mode.
-     * @throws java.io.IOException error reading the directory
-     */
-    public void setBulkLoadMode(final boolean bulkLoadMode) throws IOException {
-        if (!bulkLoadMode) {
-            compoundFileReader.scanDirectory();
-        }
-        this.bulkLoadMode = bulkLoadMode;
-    }
-
-    /**
      * Add a file to the compound file. This needs to be "completed"
-     * by calling addFile(...) again, calling close(), or
-     * by calling finishAddFile().
+     * by calling CompoundDataOutput.close() before another
+     * addFile() or deleteFile() can be called.
      * @param name the internal filename (any string is valid)
      * @throws IOException problem adding a file
-     * @return a DataOutput which can be used to write the contents
+     * @return a CompoundDataOutput which can be used to write the contents
      * of the file
      */
     public CompoundDataOutput addFile(final String name) throws IOException {
@@ -166,9 +126,16 @@ public class CompoundFileWriter implements Closeable {
             throw new IllegalArgumentException("The name specified was null or empty.");
         }
 
-        finishAddFile();
+        //
+        // Semaphore obtain logic progbably here
+        //
 
-        if (containsFile(name)) {
+        if (entryBeingAdded != null) {
+            throw new IllegalStateException("addFile() called during before close() "
+                    + "called on current addFile()");
+        }
+
+        if (compoundFileReader.containsFile(name)) {
             throw new IOException("The compound file " + filename
                     + " already contains a file named " + name);
         }
@@ -186,32 +153,19 @@ public class CompoundFileWriter implements Closeable {
         if (LOG.isTraceEnabled()) {
             LOG.trace("Seeking to " + stream.length());
         }
-        stream.seek(stream.length());
+        final long fileStartPosition = stream.length();
+        stream.seek(fileStartPosition);
         stream.writeInt(FILE_STATE_NORMAL);
         stream.writeUTF(name);
-        sizePositionAtAddStart = stream.length();
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Remebering size position " + sizePositionAtAddStart);
-        }
         stream.writeLong(0);  // Length will go here
+        final long dataStartPosition = stream.length();
         if (LOG.isTraceEnabled()) {
             LOG.trace("Data starting at " + stream.length());
         }
-        lengthAtAddStart = stream.length();
-        return new CompoundDataOutput(stream, this);
-    }
 
-    /**
-     * Returns true of a file with the specified name exists in this
-     * compound file. This will potentially not give back the correct
-     * information if in bulkLoadMode. To be completely up to date
-     * if you are in bulkLoadMode you just call
-     * compoundFileReader.scanDirectory() first.
-     * @param name the name of the file to check for
-     * @return true of the file exists in the compound file
-     */
-    public boolean containsFile(final String name) {
-        return compoundFileReader.nameToDataPositionMap.containsKey(name);
+        entryBeingAdded = new CompoundDirectoryEntry(name, fileStartPosition, dataStartPosition);
+
+        return new CompoundDataOutput(stream, this);
     }
 
     /**
@@ -223,18 +177,20 @@ public class CompoundFileWriter implements Closeable {
      * @throws IOException problem deleting the file
      */
     public void deleteFile(final String name) throws IOException {
-        if (containsFile(name)) {
-            finishAddFile(false);
-            final long position = compoundFileReader.nameToFileStartPositionMap.get(name);
+        if (entryBeingAdded != null) {
+            throw new IllegalStateException("deleteFile() called during before close() "
+                    + "called on current addFile()");
+        }
+
+        final CompoundDirectoryEntry entry = compoundFileReader.getDirectoryEntry(name);
+        if (entry != null) {
+            final long position =  entry.getStartPosition();
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Marking file deleted at position " + position);
             }
             stream.seek(position);
             stream.writeInt(FILE_STATE_DELETED);
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Rescanning directory");
-            }
-            compoundFileReader.scanDirectory();
+            compoundFileReader.removeFromDirectory(name);
         } else {
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Not deleting, not in compound file");
@@ -249,6 +205,8 @@ public class CompoundFileWriter implements Closeable {
      */
     public void close() throws IOException {
         if (stream != null) {
+            // Final chance to close, make the exception and close
+            // the file if need be
             finishAddFile();
             stream.close();
             stream = null;
@@ -256,22 +214,12 @@ public class CompoundFileWriter implements Closeable {
     }
 
     /**
-     * Finish adding a file (calling addFile again or close will do this
-     * automatically). Setting bulkLoadMode to true will make this faster.
-     * @throws IOException error scanning the directory
-     */
-    void finishAddFile() throws IOException {
-        finishAddFile(!bulkLoadMode);
-    }
-
-    /**
      * Finish adding a file to the compound file.
-     * @param updateDirectory if true, the directory will be rescanned after the add is finished
      * @throws IOException problem finishing addFile. The CompoundFile
      * is probably un-usable.
      */
-    private void finishAddFile(final boolean updateDirectory) throws IOException {
-        if (lengthAtAddStart == -1) {
+    void finishAddFile() throws IOException {
+        if (entryBeingAdded == null) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace("skipping finish add...");
             }
@@ -281,24 +229,26 @@ public class CompoundFileWriter implements Closeable {
             if (LOG.isTraceEnabled()) {
                 LOG.trace("running finish add...");
             }
-            final long dataSize = stream.length() - lengthAtAddStart;
+            final long dataSize = stream.length() - entryBeingAdded.getDataPosition();
+            entryBeingAdded.setFileSize(dataSize);
             if (dataSize > 0) {
+                // The " - 8" is because the size of the data is written as one long
+                // before the actual data
+                final long dataSizePosition = entryBeingAdded.getDataPosition() - 8;
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("++ data size was " + dataSize + " writing at position " + sizePositionAtAddStart);
+                    LOG.trace("++ data size was " + dataSize + " writing at position "
+                            + dataSizePosition);
                 }
-                stream.seek(sizePositionAtAddStart);
+                stream.seek(dataSizePosition);
                 stream.writeLong(dataSize);
             } else {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace("++ ZERO data size.");
                 }
             }
+            compoundFileReader.addToDirectory(entryBeingAdded);
         } finally {
-            sizePositionAtAddStart = -1;
-            lengthAtAddStart = -1;
-            if (updateDirectory) {
-                compoundFileReader.scanDirectory();
-            }
+            entryBeingAdded = null;
         }
     }
 }

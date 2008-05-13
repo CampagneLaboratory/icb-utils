@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package edu.cornell.med.icb.io;
+package edu.cornell.med.icb.io.compound;
 
 import java.io.RandomAccessFile;
 import java.io.IOException;
@@ -51,98 +51,98 @@ public class CompoundDataOutput implements Closeable, DataOutput {
     /**
      * {@inheritDoc}
      */
-    public void write(int b) throws IOException {
+    public void write(final int b) throws IOException {
         dataOutput.write(b);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void write(byte[] b) throws IOException {
+    public void write(final byte[] b) throws IOException {
         dataOutput.write(b);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void write(byte[] b, int off, int len) throws IOException {
+    public void write(final byte[] b, final int off, final int len) throws IOException {
         dataOutput.write(b, off, len);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeBoolean(boolean v) throws IOException {
+    public void writeBoolean(final boolean v) throws IOException {
         dataOutput.writeBoolean(v);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeByte(int v) throws IOException {
+    public void writeByte(final int v) throws IOException {
         dataOutput.writeByte(v);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeShort(int v) throws IOException {
+    public void writeShort(final int v) throws IOException {
         dataOutput.writeShort(v);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeChar(int v) throws IOException {
+    public void writeChar(final int v) throws IOException {
         dataOutput.writeChar(v);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeInt(int v) throws IOException {
+    public void writeInt(final int v) throws IOException {
         dataOutput.writeInt(v);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeLong(long v) throws IOException {
+    public void writeLong(final long v) throws IOException {
         dataOutput.writeLong(v);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeFloat(float v) throws IOException {
+    public void writeFloat(final float v) throws IOException {
         dataOutput.writeFloat(v);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeDouble(double v) throws IOException {
+    public void writeDouble(final double v) throws IOException {
         dataOutput.writeDouble(v);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeBytes(String s) throws IOException {
+    public void writeBytes(final String s) throws IOException {
         dataOutput.writeBytes(s);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeChars(String s) throws IOException {
+    public void writeChars(final String s) throws IOException {
         dataOutput.writeChars(s);
     }
 
     /**
      * {@inheritDoc}
      */
-    public void writeUTF(String s) throws IOException {
+    public void writeUTF(final String s) throws IOException {
         dataOutput.writeUTF(s);
     }
 
@@ -152,12 +152,12 @@ public class CompoundDataOutput implements Closeable, DataOutput {
      * @throws IOException error reading the object
      */
     public void writeObject(final Object objToWrite) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream() ;
-        ObjectOutput out = new ObjectOutputStream(bos);
+        final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        final ObjectOutput out = new ObjectOutputStream(bos);
         out.writeObject(objToWrite);
         out.close();
         // Get the bytes of the serialized object
-        byte[] buf = bos.toByteArray();
+        final byte[] buf = bos.toByteArray();
         // save the position and length of the serialized object
         dataOutput.writeInt(buf.length);
         dataOutput.write(buf);
