@@ -25,11 +25,8 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.File;
-import java.io.DataInput;
 import java.io.FileNotFoundException;
 import java.io.Closeable;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Set;
@@ -95,7 +92,7 @@ public class CompoundFileReader implements Closeable {
      * @return a DataInput object to read the actual data
      * @throws IOException problem reading the file
      */
-    public DataInput readFile(final String name) throws IOException {
+    public CompoundDataInput readFile(final String name) throws IOException {
         if (stream == null) {
             throw new IllegalStateException("CompoundFileReader is not open.");
         }
@@ -109,25 +106,11 @@ public class CompoundFileReader implements Closeable {
             throw new FileNotFoundException("The compound file " + filename
                     + " does not contain the file " + name);
         }
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Reading an file that should be " + nameToSizeMap.get(name) + " bytes long");
+        }
         stream.seek(position);
-        return stream;
-    }
-
-    /**
-     * Read an object from the current stream position.
-     * @return the object
-     * @throws IOException error reading the object
-     * @throws ClassNotFoundException error de-serializing the object
-     */
-    public Object readObject() throws IOException, ClassNotFoundException {
-        int size = stream.readInt();
-        byte[] buf = new byte[size];
-        stream.readFully(buf);
-        ByteArrayInputStream bis = new ByteArrayInputStream(buf);
-        ObjectInputStream ois = new ObjectInputStream(bis);
-        Object deserializedObject = ois.readObject();
-        ois.close();
-        return deserializedObject;
+        return new CompoundDataInput(stream);
     }
 
     /**

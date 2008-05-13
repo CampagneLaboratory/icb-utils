@@ -25,11 +25,7 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.File;
-import java.io.DataOutput;
 import java.io.Closeable;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 
 /**
  * Write a compound file. Only one thread should be writing to the compound
@@ -161,7 +157,7 @@ public class CompoundFileWriter implements Closeable {
      * @return a DataOutput which can be used to write the contents
      * of the file
      */
-    public DataOutput addFile(final String name) throws IOException {
+    public CompoundDataOutput addFile(final String name) throws IOException {
         if (stream == null) {
             throw new IllegalStateException("CompoundFileWriter is not open.");
         }
@@ -202,24 +198,7 @@ public class CompoundFileWriter implements Closeable {
             LOG.trace("Data starting at " + stream.length());
         }
         lengthAtAddStart = stream.length();
-        return stream;
-    }
-
-    /**
-     * Write an object to the current stream position.
-     * @param objToWrite the object to write
-     * @throws IOException error reading the object
-     */
-    public void writeObject(final Object objToWrite) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream() ;
-        ObjectOutput out = new ObjectOutputStream(bos);
-        out.writeObject(objToWrite);
-        out.close();
-        // Get the bytes of the serialized object
-        byte[] buf = bos.toByteArray();
-        // save the position and length of the serialized object
-        stream.writeInt(buf.length);
-        stream.write(buf);
+        return new CompoundDataOutput(stream, this);
     }
 
     /**
@@ -281,7 +260,7 @@ public class CompoundFileWriter implements Closeable {
      * automatically). Setting bulkLoadMode to true will make this faster.
      * @throws IOException error scanning the directory
      */
-    public void finishAddFile() throws IOException {
+    void finishAddFile() throws IOException {
         finishAddFile(!bulkLoadMode);
     }
 
