@@ -327,7 +327,7 @@ public class ConditionField {
     }
 
     /**
-     * The classname to use. {@see setClassname}
+     * The classname to use. {@link #setClassname(boolean) setClassname}
      * @return true of classname is true
      */
     public boolean isClassname() {
