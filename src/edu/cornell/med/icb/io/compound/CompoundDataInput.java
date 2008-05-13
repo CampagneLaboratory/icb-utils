@@ -163,8 +163,8 @@ public class CompoundDataInput implements DataInput {
      */
     public Object readObject() throws IOException, ClassNotFoundException {
         final int size = dataInput.readInt();
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Reading an object that should be " + (size + 4) + " bytes long");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Reading an object that should be " + (size + 4) + " bytes long");
         }
         final byte[] buf = new byte[size];
         dataInput.readFully(buf);

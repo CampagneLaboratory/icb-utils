@@ -140,18 +140,18 @@ public class CompoundFileWriter implements Closeable {
                     + " already contains a file named " + name);
         }
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Adding a new file named " + name);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Adding a new file named " + name);
         }
         totalNumberOfFiles++;
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Seeking to 0 to write new totalNumberOfFiles " + totalNumberOfFiles);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Seeking to 0 to write new totalNumberOfFiles " + totalNumberOfFiles);
         }
         stream.seek(0);
         stream.writeLong(totalNumberOfFiles);
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Seeking to " + stream.length());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Seeking to " + stream.length());
         }
         final long fileStartPosition = stream.length();
         stream.seek(fileStartPosition);
@@ -159,8 +159,8 @@ public class CompoundFileWriter implements Closeable {
         stream.writeUTF(name);
         stream.writeLong(0);  // Length will go here
         final long dataStartPosition = stream.length();
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Data starting at " + stream.length());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Data starting at " + stream.length());
         }
 
         entryBeingAdded = new CompoundDirectoryEntry(name, fileStartPosition, dataStartPosition);
@@ -185,15 +185,15 @@ public class CompoundFileWriter implements Closeable {
         final CompoundDirectoryEntry entry = compoundFileReader.getDirectoryEntry(name);
         if (entry != null) {
             final long position =  entry.getStartPosition();
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Marking file deleted at position " + position);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Marking file deleted at position " + position);
             }
             stream.seek(position);
             stream.writeInt(FILE_STATE_DELETED);
             compoundFileReader.removeFromDirectory(name);
         } else {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Not deleting, not in compound file");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Not deleting, not in compound file");
             }
         }
     }
@@ -220,14 +220,14 @@ public class CompoundFileWriter implements Closeable {
      */
     void finishAddFile() throws IOException {
         if (entryBeingAdded == null) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("skipping finish add...");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("skipping finish add...");
             }
             return;
         }
         try {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("running finish add...");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("running finish add...");
             }
             final long dataSize = stream.length() - entryBeingAdded.getDataPosition();
             entryBeingAdded.setFileSize(dataSize);
@@ -235,15 +235,15 @@ public class CompoundFileWriter implements Closeable {
                 // The " - 8" is because the size of the data is written as one long
                 // before the actual data
                 final long dataSizePosition = entryBeingAdded.getDataPosition() - 8;
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("++ data size was " + dataSize + " writing at position "
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("++ data size was " + dataSize + " writing at position "
                             + dataSizePosition);
                 }
                 stream.seek(dataSizePosition);
                 stream.writeLong(dataSize);
             } else {
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("++ ZERO data size.");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("++ ZERO data size.");
                 }
             }
             compoundFileReader.addToDirectory(entryBeingAdded);

@@ -103,8 +103,8 @@ public class CompoundFileReader implements Closeable {
         }
         final long position = entry.getDataPosition();
 
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Reading an file that should be " + entry.getFileSize() + " bytes long");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Reading an file that should be " + entry.getFileSize() + " bytes long");
         }
         stream.seek(position);
         return new CompoundDataInput(stream);
@@ -141,26 +141,26 @@ public class CompoundFileReader implements Closeable {
     public void scanDirectory() throws IOException {
         nameToDirEntryMap = new LinkedHashMap<String, CompoundDirectoryEntry>();
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Scanning directory from " + filename);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Scanning directory from " + filename);
         }
         if (stream.length() != 0) {
             stream.seek(0);
             totalNumberOfFiles = stream.readLong();
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Total number of files " + totalNumberOfFiles);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Total number of files " + totalNumberOfFiles);
             }
             for (int i = 0; i < totalNumberOfFiles; i++) {
                 final long fileStartPosition = stream.getFilePointer();
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("Reading file starting at position " + fileStartPosition);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Reading file starting at position " + fileStartPosition);
                 }
                 final int fileState = stream.readInt();
                 final String fileName = stream.readUTF();
                 final long fileSize = stream.readLong();
                 final long dataPosition = stream.getFilePointer();
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("File " + fileName + " has a state " + fileState
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("File " + fileName + " has a state " + fileState
                             + " size " + fileSize);
                 }
                 if (fileState == CompoundFileWriter.FILE_STATE_NORMAL) {
