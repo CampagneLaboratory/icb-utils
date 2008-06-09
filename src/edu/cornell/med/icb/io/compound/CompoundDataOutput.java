@@ -28,6 +28,9 @@ import java.io.DataOutput;
 
 /**
  * A DataOutput object that also supports writeObject.
+ * You MUST all close() on this object when you are done
+ * using it to write data. If you don't your program
+ * will crash or hang.
  * @author Kevin Dorff
  */
 public class CompoundDataOutput implements Closeable, DataOutput {
@@ -164,9 +167,8 @@ public class CompoundDataOutput implements Closeable, DataOutput {
     }
 
     /**
-     * Call when finished writing a CompoundFile.
-     * @throws IOException problem finishing addFile. The CompoundFile
-     * is probably un-usable.
+     * Call when finished writing a Compound File.
+     * @throws IOException problem finishing addFile.
      */
     public void close() throws IOException {
         compoundFileWriter.finishAddFile();

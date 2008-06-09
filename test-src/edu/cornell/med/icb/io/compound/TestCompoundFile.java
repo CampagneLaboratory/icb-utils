@@ -27,7 +27,10 @@ import java.io.File;
 import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Collection;
+
+import edu.rit.pj.ParallelRegion;
+import edu.rit.pj.ParallelTeam;
+import edu.rit.pj.IntegerForLoop;
 
 /**
  * Test the compound file reader / writer.
@@ -35,6 +38,12 @@ import java.util.Collection;
  */
 public class TestCompoundFile {
 
+    /**
+     * This is a general test. Write some files, read some files, delete some files.
+     * Close it, add some more.
+     * @throws IOException problem reading/writing
+     * @throws ClassNotFoundException error deserializing data from the file
+     */
     @Test
     public void testCompoundFile() throws IOException, ClassNotFoundException {
         new File("test-data/CompoundFile.dat").delete();
@@ -75,6 +84,7 @@ public class TestCompoundFile {
         assertEquals(45, input.readLong());
         assertEquals("File 1 string B", input.readUTF());
         assertEquals("File 1 StringC serialized", input.readObject());
+        input.close();
 
         cfw.deleteFile("file1");
         assertEquals(2, cfr.getFileNames().size());
@@ -87,28 +97,37 @@ public class TestCompoundFile {
         input = cfr.readFile("file1");
         assertEquals("File 1b string", input.readUTF());
         assertEquals(2.73, input.readDouble(), 0.001);
+        input.close();
 
         input = cfr.readFile("file2");
         assertEquals("File 2 string", input.readUTF());
         assertEquals(35, input.readLong());
         assertEquals(54, input.readLong());
         assertEquals("File 2 String serialized", input.readObject());
+        input.close();
 
         input = cfr.readFile("file3");
         assertEquals("File 3 string", input.readUTF());
         assertEquals(3.14159, input.readDouble(), 0.001);
+        input.close();
 
         cfr.close();
         cfw.close();
     }
 
+    /**
+     * This writes a bunch of small files and verifies the
+     * data comes back from the files.
+     * @throws IOException problem reading/writing
+     */
     @Test
     public void testLotsOfSmallFiles() throws IOException {
+        final int numFiles = 20000;
         System.out.println("Testing lots of small files");
         new File("test-data/CompoundFile2.dat").delete();
         final CompoundFileWriter cfw = new CompoundFileWriter("test-data/CompoundFile2.dat");
         CompoundFileReader cfr = cfw.getCompoundFileReader();
-        for (int x = 0; x < 20000; x++) {
+        for (int x = 0; x < numFiles; x++) {
             final CompoundDataOutput output = cfw.addFile("file" + x);
             output.writeUTF("Data for file " + x);
             output.close();
@@ -120,9 +139,24 @@ public class TestCompoundFile {
         cfw.close();
 
         cfr = new CompoundFileReader("test-data/CompoundFile2.dat");
-        assertEquals(20000,cfr.getFileNames().size());
+        long startTime = System.currentTimeMillis();
+        for (int x = 0; x < numFiles; x++) {
+            final CompoundDataInput input = cfr.readFile("file" + x);
+            assertEquals("Data for file " + x, input.readUTF());
+            input.close();
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println("Time to read " + numFiles + " files " + (endTime - startTime));
+        cfr.close();
     }
 
+    /**
+     * This writes objects (specifically a Long->String map)
+     * several times to a file and then reads them back
+     * to verify the object is serialized-deserialized correctly.
+     * @throws IOException problem reading/writing
+     * @throws ClassNotFoundException problem deserializing
+     */
     @Test
     @SuppressWarnings("unchecked")
     public void testMapWriting() throws IOException, ClassNotFoundException {
@@ -194,6 +228,7 @@ public class TestCompoundFile {
         Map<Long, String> mapRead = (Map<Long, String>) input.readObject();
         Map<Long, String> mapRead2 = (Map<Long, String>) input.readObject();
         Map<Long, String> mapRead3 = (Map<Long, String>) input.readObject();
+        input.close();
         cfr.close();
 
         assertSameMap(map, mapRead);
@@ -201,6 +236,12 @@ public class TestCompoundFile {
         assertSameMap(map, mapRead3);
     }
 
+    /**
+     * Verifies that if you call addFile and then call addFile again
+     * you will get an IllegalStateException exception.
+     * @throws IOException problem reading/writing
+     * @throws ClassNotFoundException problem deserializing
+     */
     @Test(expected = IllegalStateException.class)
     public void testMultiAddFileWrong() throws IOException, ClassNotFoundException {
         new File("test-data/CompoundFile4.dat").delete();
@@ -208,12 +249,68 @@ public class TestCompoundFile {
         CompoundDataOutput output = cfw.addFile("file1");
         output.writeObject("hello");
         // Shouldn't be able to do this -  need to output.close() first
+        // None of the code past here will be executed
         output = cfw.addFile("file2");
         output.writeObject("hello again");
         output.close();
         cfw.close();
     }
 
+    /**
+     * This writes a bunch of small files and verifies the
+     * data comes back from the files. Here we write
+     * and read the data in a multi-threaded fashion.
+     * @throws IOException problem reading/writing
+     */
+    @Test
+    public void testMultiThreaded() throws Exception {
+        final int numThreads = 50;
+        final int numFiles = 20000;
+
+        new File("test-data/CompoundFile5.dat").delete();
+
+        final CompoundFileWriter cfw = new CompoundFileWriter("test-data/CompoundFile5.dat");
+        new ParallelTeam(numThreads).execute( new ParallelRegion() {
+            public void run() throws Exception {
+                execute(0, numFiles - 1, new IntegerForLoop() {
+                    public void run (int first, int last) throws IOException {
+                        for (int r = first; r <= last; r++) {
+                            final CompoundDataOutput output = cfw.addFile("file" + r);
+                            output.writeUTF("Data for file " + r);
+                            output.close();
+                        }
+                    }
+                });
+            }
+        });
+        cfw.close();
+
+        final CompoundFileReader cfr = new CompoundFileReader("test-data/CompoundFile5.dat", numThreads);
+        long startTime = System.currentTimeMillis();
+        new ParallelTeam(numThreads).execute( new ParallelRegion() {
+            public void run() throws Exception {
+                execute(0, numFiles - 1, new IntegerForLoop() {
+                    public void run (int first, int last) throws IOException, ClassNotFoundException {
+                        for (int r = first; r <= last; r++) {
+                            final CompoundDataInput input = cfr.readFile("file" + r);
+                            assertEquals("Data for file " + r, input.readUTF());
+                            input.close();
+                        }
+                    }
+                });
+            }
+        });
+        long endTime = System.currentTimeMillis();
+        System.out.println("Time to " + numThreads + "-threaded read " + numFiles
+                + " files " + (endTime - startTime));
+        cfr.close();
+    }
+
+    /**
+     * Method to compare two Map[Long, String]'s to verify
+     * the contain the same contents.
+     * @throws IOException problem reading/writing
+     */
     public void assertSameMap(final Map<Long, String> expected, final Map<Long, String> actual) {
         assertEquals("Map sizes differ.", expected.size(), actual.size());
         for (Long key : expected.keySet()) {

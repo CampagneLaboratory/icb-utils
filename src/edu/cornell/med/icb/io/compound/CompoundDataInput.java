@@ -26,13 +26,16 @@ import java.io.RandomAccessFile;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.io.DataInput;
+import java.io.Closeable;
 
 /**
- * Describe class here.
- *
+ * A DataOutput object that also supports writeObject.
+ * You MUST all close() on this object when you are done
+ * using it to write data. If you don't your program
+ * will crash or hang.
  * @author Kevin Dorff
  */
-public class CompoundDataInput implements DataInput {
+public class CompoundDataInput implements DataInput, Closeable {
 
     /**
      * Used to log debug and informational messages.
@@ -42,12 +45,17 @@ public class CompoundDataInput implements DataInput {
     /** The delegate DataInput object. */
     private RandomAccessFile dataInput;
 
+    /** The related compound file reader, so we can return the stream. */
+    private CompoundFileReader compoundFileReader;
+
     /**
      * Create a CompoundDataInput. This is created by CompoundFileReader.
-     * @param input the current reader stream
+     * @param stream the current reader stream
+     * @param reader the CompoundFileReader that created this
      */
-    CompoundDataInput(final RandomAccessFile input) {
-        this.dataInput = input;
+    CompoundDataInput(final RandomAccessFile stream, final CompoundFileReader reader) {
+        this.dataInput = stream;
+        this.compoundFileReader = reader;
     }
 
     /**
@@ -173,5 +181,14 @@ public class CompoundDataInput implements DataInput {
         final Object deserializedObject = ois.readObject();
         ois.close();
         return deserializedObject;
+    }
+
+    /**
+     * Call when finished reading a Compound File.
+     */
+    public void close() {
+        compoundFileReader.returnToPool(dataInput);
+        dataInput = null;
+        compoundFileReader = null;
     }
 }
