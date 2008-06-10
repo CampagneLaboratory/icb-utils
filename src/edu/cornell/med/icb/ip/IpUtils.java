@@ -20,11 +20,16 @@ package edu.cornell.med.icb.ip;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.IOException;
+
 /**
  * Utility class for validating, etc. IP addreses.
  * @author Kevin Dorff
  */
-public class IpValidator {
+public class IpUtils {
     /**
      * Attempt to validate an IP address. This can be in the formation of
      * "address # comment". Whitespace (space or tab) can padd the valiues anywhere within
@@ -36,8 +41,9 @@ public class IpValidator {
      * contains ONLY a comment IpAddress.ipAddress will be null but comment will be
      * filled in. If the line is blank (or empty) an IpAddress will be returned
      * with IpAddress.ipAddress as null and an empty string comment.
+     * @throws IpValidationException error parsing the ip part of the string
      */
-    public static IpAddress validate(final String toValidate) throws IpValidationException {
+    public static IpAddress validateIpAddress(final String toValidate) throws IpValidationException {
         String trimmedIpAddress;
         if (StringUtils.isBlank(toValidate)) {
             // No IP, no comment. Blank-ish line
@@ -88,4 +94,30 @@ public class IpValidator {
         }
         return new IpAddress(newIp.toString(), comment);
     }
+
+    public static IpList readIpList(
+            final InputStream input,
+            final boolean keepCommentOnlyLines,
+            final boolean ignoreParsingErrors)
+            throws IpValidationException, IOException {
+        IpList results = new IpList();
+        BufferedReader br = new BufferedReader(new InputStreamReader(input));
+        String line;
+        while ((line = br.readLine()) != null)   {
+            try {
+                IpAddress ipAddress = validateIpAddress(line);
+                if ((ipAddress.getIpAddress() == null) && (!keepCommentOnlyLines)) {
+                    // Comment only
+                    continue;
+                }
+                results.add(validateIpAddress(line));
+            } catch (IpValidationException e) {
+                if (!ignoreParsingErrors) {
+                    throw e;
+                }
+            }
+        }
+        return results;
+    }
+
 }
