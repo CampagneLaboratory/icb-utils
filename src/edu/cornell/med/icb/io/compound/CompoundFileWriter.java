@@ -109,6 +109,7 @@ public class CompoundFileWriter implements Closeable {
             logLockState(ACQUIRING_LOCK_MSG, "CONSTRUCTOR", "<none>");
             lock.lock();
             logLockState(LOCK_OBTAINED_MSG, "CONSTRUCTOR", "<none>");
+
             entryBeingAdded = null;
             this.filename = physicalFilename;
             stream = new RandomAccessFile(new File(physicalFilename), "rw");
@@ -144,11 +145,11 @@ public class CompoundFileWriter implements Closeable {
      * of the file
      */
     public CompoundDataOutput addFile(final String name) throws IOException {
-        logLockState(ACQUIRING_LOCK_MSG, "ADD", name);
-        lock.lock();
-        logLockState(LOCK_OBTAINED_MSG, "ADD", name);
-
         try {
+            logLockState(ACQUIRING_LOCK_MSG, "ADD", name);
+            lock.lock();
+            logLockState(LOCK_OBTAINED_MSG, "ADD", name);
+
             return addFileSingleThread(name);
         } catch (IOException e) {
             lock.unlock();
@@ -232,11 +233,11 @@ public class CompoundFileWriter implements Closeable {
      * @throws IOException problem deleting the file
      */
     public void deleteFile(final String name) throws IOException {
-        logLockState(ACQUIRING_LOCK_MSG, "DELETE", name);
-        lock.lock();
-        logLockState(LOCK_OBTAINED_MSG, "DELETE", name);
-
         try {
+            logLockState(ACQUIRING_LOCK_MSG, "DELETE", name);
+            lock.lock();
+            logLockState(LOCK_OBTAINED_MSG, "DELETE", name);
+
             if (entryBeingAdded != null) {
                 throw new IllegalStateException("deleteFile() called during before close() "
                         + "called on current addFile()");
