@@ -24,26 +24,39 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
+import java.util.LinkedList;
 
 /**
- * Utility class for validating, etc. IP addreses.
+ * Utility class for validating ip addresses, reading IpAddress files, etc.
+ * Also to see if an ip address is within a given list of IpAddress.
  * @author Kevin Dorff
  */
-public class IpUtils {
+public final class IpUtils {
+
+    /** Private constructor for utility class. */
+    private IpUtils() {
+    }
+
     /**
-     * Attempt to validate an IP address. This can be in the formation of
-     * "address # comment". Whitespace (space or tab) can padd the valiues anywhere within
-     * the string, except within the address iteself. The ip address must
-     * be four values seperated by ".", each value must be 0 - 255.
-     * @param toValidate the ip address (with optional comment) to try to validate
-     * @return an IpAddress object containing the ip address and any comment.
-     * If the line didn't parse IpValidationException will be thrown. If the line
+     * Attempt to validate an IP address or hostname with optional comment.
+     * This can be in the formation of "address_or_hostname # comment".
+     * Whitespace (space or tab) can padd the valiues anywhere within
+     * the value, except within the ip address / hostname iteself. If specifying
+     * an ip address must be four values seperated by ".", each value must be 0 - 255...
+     * this is not exactly true, see the documentation for java.net.InetAddress
+     * for actual parsing rules of ip addresses.
+     * @param toValidate the ip address and/or hostname (with optional comment) to try to validate
+     * @return an IpAddress object containing the InetAddress and any comment.
+     * If the line didn't parse UnknownHostname exception will be thrown. If the line
      * contains ONLY a comment IpAddress.ipAddress will be null but comment will be
      * filled in. If the line is blank (or empty) an IpAddress will be returned
-     * with IpAddress.ipAddress as null and an empty string comment.
-     * @throws IpValidationException error parsing the ip part of the string
+     * with IpAddress.ipAddress as null and an empty String comment.
+     * @throws UnknownHostException error parsing the ip address / hostname part of the string
      */
-    public static IpAddress validateIpAddress(final String toValidate) throws IpValidationException {
+    public static IpAddress validateIpAddress(final String toValidate) throws UnknownHostException {
         String trimmedIpAddress;
         if (StringUtils.isBlank(toValidate)) {
             // No IP, no comment. Blank-ish line
@@ -65,53 +78,40 @@ public class IpUtils {
             // Both IP AND comment
             comment = ipAndCommentParts[1].trim();
         }
-        final String[] parts = StringUtils.split(ipNoComment, ".");
-        if (parts.length != 4) {
-            // Reject mal-formed IP address
-            throw new IpValidationException("IP address " + ipNoComment
-                    + " did not contain 4 parts.");
-        }
-        final StringBuilder newIp = new StringBuilder();
-        for (int i = 0; i < 4; i++) {
-            final String part = parts[i];
-            try {
-                final int numericPart = Integer.parseInt(part);
-                if ((numericPart < 0) || (numericPart > 255)) {
-                    throw new IpValidationException("IP address " + ipNoComment
-                            + " contained an invalud value " + part
-                            + ". Values 0 - 255 expected.");
-                } else {
-                    if (newIp.length() != 0) {
-                        newIp.append(".");
-                    }
-                    newIp.append(numericPart);
-                }
-            } catch (java.lang.NumberFormatException e) {
-                throw new IpValidationException("IP address " + ipNoComment
-                        + " contained an invalud value " + part
-                        + ". Values 0 - 255 expected.");
-            }
-        }
-        return new IpAddress(newIp.toString(), comment);
+
+        final InetAddress ipAddress = InetAddress.getByName(ipNoComment);
+        return new IpAddress(ipAddress, comment);
     }
 
-    public static IpList readIpList(
+    /**
+     * Read a data from a stream (generally a file) that contains ip addresses and/or
+     * hostnames and comments.
+     * @param input the input stream of ip addresses
+     * @param keepCommentOnlyLines if true, lines that contain only comments will be discarded,
+     * if false and a comment only line is found, an IpAddress object will be created with
+     * a null ip adress.
+     * @param ignoreParsingErrors if true, lines that contain unparsable ip adddresses / hostnames
+     * will be silently ignored.
+     * @return a List of IpAddress
+     * @throws IOException error reading from the stream or parsing ip address / hostname
+     */
+    public static List<IpAddress> readIpList(
             final InputStream input,
             final boolean keepCommentOnlyLines,
             final boolean ignoreParsingErrors)
-            throws IpValidationException, IOException {
-        IpList results = new IpList();
-        BufferedReader br = new BufferedReader(new InputStreamReader(input));
+            throws IOException {
+        final List<IpAddress> results = new LinkedList<IpAddress>();
+        final BufferedReader br = new BufferedReader(new InputStreamReader(input));
         String line;
         while ((line = br.readLine()) != null)   {
             try {
-                IpAddress ipAddress = validateIpAddress(line);
+                final IpAddress ipAddress = validateIpAddress(line);
                 if ((ipAddress.getIpAddress() == null) && (!keepCommentOnlyLines)) {
                     // Comment only
                     continue;
                 }
                 results.add(validateIpAddress(line));
-            } catch (IpValidationException e) {
+            } catch (UnknownHostException e) {
                 if (!ignoreParsingErrors) {
                     throw e;
                 }
@@ -120,4 +120,54 @@ public class IpUtils {
         return results;
     }
 
+    /**
+     * See if the supplied IpAddress List contains the specified address string.
+     * The address string can be a hostname or an ip address with an optional
+     * comment (comments start with "#").
+     * @param list the IpAddress List
+     * @param address the ip address to find
+     * @return true if the ip address is in the list
+     * @throws UnknownHostException error parsing the ip address or hostname
+     * from the address String
+     */
+    public static boolean ipListContains(final List<IpAddress> list, final String address)
+            throws UnknownHostException {
+        if (list == null || address == null) {
+            return false;
+        }
+        return ipListContains(list, validateIpAddress(address).getIpAddress());
+    }
+
+    /**
+     * See if the supplied IpAddress List contains the specified IpAddress,
+     * specifically the value from address.getIpAddress() - any comment
+     * with address is ignored.
+     * @param list the IpAddress List
+     * @param address the ip address to find
+     * @return true if the ip address is in the list
+     */
+    public static boolean ipListContains(final List<IpAddress> list, final IpAddress address) {
+        if (list == null || address == null) {
+            return false;
+        }
+        return ipListContains(list, address.getIpAddress());
+    }
+
+    /**
+     * See if the supplied IpAddress List contains the specified InetAddress address.
+     * @param list the IpAddress List
+     * @param address the ip address to find
+     * @return true if the ip address is in the list
+     */
+    public static boolean ipListContains(final List<IpAddress> list, final InetAddress address) {
+        if (list == null || address == null) {
+            return false;
+        }
+        for (IpAddress listAddr : list) {
+            if (address.equals(listAddr.getIpAddress())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -18,28 +18,81 @@
 
 package edu.cornell.med.icb.ip;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import java.net.InetAddress;
+
 /**
  * An ip address and optional associated comment.
  * @author Kevin Dorff
  */
 public class IpAddress {
-    private String ipAddress;
-    private String comment;
 
-    public IpAddress(final String ipAddress, final String comment) {
-        this.ipAddress = ipAddress;
-        this.comment = comment;
+    /** The inet address (ip address). */
+    private final InetAddress ipAddress;
+
+    /** Associated comment. */
+    private final String comment;
+
+    /** Associated comment. Immutable object so just calculate it at creation. */
+    private final int hashCode;
+
+    /**
+     * Create an IpAddrss with an InetAddress and a comment.
+     * @param ipAddressVal the InetAddress to use for this IpAddress or null
+     * if there is no ip address (just a comment).
+     * @param commentVal the comment portein of the IpAddress
+     */
+    public IpAddress(final InetAddress ipAddressVal, final String commentVal) {
+        this.ipAddress = ipAddressVal;
+        this.comment = commentVal;
+        this.hashCode = new HashCodeBuilder(181, 431)
+                .append(ipAddress).append(comment).toHashCode();
+
     }
 
-    public IpAddress(final String ipAddress) {
-        this(ipAddress, null);
+    /**
+     * Create an IpAddrss with an InetAddress but no comment.
+     * @param ipAddressVal the InetAddress to use for this IpAddress or null
+     * if there is no ip address... doesn't make a lot of sense for this
+     * to ever be null since there won't be a comment.
+     */
+    public IpAddress(final InetAddress ipAddressVal) {
+        this(ipAddressVal, "");
     }
 
-    public String getIpAddress() {
+    /**
+     * Get the ip address (InetAddress).
+     * @return ip address
+     */
+    public InetAddress getIpAddress() {
         return ipAddress;
     }
 
+    /**
+     * Get comment.
+     * @return comment
+     */
     public String getComment() {
         return comment;
+    }
+
+    /**
+     * Get the hash code for this object.
+     * @return the hash code
+     */
+    @Override
+    public int hashCode() {
+        return hashCode;
+    }
+
+    /**
+     * Equals.
+     * @param obj the object to compare to.
+     * @return true if the two objects are equal.
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        return ((obj != null) && (obj instanceof IpAddress) && this.hashCode == obj.hashCode());
     }
 }
