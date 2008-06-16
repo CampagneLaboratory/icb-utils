@@ -21,6 +21,7 @@ package edu.cornell.med.icb.io.compound;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.io.File;
@@ -126,26 +127,24 @@ public class TestCompoundFile {
         System.out.println("Testing lots of small files");
         new File("test-data/CompoundFile2.dat").delete();
         final CompoundFileWriter cfw = new CompoundFileWriter("test-data/CompoundFile2.dat");
-        CompoundFileReader cfr = cfw.getCompoundFileReader();
+        long startTime = System.currentTimeMillis();
         for (int x = 0; x < numFiles; x++) {
             final CompoundDataOutput output = cfw.addFile("file" + x);
             output.writeUTF("Data for file " + x);
             output.close();
-            if (x % 500 == 0) {
-            //     System.out.println("Loaded " + x + " files");
-                assertEquals(x + 1, cfr.getFileNames().size());
-            }
         }
         cfw.close();
+        long endTime = System.currentTimeMillis();
+        System.out.println("Time to write " + numFiles + " files " + (endTime - startTime));
 
-        cfr = new CompoundFileReader("test-data/CompoundFile2.dat");
-        long startTime = System.currentTimeMillis();
+        final CompoundFileReader cfr = new CompoundFileReader("test-data/CompoundFile2.dat");
+        startTime = System.currentTimeMillis();
         for (int x = 0; x < numFiles; x++) {
             final CompoundDataInput input = cfr.readFile("file" + x);
             assertEquals("Data for file " + x, input.readUTF());
             input.close();
         }
-        long endTime = System.currentTimeMillis();
+        endTime = System.currentTimeMillis();
         System.out.println("Time to read " + numFiles + " files " + (endTime - startTime));
         cfr.close();
     }
@@ -267,9 +266,14 @@ public class TestCompoundFile {
         final int numThreads = 50;
         final int numFiles = 20000;
 
-        new File("test-data/CompoundFile5.dat").delete();
+        final String testFilename = "test-data/CompoundFile5.dat";
+        File testFile = new File(testFilename);
+        testFile.delete();
+        assertFalse("Test file " + testFilename + " could not be deleted before test ran.",
+                testFile.exists());
 
-        final CompoundFileWriter cfw = new CompoundFileWriter("test-data/CompoundFile5.dat");
+        long startTime = System.currentTimeMillis();
+        final CompoundFileWriter cfw = new CompoundFileWriter(testFilename);
         new ParallelTeam(numThreads).execute( new ParallelRegion() {
             public void run() throws Exception {
                 execute(0, numFiles - 1, new IntegerForLoop() {
@@ -284,9 +288,12 @@ public class TestCompoundFile {
             }
         });
         cfw.close();
+        long endTime = System.currentTimeMillis();
+        System.out.println("Time to " + numThreads + "-threaded write " + numFiles
+                + " files " + (endTime - startTime));
 
-        final CompoundFileReader cfr = new CompoundFileReader("test-data/CompoundFile5.dat", numThreads);
-        long startTime = System.currentTimeMillis();
+        final CompoundFileReader cfr = new CompoundFileReader(testFilename, numThreads);
+        startTime = System.currentTimeMillis();
         new ParallelTeam(numThreads).execute( new ParallelRegion() {
             public void run() throws Exception {
                 execute(0, numFiles - 1, new IntegerForLoop() {
@@ -300,16 +307,17 @@ public class TestCompoundFile {
                 });
             }
         });
-        long endTime = System.currentTimeMillis();
+        cfr.close();
+        endTime = System.currentTimeMillis();
         System.out.println("Time to " + numThreads + "-threaded read " + numFiles
                 + " files " + (endTime - startTime));
-        cfr.close();
     }
 
     /**
      * Method to compare two Map[Long, String]'s to verify
      * the contain the same contents.
-     * @throws IOException problem reading/writing
+     * @param expected expected map
+     * @param actual actual expected
      */
     public void assertSameMap(final Map<Long, String> expected, final Map<Long, String> actual) {
         assertEquals("Map sizes differ.", expected.size(), actual.size());

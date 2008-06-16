@@ -112,4 +112,13 @@
     <target name="cruisecontrol" depends="clean, cobertura-setup, findbugs,
                   test, jar, javadocs, pmd, cpd, checkstyle, cobertura-report"
             description="Run CruiseControl Build and Tests"/>
+
+    <target name="cl" depends="compile">
+        <java classname="edu.cornell.med.icb.io.compound.CommandLineTool" classpathref="classpath" fork="true">
+            <arg value="-c test-data/working.compound-file"/>
+            <arg value="--list"/>
+        </java>
+    </target>
+
+
 </project>
