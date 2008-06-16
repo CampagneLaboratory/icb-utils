@@ -18,7 +18,6 @@
 
 package edu.cornell.med.icb.io.compound;
 
-import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAP;
 import com.martiansoftware.jsap.Switch;
 import com.martiansoftware.jsap.UnflaggedOption;
@@ -26,13 +25,14 @@ import com.martiansoftware.jsap.JSAPResult;
 import com.martiansoftware.jsap.JSAPException;
 
 import java.io.IOException;
+import java.io.File;
 import java.util.Collection;
 
 /**
  * Command line interface to Compound Files.
  * @author Kevin Dorff
  */
-public class CommandLineTool {
+public class CompoundFileTool {
 
     public enum PROGRAM_MODE {
         LIST,
@@ -41,23 +41,21 @@ public class CommandLineTool {
         HELP
     }
 
-    private CompoundFileWriter compoundFileWriter;
-    private CompoundFileReader compoundFileReader;
+    private String compoundFilename;
     private String[] filenames;
 
     public static void main(final String[] args) throws Exception {
-        CommandLineTool tool = new CommandLineTool();
+        CompoundFileTool tool = new CompoundFileTool();
         tool.run(args);
     }
 
     private JSAP configureJsap() throws JSAPException {
         final JSAP jsap = new JSAP();
 
-        final FlaggedOption compoundFileFlag = new FlaggedOption("compound-file")
-                .setStringParser(JSAP.STRING_PARSER)
+        final UnflaggedOption compoundFileFlag = new UnflaggedOption("compound-file")
                 .setRequired(true)
-                .setShortFlag('c')
-                .setLongFlag("compound-file");
+                .setStringParser(JSAP.STRING_PARSER)
+                .setGreedy(false);
         compoundFileFlag.setHelp("The compound file to read/write");
         jsap.registerParameter(compoundFileFlag);
 
@@ -82,7 +80,7 @@ public class CommandLineTool {
         final Switch helpSwitch = new Switch("help")
                 .setShortFlag('h')
                 .setLongFlag("help");
-        extractSwitch.setHelp("This help information");
+        helpSwitch.setHelp("This help information");
         jsap.registerParameter(helpSwitch);
 
         final UnflaggedOption filenamesUnflag = new UnflaggedOption("filenames")
@@ -98,13 +96,11 @@ public class CommandLineTool {
         JSAP jsap = configureJsap();
         JSAPResult config = jsap.parse(args);
         if (!config.success()) {
-            help(jsap, config);
+            helpMode(jsap, config);
             System.exit(1);
         }
 
-        final String compoundFilename = config.getString("compound-file");
-        compoundFileWriter = new CompoundFileWriter(compoundFilename);
-        compoundFileReader = compoundFileWriter.getCompoundFileReader();
+        compoundFilename = config.getString("compound-file");
         filenames = config.getStringArray("filenames");
 
         System.out.println("Compound file: " + compoundFilename);
@@ -118,20 +114,16 @@ public class CommandLineTool {
         }
         System.out.println(")");
         PROGRAM_MODE mode = programMode(config);
+
         if (mode == PROGRAM_MODE.HELP) {
-            help(jsap, config);
+            helpMode(jsap, config);
             System.exit(1);
         } else if (mode == PROGRAM_MODE.LIST) {
-            System.out.println("List mode");
-            list();
+            listMode();
         } else if (mode == PROGRAM_MODE.ADD) {
-            System.out.println("Add mode");
-            if (filenames.length == 0) {
-                System.err.println("Add mode specified but no filename(s)");
-                System.exit(1);
-            }
+            addMode();
         } else if (mode == PROGRAM_MODE.EXTRACT) {
-            System.out.println("Extract mode");
+            extractMode();
         }
     }
 
@@ -149,7 +141,7 @@ public class CommandLineTool {
         }
     }
 
-    private void help(final JSAP jsap, JSAPResult config) {
+    private void helpMode(final JSAP jsap, JSAPResult config) {
         System.err.println();
 
         if (config != null) {
@@ -167,11 +159,41 @@ public class CommandLineTool {
         System.exit(1);
     }
 
-    private void list() {
-        Collection<CompoundDirectoryEntry> files = compoundFileReader.getDirectory();
-        System.out.println("Directory of compound file");
-        for (CompoundDirectoryEntry file : files) {
-            System.out.println(file.getName() + "\t\t" + file.getFileSize());
+    private void listMode() throws IOException {
+        CompoundFileReader compoundFileReader = null;
+        try {
+            compoundFileReader = getExistingReader();
+            if (compoundFileReader == null) {
+                return;
+            }
+
+            Collection<CompoundDirectoryEntry> files = compoundFileReader.getDirectory();
+            System.out.println("Directory of compound file");
+            for (CompoundDirectoryEntry file : files) {
+                System.out.println(file.getName() + "\t\t" + file.getFileSize());
+            }
+        } finally {
+            if (compoundFileReader != null) {
+                compoundFileReader.close();
+            }
+        }
+    }
+
+    private void addMode() {
+        System.out.println("Add mode currently unsupported.");
+    }
+
+    private void extractMode() {
+        System.out.println("Extract mode currently unsupported.");
+    }
+
+    private CompoundFileReader getExistingReader() throws IOException {
+        if (new File(compoundFilename).exists()) {
+            return new CompoundFileReader(compoundFilename);
+        } else {
+            System.out.println("Specified compound file '"
+                    + compoundFilename + "' does not exist.");
+            return null;
         }
     }
 }
