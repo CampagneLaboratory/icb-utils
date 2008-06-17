@@ -22,6 +22,8 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  *
@@ -49,6 +51,44 @@ public final class ICBStringUtils {
 
     /** XML character replacement for carriage return. */
     private static final String XML_CR = "&#13;";
+
+    /** HTML to console string substitution map. */
+    private static final Map<String, String> HTML_TO_CONSOLE_MAP;
+    static {
+        HTML_TO_CONSOLE_MAP = new HashMap<String, String>();
+        HTML_TO_CONSOLE_MAP.put("<br/>", "\n");
+        HTML_TO_CONSOLE_MAP.put("<BR/>", "\n");
+
+        HTML_TO_CONSOLE_MAP.put("<hr/>", "--------------------------\n");
+        HTML_TO_CONSOLE_MAP.put("<HR/>", "--------------------------\n");
+
+        HTML_TO_CONSOLE_MAP.put("<ul>", "\n");
+        HTML_TO_CONSOLE_MAP.put("<UL>", "\n");
+
+        HTML_TO_CONSOLE_MAP.put("</ul>", "\n");
+        HTML_TO_CONSOLE_MAP.put("</UL>", "\n");
+
+        HTML_TO_CONSOLE_MAP.put("<li>", "\n* ");
+        HTML_TO_CONSOLE_MAP.put("<LI>", "\n* ");
+
+        HTML_TO_CONSOLE_MAP.put("</li>", "");
+        HTML_TO_CONSOLE_MAP.put("</LI>", "");
+
+        HTML_TO_CONSOLE_MAP.put("<p>", "\n\n");
+        HTML_TO_CONSOLE_MAP.put("<P>", "\n\n");
+
+        HTML_TO_CONSOLE_MAP.put("</p>", "");
+        HTML_TO_CONSOLE_MAP.put("</P>", "");
+    }
+
+    /** Console to HTML string substitution map. */
+    private static final Map<String, String> CONSOLE_TO_HTML_MAP;
+    static {
+        CONSOLE_TO_HTML_MAP = new HashMap<String, String>();
+        CONSOLE_TO_HTML_MAP.put("\n".toLowerCase(), "<br/>");
+        CONSOLE_TO_HTML_MAP.put("\t".toLowerCase(), "&nbsp;");
+        CONSOLE_TO_HTML_MAP.put(" ".toLowerCase(), "\"&nbsp;\"&nbsp;\"&nbsp;\"&nbsp;");
+    }
 
     /** Private constructor. */
     private ICBStringUtils() {
@@ -542,6 +582,40 @@ public final class ICBStringUtils {
 
         // Return the more wrappable string.
         return returnVal.toString();
+    }
+
+    /**
+     * Format a simple HTML string for the console.
+     * @param html html string
+     * @return console version
+     */
+    public static String htmlToConsole(final String html) {
+        if (StringUtils.isBlank(html)) {
+            return "";
+        }
+        String work = html;
+        for (String htmlVal : HTML_TO_CONSOLE_MAP.keySet()) {
+            final String replaceVal = HTML_TO_CONSOLE_MAP.get(htmlVal);
+            work = StringUtils.replace(work, htmlVal, replaceVal);
+        }
+        return work;
+    }
+
+    /**
+     * Format a simple string with spaces, newlines, tabs to simple html.
+     * @param console console value
+     * @return html value
+     */
+    public static String consoleToHtml(final String console) {
+        if (StringUtils.isBlank(console)) {
+            return "";
+        }
+        String work = console;
+        for (String consoleVal : CONSOLE_TO_HTML_MAP.keySet()) {
+            final String replaceVal = HTML_TO_CONSOLE_MAP.get(consoleVal);
+            work = StringUtils.replace(work, consoleVal, replaceVal);
+        }
+        return work;
     }
 
 }
