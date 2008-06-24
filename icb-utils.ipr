@@ -9,6 +9,7 @@
       <maximumHeapSize value="128" />
       <properties />
       <executeOn event="beforeRun" target="compile-tests" runConfigurationType="JUnit" runConfigurationName="TestCompoundFile.testTrueZipAppend" />
+      <executeOn event="beforeRun" target="compile-tests" runConfigurationType="JUnit" runConfigurationName="TestVersionUtils.getObjectImplementationVersion" />
     </buildFile>
   </component>
   <component name="BuildJarProjectSettings">

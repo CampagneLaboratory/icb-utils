@@ -132,7 +132,7 @@
                 <attribute name="Specification-Title" value="CompoundFileTool-Not-Autojar"/>
                 <attribute name="Specification-Vendor"
                            value="Institute for Computational Biomedicine (ICB), Weill Medical College of Cornell University"/>
-                <attribute name="Implementation-Version" value="${buildstamp}"/>
+                <attribute name="Implementation-Version" value="${label} (${buildstamp})"/>
                 <attribute name="Implementation-Vendor"
                            value="Institute for Computational Biomedicine (ICB), Weill Medical College of Cornell University"/>
                 <attribute name="Main-Class" value="edu.cornell.med.icb.io.compound.CompoundFileTool"/>
@@ -146,7 +146,7 @@
         <java classname="edu.cornell.med.icb.io.compound.CompoundFileTool" classpathref="classpath" fork="true">
             <arg value="working.compound-file"/>
             <arg value="-l"/>
-        </java> 
+        </java>
     </target>
 
 
