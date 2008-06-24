@@ -10,7 +10,7 @@ log4j.appender.CHAINSAW_CLIENT.Port=4445
 #################################################################
 # Appender file writes all statements by default
 log4j.appender.file=org.apache.log4j.FileAppender
-log4j.appender.file.File=logs/sim.log
+log4j.appender.file.File=logs/icb-utils.log
 log4j.appender.file.Append=false
 
 # Appender file uses the PatternLayout.
@@ -23,15 +23,3 @@ log4j.appender.console=org.apache.log4j.ConsoleAppender
 # console uses PatternLayout.
 log4j.appender.console.layout=org.apache.log4j.PatternLayout
 log4j.appender.console.layout.ConversionPattern=%-5p %-20c{1} - %m%n
-
-#################################################################
-# Appender file writes statements for generate final models
-log4j.appender.generatemodels=org.apache.log4j.FileAppender
-log4j.appender.generatemodels.File=logs/generate-models.log
-log4j.appender.generatemodels.Append=false
-
-# generatemodels uses PatternLayout.
-log4j.appender.generatemodels.layout=org.apache.log4j.PatternLayout
-log4j.appender.generatemodels.layout.ConversionPattern=%-5p %-20c{1} - %m%n
-
-log4j.logger.edu.cornell.med.icb.biomarkers.GenerateFinalModels=INFO, generatemodels, console
