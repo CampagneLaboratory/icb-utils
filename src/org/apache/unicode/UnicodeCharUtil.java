@@ -22,9 +22,13 @@ package org.apache.unicode;
  * character normalization. This class came from
  * https://issues.apache.org/jira/browse/LUCENE-1343
  */
-public class UnicodeCharUtil
-{
-    private UnicodeCharUtil() {}
+public final class UnicodeCharUtil {
+
+    /**
+     * Private constructor.
+     */
+    private UnicodeCharUtil() {
+    }
 
     /**
      * Checks if a given character c is within the range l .. h (inclusive).
@@ -33,8 +37,8 @@ public class UnicodeCharUtil
      * @param h the high value of the range
      * @return true if the character is i the range.
      */
-    static private boolean isInRange (final char c, final int l, final int h) {
-        return ( c >= l && c <= h );
+    private static boolean isInRange(final char c, final int l, final int h) {
+        return (c >= l && c <= h);
     }
 
     /**
@@ -45,7 +49,7 @@ public class UnicodeCharUtil
      * @return the normalized character or 0x00 if the character doesn't need
      * normalization.
      */
-    static public char foldNonDiacriticChar (final char c) {
+    public static char foldNonDiacriticChar(final char c) {
          switch (c) {
              //  LATIN CAPITAL LETTER B WITH HOOK -> LATIN CAPITAL LETTER B
              case 0x0181:  return (0x0042);
@@ -320,7 +324,7 @@ public class UnicodeCharUtil
      * @param c the character to check
      * @return true of the character is a spacing modifier.
      */
-    static public boolean isSpacingModifier (final char c) {
+    public static boolean isSpacingModifier(final char c) {
          final int cval = (int) c;
          final int hiByte = cval >>> 8;
          switch (hiByte) {
@@ -387,7 +391,7 @@ public class UnicodeCharUtil
      * @param c the character to check
      * @return true of the c is a combining character
      */
-    static public boolean isCombiningCharacter (final char c) {
+    public static boolean isCombiningCharacter(final char c) {
         final int cval = (int) c;
         final int hiByte = cval >>> 8;
         switch (hiByte) {
@@ -466,7 +470,7 @@ public class UnicodeCharUtil
                     || isInRange(c, 0x1085, 0x1086) || c == 0x108D;
 
         case 0x13 : // ETHIOPIC
-            return  c == 0x135F ;
+            return  c == 0x135F;
 
         case 0x17 : // TAGALOG
             return  isInRange(c, 0x1712, 0x1714)
@@ -509,7 +513,7 @@ public class UnicodeCharUtil
                     || isInRange(c, 0x20E8, 0x20F0);
 
         case 0x30 :
-            return isInRange(c, 0x302A, 0x302F) || c == 0x3099 || c == 0x309A ;
+            return isInRange(c, 0x302A, 0x302F) || c == 0x3099 || c == 0x309A;
 
         default :
             return false;
