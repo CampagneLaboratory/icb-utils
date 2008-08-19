@@ -35,7 +35,6 @@ public class TestICBStringUtils extends TestCase {
     private static final String HTMLSAFE =
         "&lt;this is a &quot;test&quot; &amp; so is &apos;this&apos; &gt;";
 
-
     /**
      * Test strip extra spaces
      */
@@ -237,6 +236,15 @@ public class TestICBStringUtils extends TestCase {
                     "this is a longer string. with "
                             + "multiplte breaks! fun eh?",
                         15, "<br/>"));
+    }
+
+    public void testRemoveAccents() {
+        assertEquals("Stuve", ICBStringUtils.removeAccents("Stüve"));
+        assertEquals("Biologia", ICBStringUtils.removeAccents("Biología"));
+        assertEquals("Anabalon R", ICBStringUtils.removeAccents("Anabalón R"));
+        assertEquals("patron de metilacion genico",
+                ICBStringUtils.removeAccents("patrón de metilación génico"));
+        assertEquals("Investigacao", ICBStringUtils.removeAccents("Investigação"));
     }
 
 }
