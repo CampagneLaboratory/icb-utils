@@ -647,7 +647,7 @@ public final class ICBStringUtils {
             if (foldC == 0x00) {
                 result.append(curChar);
             } else {
-                result.append(curChar);
+                result.append(foldC);
             }
         }
         return result.toString();
