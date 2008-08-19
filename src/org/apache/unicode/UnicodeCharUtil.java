@@ -321,8 +321,8 @@ public class UnicodeCharUtil
      * @return true of the character is a spacing modifier.
      */
     static public boolean isSpacingModifier (final char c) {
-         int cval = (int )c;
-         int hiByte = cval >>> 8;
+         final int cval = (int) c;
+         final int hiByte = cval >>> 8;
          switch (hiByte) {
              case 0x02 : // SPACING MODIFIERS
                  return isInRange(c, 0x02B0, 0x02FF);
@@ -388,8 +388,8 @@ public class UnicodeCharUtil
      * @return true of the c is a combining character
      */
     static public boolean isCombiningCharacter (final char c) {
-        int cval = (int )c;
-        int hiByte = cval >>> 8;
+        final int cval = (int) c;
+        final int hiByte = cval >>> 8;
         switch (hiByte) {
 
         case 0x03 : // LATIN
