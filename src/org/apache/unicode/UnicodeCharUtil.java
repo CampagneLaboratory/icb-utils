@@ -19,7 +19,8 @@ package org.apache.unicode;
 
 /**
  * This class was originally written to support a Lucene filter for unicode
- * character normalization.
+ * character normalization. This class came from
+ * https://issues.apache.org/jira/browse/LUCENE-1343
  */
 public class UnicodeCharUtil
 {
