@@ -21,7 +21,6 @@ package edu.cornell.med.icb.io.compound;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.io.File;
@@ -29,12 +28,9 @@ import java.util.Set;
 import java.util.Map;
 import java.util.HashMap;
 
-import edu.rit.pj.ParallelRegion;
-import edu.rit.pj.ParallelTeam;
-import edu.rit.pj.IntegerForLoop;
-
 /**
  * Test the compound file reader / writer.
+ * TODO: Work on reverting back to thread safe version!
  * @author Kevin Dorff
  */
 public class TestCompoundFile {
@@ -85,7 +81,6 @@ public class TestCompoundFile {
         assertEquals(45, input.readLong());
         assertEquals("File 1 string B", input.readUTF());
         assertEquals("File 1 StringC serialized", input.readObject());
-        input.close();
 
         cfw.deleteFile("file1");
         assertEquals(2, cfr.getFileNames().size());
@@ -98,19 +93,16 @@ public class TestCompoundFile {
         input = cfr.readFile("file1");
         assertEquals("File 1b string", input.readUTF());
         assertEquals(2.73, input.readDouble(), 0.001);
-        input.close();
 
         input = cfr.readFile("file2");
         assertEquals("File 2 string", input.readUTF());
         assertEquals(35, input.readLong());
         assertEquals(54, input.readLong());
         assertEquals("File 2 String serialized", input.readObject());
-        input.close();
 
         input = cfr.readFile("file3");
         assertEquals("File 3 string", input.readUTF());
         assertEquals(3.14159, input.readDouble(), 0.001);
-        input.close();
 
         cfr.close();
         cfw.close();
@@ -123,30 +115,23 @@ public class TestCompoundFile {
      */
     @Test
     public void testLotsOfSmallFiles() throws IOException {
-        final int numFiles = 20000;
         System.out.println("Testing lots of small files");
         new File("test-data/CompoundFile2.dat").delete();
         final CompoundFileWriter cfw = new CompoundFileWriter("test-data/CompoundFile2.dat");
-        long startTime = System.currentTimeMillis();
-        for (int x = 0; x < numFiles; x++) {
+        CompoundFileReader cfr = cfw.getCompoundFileReader();
+        for (int x = 0; x < 20000; x++) {
             final CompoundDataOutput output = cfw.addFile("file" + x);
             output.writeUTF("Data for file " + x);
             output.close();
+            if (x % 500 == 0) {
+            //     System.out.println("Loaded " + x + " files");
+                assertEquals(x + 1, cfr.getFileNames().size());
+            }
         }
         cfw.close();
-        long endTime = System.currentTimeMillis();
-        System.out.println("Time to write " + numFiles + " files " + (endTime - startTime));
 
-        final CompoundFileReader cfr = new CompoundFileReader("test-data/CompoundFile2.dat");
-        startTime = System.currentTimeMillis();
-        for (int x = 0; x < numFiles; x++) {
-            final CompoundDataInput input = cfr.readFile("file" + x);
-            assertEquals("Data for file " + x, input.readUTF());
-            input.close();
-        }
-        endTime = System.currentTimeMillis();
-        System.out.println("Time to read " + numFiles + " files " + (endTime - startTime));
-        cfr.close();
+        cfr = new CompoundFileReader("test-data/CompoundFile2.dat");
+        assertEquals(20000,cfr.getFileNames().size());
     }
 
     /**
@@ -227,7 +212,6 @@ public class TestCompoundFile {
         Map<Long, String> mapRead = (Map<Long, String>) input.readObject();
         Map<Long, String> mapRead2 = (Map<Long, String>) input.readObject();
         Map<Long, String> mapRead3 = (Map<Long, String>) input.readObject();
-        input.close();
         cfr.close();
 
         assertSameMap(map, mapRead);
@@ -253,64 +237,6 @@ public class TestCompoundFile {
         output.writeObject("hello again");
         output.close();
         cfw.close();
-    }
-
-    /**
-     * This writes a bunch of small files and verifies the
-     * data comes back from the files. Here we write
-     * and read the data in a multi-threaded fashion.
-     * @throws IOException problem reading/writing
-     */
-    @Test
-    public void testMultiThreaded() throws Exception {
-        final int numThreads = 50;
-        final int numFiles = 20000;
-
-        final String testFilename = "test-data/CompoundFile5.dat";
-        File testFile = new File(testFilename);
-        testFile.delete();
-        assertFalse("Test file " + testFilename + " could not be deleted before test ran.",
-                testFile.exists());
-
-        long startTime = System.currentTimeMillis();
-        final CompoundFileWriter cfw = new CompoundFileWriter(testFilename);
-        new ParallelTeam(numThreads).execute( new ParallelRegion() {
-            public void run() throws Exception {
-                execute(0, numFiles - 1, new IntegerForLoop() {
-                    public void run (int first, int last) throws IOException {
-                        for (int r = first; r <= last; r++) {
-                            final CompoundDataOutput output = cfw.addFile("file" + r);
-                            output.writeUTF("Data for file " + r);
-                            output.close();
-                        }
-                    }
-                });
-            }
-        });
-        cfw.close();
-        long endTime = System.currentTimeMillis();
-        System.out.println("Time to " + numThreads + "-threaded write " + numFiles
-                + " files " + (endTime - startTime));
-
-        final CompoundFileReader cfr = new CompoundFileReader(testFilename, numThreads);
-        startTime = System.currentTimeMillis();
-        new ParallelTeam(numThreads).execute( new ParallelRegion() {
-            public void run() throws Exception {
-                execute(0, numFiles - 1, new IntegerForLoop() {
-                    public void run (int first, int last) throws IOException, ClassNotFoundException {
-                        for (int r = first; r <= last; r++) {
-                            final CompoundDataInput input = cfr.readFile("file" + r);
-                            assertEquals("Data for file " + r, input.readUTF());
-                            input.close();
-                        }
-                    }
-                });
-            }
-        });
-        cfr.close();
-        endTime = System.currentTimeMillis();
-        System.out.println("Time to " + numThreads + "-threaded read " + numFiles
-                + " files " + (endTime - startTime));
     }
 
     /**

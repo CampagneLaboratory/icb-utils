@@ -26,20 +26,14 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.File;
 import java.io.Closeable;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Write a compound file. This is thread safe, BUT you should only
- * open a file for writing from within a SINGLE VM. Multiple threads in one
- * VM for writing to a file is fine, multiple VMs writing to a single file: BAD.
- * This class uses a ReentrantLock to verify that only one thread will be writing
- * to the file at a time (all other requests will be queued). When you
- * addFile() you will receive a CompoundDataOutput for writing to the file -
- * you MUST call close() on that object when you are done writing. If you
- * do not call close() you will not release the lock and you will not be
- * able to sucessfully call addFile() again.
+ * Write a compound file. Only one thread should be writing to the compound
+ * file at a time. NOT THREAD SAFE!
+ * TODO: * Add a semaphore and make it thread safe?
  * TODO: * Utility to copy a set of files to a compound file, and extract a set of files
  * TODO: from a compound file
+ * TODO: Work on reverting back to thread safe version!
  * @author Kevin Dorff
  */
 public class CompoundFileWriter implements Closeable {
@@ -48,15 +42,6 @@ public class CompoundFileWriter implements Closeable {
      * Used to log debug and informational messages.
      */
     private static final Log LOG = LogFactory.getLog(CompoundFileWriter.class);
-
-    /** Logging message to display when acquiring a lock. */
-    private final static String ACQUIRING_LOCK_MSG = "| ACQUIRING_LOCK";
-
-    /** Logging message to display when a lock was obtained. */
-    private final static String LOCK_OBTAINED_MSG = "+ LOCK_OBTAINED";
-
-    /** Logging message to display when a lock was released. */
-    private final static String LOCK_RELEASED_MSG = "- LOCK_RELEASED";
 
     /**
      * The stream we are writing to.
@@ -94,8 +79,6 @@ public class CompoundFileWriter implements Closeable {
      */
     private CompoundDirectoryEntry entryBeingAdded;
 
-    private final ReentrantLock lock = new ReentrantLock();
-
     /**
      * Create (if it doesn't exist) or append to (if it does exist)
      * a compound file.
@@ -105,25 +88,16 @@ public class CompoundFileWriter implements Closeable {
     public CompoundFileWriter(final String physicalFilename) throws IOException {
         super();
 
-        try {
-            logLockState(ACQUIRING_LOCK_MSG, "CONSTRUCTOR", "<none>");
-            lock.lock();
-            logLockState(LOCK_OBTAINED_MSG, "CONSTRUCTOR", "<none>");
-
-            entryBeingAdded = null;
-            this.filename = physicalFilename;
-            stream = new RandomAccessFile(new File(physicalFilename), "rw");
-            compoundFileReader = new CompoundFileReader(physicalFilename);
-            stream.seek(0);
-            if (stream.length() == 0) {
-                stream.writeLong(0);
-                totalNumberOfFiles = 0;
-            } else {
-                totalNumberOfFiles = stream.readLong();
-            }
-        } finally {
-            lock.unlock();
-            logLockState(LOCK_RELEASED_MSG, "CONSTRUCTOR", "<none>");
+        entryBeingAdded = null;
+        this.filename = physicalFilename;
+        stream = new RandomAccessFile(new File(physicalFilename), "rw");
+        compoundFileReader = new CompoundFileReader(physicalFilename);
+        stream.seek(0);
+        if (stream.length() == 0) {
+            stream.writeLong(0);
+            totalNumberOfFiles = 0;
+        } else {
+            totalNumberOfFiles = stream.readLong();
         }
     }
 
@@ -137,7 +111,7 @@ public class CompoundFileWriter implements Closeable {
 
     /**
      * Add a file to the compound file. This needs to be "completed"
-     * by calling CompoundDataOutput's close() before another
+     * by calling CompoundDataOutput.close() before another
      * addFile() or deleteFile() can be called.
      * @param name the internal filename (any string is valid)
      * @throws IOException problem adding a file
@@ -145,50 +119,21 @@ public class CompoundFileWriter implements Closeable {
      * of the file
      */
     public CompoundDataOutput addFile(final String name) throws IOException {
-        try {
-            logLockState(ACQUIRING_LOCK_MSG, "ADD", name);
-            lock.lock();
-            logLockState(LOCK_OBTAINED_MSG, "ADD", name);
-
-            return addFileSingleThread(name);
-        } catch (IOException e) {
-            lock.unlock();
-            logLockState(LOCK_RELEASED_MSG, "ADD, IOException", name);
-            throw e;
-        } catch (IllegalStateException e) {
-            lock.unlock();
-            logLockState(LOCK_RELEASED_MSG, "ADD, IllegalStateException", name);
-            throw e;
-        } catch (IllegalArgumentException e) {
-            lock.unlock();
-            logLockState(LOCK_RELEASED_MSG, "ADD, IllegalArgumentException", name);
-            throw e;
-        }
-    }
-
-    /**
-     * Add a file to the compound file. This method does the actual work
-     * and assumes it is isolated from other threads (the locking occurs
-     * before this method is called). This needs to be "completed"
-     * by calling CompoundDataOutput's close() before another
-     * addFile() or deleteFile() can be called.
-     * @param name the internal filename (any string is valid)
-     * @throws IOException problem adding a file
-     * @return a CompoundDataOutput which can be used to write the contents
-     * of the file
-     */
-    private CompoundDataOutput addFileSingleThread(final String name) throws IOException {
-        if (entryBeingAdded != null) {
-            throw new IllegalStateException("addFile() called during before close() "
-                    + "called on current addFile()");
-        }
-
         if (stream == null) {
             throw new IllegalStateException("CompoundFileWriter is not open.");
         }
 
         if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("The name specified was null or empty.");
+        }
+
+        //
+        // Semaphore obtain logic progbably here
+        //
+
+        if (entryBeingAdded != null) {
+            throw new IllegalStateException("addFile() called during before close() "
+                    + "called on current addFile()");
         }
 
         if (compoundFileReader.containsFile(name)) {
@@ -233,32 +178,24 @@ public class CompoundFileWriter implements Closeable {
      * @throws IOException problem deleting the file
      */
     public void deleteFile(final String name) throws IOException {
-        try {
-            logLockState(ACQUIRING_LOCK_MSG, "DELETE", name);
-            lock.lock();
-            logLockState(LOCK_OBTAINED_MSG, "DELETE", name);
+        if (entryBeingAdded != null) {
+            throw new IllegalStateException("deleteFile() called during before close() "
+                    + "called on current addFile()");
+        }
 
-            if (entryBeingAdded != null) {
-                throw new IllegalStateException("deleteFile() called during before close() "
-                        + "called on current addFile()");
+        final CompoundDirectoryEntry entry = compoundFileReader.getDirectoryEntry(name);
+        if (entry != null) {
+            final long position =  entry.getStartPosition();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Marking file deleted at position " + position);
             }
-            final CompoundDirectoryEntry entry = compoundFileReader.getDirectoryEntry(name);
-            if (entry != null) {
-                final long position =  entry.getStartPosition();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Marking file deleted at position " + position);
-                }
-                stream.seek(position);
-                stream.writeInt(FILE_STATE_DELETED);
-                compoundFileReader.removeFromDirectory(name);
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Not deleting, not in compound file");
-                }
+            stream.seek(position);
+            stream.writeInt(FILE_STATE_DELETED);
+            compoundFileReader.removeFromDirectory(name);
+        } else {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Not deleting, not in compound file");
             }
-        } finally {
-            lock.unlock();
-            logLockState(LOCK_RELEASED_MSG, "DELETE", name);
         }
     }
 
@@ -312,26 +249,7 @@ public class CompoundFileWriter implements Closeable {
             }
             compoundFileReader.addToDirectory(entryBeingAdded);
         } finally {
-            String name = entryBeingAdded.getName();
             entryBeingAdded = null;
-            lock.unlock();
-            logLockState(LOCK_RELEASED_MSG, "ADD", name);
         }
     }
-
-    /**
-     * Debugging information about the semaphore state.
-     * Will output if logging is in trace mode.
-     * @param lockAction action on the semaphore
-     * @param method where in the code the action is taking place
-     * @param filename filename for the action
-     */
-    private void logLockState(
-            final String lockAction, final String method, final String filename) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace(String.format("%s for %s (name= %s) queue length = %d",
-                    lockAction, method, filename, lock.getQueueLength()));
-        }
-    }
-
 }

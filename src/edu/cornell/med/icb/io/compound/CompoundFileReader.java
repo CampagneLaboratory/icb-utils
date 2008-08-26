@@ -24,23 +24,18 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Closeable;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.Collection;
-import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Read a compound file.
- * This class uses a stream pool to control the number of threads that can
- * simulatneously read from the file at once, you can use the constructor to
- * tune this pool size to the number of threads that will need to access it
- * simultaneously. When you readFile() you will receive a CompoundDataInput
- * for reading from the file - you MUST call close() on that object when you
- * are done reading or the pool will quickly empty and your program will hang.
  * TODO: May want to investigate MultipleStream from fastutil - this would allow iterating files
+ * TODO: Work on reverting back to thread safe version!
  * @author Kevin Dorff
  */
 public class CompoundFileReader implements Closeable {
@@ -54,44 +49,27 @@ public class CompoundFileReader implements Closeable {
      */
     private final String filename;
 
+    /**
+     * The stream we are reading from.
+     */
+    private RandomAccessFile stream;
+
     /** Name of file in the container to directory entry data. */
     private Map<String, CompoundDirectoryEntry> nameToDirEntryMap;
 
     /** The total number of files stored in the compound file, included deleted files. */
     private long totalNumberOfFiles;
 
-    /** The pool of streams for reading files from this compound file. */
-    private final ArrayBlockingQueue<RandomAccessFile> streamPool;
-
-    /**
-     * Create (if it doesn't exist) or open to (if it does exist)
-     * a compound file. This uses a stream pool of size 5 (the
-     * number of files that can be read at once in a multi-threaded
-     * application).
-     * @param physicalFilename the compound file to read from
-     * be read at once in a multi-threaded application).
-     * @throws IOException problem opening the file
-     */
-    public CompoundFileReader(final String physicalFilename) throws IOException {
-        this(physicalFilename, 5);
-    }
-
     /**
      * Create (if it doesn't exist) or open to (if it does exist)
      * a compound file.
      * @param physicalFilename the compound file to read from
-     * @param streamsPoolSize the size of the streams pool (number of files that can
-     * be read at once in a multi-threaded application).
      * @throws IOException problem opening the file
      */
-    public CompoundFileReader(final String physicalFilename, final int streamsPoolSize)
-            throws IOException {
+    public CompoundFileReader(final String physicalFilename) throws IOException {
         super();
         this.filename = physicalFilename;
-        streamPool = new ArrayBlockingQueue<RandomAccessFile>(streamsPoolSize);
-        for (int i = 0; i < streamsPoolSize; i++) {
-            streamPool.add(new RandomAccessFile(physicalFilename, "r"));
-        }
+        stream = new RandomAccessFile(new File(physicalFilename), "r");
         scanDirectory();
     }
 
@@ -104,15 +82,15 @@ public class CompoundFileReader implements Closeable {
     }
 
     /**
-     * Read a file from the compound file. You >> MUST CALL close() << on the
-     * CompoundDataInput when you are done reading the file. If you don't
-     * call close() you will run out of readers and your program will hang.
+     * Read a file from the compound file.
      * @param name the name of the compound file to read
      * @return a DataInput object to read the actual data
      * @throws IOException problem reading the file
      */
     public CompoundDataInput readFile(final String name) throws IOException {
-        final RandomAccessFile stream = borrowFromPool();
+        if (stream == null) {
+            throw new IllegalStateException("CompoundFileReader is not open.");
+        }
 
         if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("The name specified was null or empty.");
@@ -130,32 +108,7 @@ public class CompoundFileReader implements Closeable {
             LOG.debug("Reading an file that should be " + entry.getFileSize() + " bytes long");
         }
         stream.seek(position);
-        return new CompoundDataInput(stream, this);
-    }
-
-    /**
-     * Borrow a RandomAccessFile from the pool.
-     * @return the RandomAccessFile from the pool
-     * @throws IOException thread interrupted waiting to get the object from the pool
-     */
-    RandomAccessFile borrowFromPool() throws IOException {
-        try {
-            return streamPool.take();
-        } catch (InterruptedException e) {
-            throw new IOException(e);
-        }
-    }
-
-    /**
-     * Return a RandomAccessFile to the pool.
-     * @param stream the RandomAccessFile to return to the pool
-     */
-    void returnToPool(final RandomAccessFile stream) {
-        try {
-            streamPool.put(stream);
-        } catch (InterruptedException e) {
-            LOG.error("Error returning stream to pool ", e);
-        }
+        return new CompoundDataInput(stream);
     }
 
     /**
@@ -189,8 +142,6 @@ public class CompoundFileReader implements Closeable {
     public synchronized void scanDirectory() throws IOException {
         nameToDirEntryMap = new LinkedHashMap<String, CompoundDirectoryEntry>();
 
-        final RandomAccessFile stream = borrowFromPool();
-
         if (LOG.isDebugEnabled()) {
             LOG.debug("Scanning directory from " + filename);
         }
@@ -221,7 +172,6 @@ public class CompoundFileReader implements Closeable {
                 stream.seek(dataPosition + fileSize);
             }
         }
-        returnToPool(stream);
     }
 
     /**
@@ -240,6 +190,10 @@ public class CompoundFileReader implements Closeable {
      * @throws IOException error closing the compound file
      */
     public void close() throws IOException {
+        if (stream != null) {
+            stream.close();
+            stream = null;
+        }
     }
 
     /**
