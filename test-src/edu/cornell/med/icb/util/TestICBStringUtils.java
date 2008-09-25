@@ -237,16 +237,4 @@ public class TestICBStringUtils extends TestCase {
                             + "multiplte breaks! fun eh?",
                         15, "<br/>"));
     }
-
-    /** The server doesn't like the accented characters to be in the java strings here. */
-    /*
-    public void testRemoveAccents() {
-        assertEquals("Stuve", ICBStringUtils.removeAccents("Stüve"));
-        assertEquals("Biologia", ICBStringUtils.removeAccents("Biología"));
-        assertEquals("Anabalon R", ICBStringUtils.removeAccents("Anabalón R"));
-        assertEquals("patron de metilacion genico",
-                ICBStringUtils.removeAccents("patrón de metilación génico"));
-        assertEquals("Investigacao", ICBStringUtils.removeAccents("Investigação"));
-    }
-    */
 }

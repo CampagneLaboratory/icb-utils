@@ -19,14 +19,11 @@
 package edu.cornell.med.icb.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.unicode.UnicodeCharUtil;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-
-import com.ibm.icu.text.Normalizer;
 
 /**
  *
@@ -619,37 +616,5 @@ public final class ICBStringUtils {
             work = StringUtils.replace(work, consoleVal, replaceVal);
         }
         return work;
-    }
-
-    /**
-     * Take a string with (international) access and return the same
-     * string but with the accents removed. This currently requires
-     * Java 1.6 and will possibly given compilation warnings such as
-     * "warning: sun.text.Normalizer is Sun proprietary API and may
-     * be removed in a future release". If this happens, ICU4J can be
-     * used to remove accents, but requires a 5MB jar... this is a much
-     * more compact way of doing it.
-     * @param accentedValue the string that may have accents
-     * @return the string without the accents.
-     */
-    public static String removeAccents(final String accentedValue) {
-        String noAccents = Normalizer.normalize(accentedValue, Normalizer.NFKD, 0);
-        final int length = noAccents.length();
-        StringBuilder result = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            char curChar = noAccents.charAt(i);
-            if (UnicodeCharUtil.isCombiningCharacter(curChar)) {
-                continue;
-            } else if (UnicodeCharUtil.isSpacingModifier(curChar)) {
-                continue;
-            }
-            final char foldC = UnicodeCharUtil.foldNonDiacriticChar(curChar);
-            if (foldC == 0x00) {
-                result.append(curChar);
-            } else {
-                result.append(foldC);
-            }
-        }
-        return result.toString();
     }
 }

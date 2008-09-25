@@ -91,7 +91,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/ibm-icu4j-normalizer.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/icu4j_3_4_4.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
