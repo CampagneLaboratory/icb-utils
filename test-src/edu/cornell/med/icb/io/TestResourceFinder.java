@@ -34,18 +34,8 @@ public class TestResourceFinder {
      */
     @Test
     public void testResrouceFinder() {
-        final ResourceFinder resrouceFinder = new ResourceFinder("config");
-        final URL url =  resrouceFinder.findResource("log4j.properties.sample");
-        assertNotNull(url);
-    }
-
-    /**
-     * Test when the resource can be found via default "config".
-     */
-    @Test
-    public void testResrouceFinder2() {
-        // Uses the default config path
-        final ResourceFinder resrouceFinder = new ResourceFinder();
+        // Config is in the class path for test
+        final ResourceFinder resrouceFinder = new ResourceFinder((String[]) null);
         final URL url =  resrouceFinder.findResource("log4j.properties.sample");
         assertNotNull(url);
     }
@@ -55,9 +45,9 @@ public class TestResourceFinder {
      */
     @Test
     public void testResrouceFinder3() {
-        // Really, no extra paths.
-        final ResourceFinder resrouceFinder = new ResourceFinder(null);
-        final URL url =  resrouceFinder.findResource("log4j.properties.sample");
-        assertNull(url);
+        // Add testsupport to search path
+        final ResourceFinder resrouceFinder = new ResourceFinder("testsupport");
+        final URL url =  resrouceFinder.findResource("testsupport.ipr");
+        assertNotNull(url);
     }
 }

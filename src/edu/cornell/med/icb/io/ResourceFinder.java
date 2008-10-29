@@ -45,13 +45,6 @@ public class ResourceFinder {
     private final List<String> searchPaths;
 
     /**
-     * Default constructor. Same as creating a ResourceFinder("config").
-     */
-    public ResourceFinder() {
-        this("config");
-    }
-
-    /**
      * Create a resource finder. If the resource isn't found directly at the specified
      * path, each of searchPathsVal will be prepended to the resource requested to look
      * in those locations as well.
