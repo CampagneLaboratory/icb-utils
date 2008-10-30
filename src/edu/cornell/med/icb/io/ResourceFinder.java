@@ -45,17 +45,26 @@ public class ResourceFinder {
     private final List<String> searchPaths;
 
     /**
+     * No extra paths configuration.
+     */
+    public ResourceFinder() {
+        this(new String[0]);
+        System.out.println("In no args constructor.");
+    }
+
+    /**
      * Create a resource finder. If the resource isn't found directly at the specified
      * path, each of searchPathsVal will be prepended to the resource requested to look
      * in those locations as well.
      * @param searchPathsVal the additional searchPaths to search for the resource.
      */
     public ResourceFinder(final String... searchPathsVal) {
+        System.out.println("In multi args constructor");
         searchPaths = new LinkedList<String>();
         if (searchPathsVal != null) {
             for (String searchPath : searchPathsVal) {
                 while (searchPath.endsWith("/") || searchPath.endsWith("\\")) {
-                    searchPath = searchPath.substring(0, searchPath.length());
+                    searchPath = searchPath.substring(0, searchPath.length() - 1);
                 }
                 this.searchPaths.add(searchPath);
             }
@@ -69,18 +78,12 @@ public class ResourceFinder {
      * @return A URL for the specified resource or null
      */
     public URL findResource(final String resource) {
-        URL url; // if the user defined a configuration, use it
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Trying the resource as specified " + resource);
-        }
-        url = simpleFindResource(resource);
+        URL url = resourceToUrl(resource);
+
         // try a resource in the config directory
         if (url == null) {
             for (final String searchPath : searchPaths) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Trying in the " + searchPath + " resource path");
-                }
-                url = simpleFindResource(searchPath + "/" + resource);
+                url = resourceToUrl(searchPath + "/" + resource);
                 if (url != null) {
                     break;
                 }
@@ -88,38 +91,43 @@ public class ResourceFinder {
         }
 
         if (url == null) {
-            try {
-                final File file = new File(resource);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("try as a file as " + file.getCanonicalPath());
-                }
-                if (file.exists() && file.isFile() && file.canRead()) {
-                    url = file.toURI().toURL();
-                }
-            } catch (MalformedURLException e) { // NOPMD
-                // resource is not a URL
-            } catch (IOException e) { // NOPMD
-                // Could not do file getCanonicalPath()
-            }
+            url = fileToURL(resource);
         }
 
         if (url == null) {
             for (final String searchPath : searchPaths) {
-                try {
-                    final File file = new File(searchPath + IOUtils.DIR_SEPARATOR + resource);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("try as a file as " + file.getCanonicalPath());
-                    }
-                    if (file.exists() && file.isFile() && file.canRead()) {
-                        url = file.toURI().toURL();
-                        break;
-                    }
-                } catch (MalformedURLException e) { // NOPMD
-                    // resource is not a URL
-                } catch (IOException e) { // NOPMD
-                    // Could not do file getCanonicalPath()
+                url = fileToURL(searchPath + IOUtils.DIR_SEPARATOR + resource);
+                if (url != null) {
+                    break;
                 }
             }
+        }
+        return url;
+    }
+
+    /**
+     * Try to convert a file to a URL. Returns null if the file doesn't exist or isn't
+     * a file or isn't readable.
+     * @param filename the filename to try to map to URL
+     * @return the URL
+     */
+    private URL fileToURL(final String filename) {
+        URL url = null;
+        try {
+            final File file = new File(filename);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Trying to find [" + filename + "] as file in filesystem");
+            }
+            if (file.exists() && file.isFile() && file.canRead()) {
+                url = file.toURI().toURL();
+            }
+        } catch (MalformedURLException e) { // NOPMD
+            // resource is not a URL
+        } catch (IOException e) { // NOPMD
+            // Could not do file getCanonicalPath()
+        }
+        if (url != null && LOG.isDebugEnabled()) {
+            LOG.debug("... found url is [" + url.toString() + "]");
         }
         return url;
     }
@@ -131,7 +139,7 @@ public class ResourceFinder {
      * @param resource The resource to search for
      * @return A url representing the resource or {@code null} if the resource was not found
      */
-    private URL simpleFindResource(final String resource) {
+    private URL resourceToUrl(final String resource) {
         URL url;   // get the configuration from the classpath of the current thread
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         if (LOG.isDebugEnabled()) {
@@ -154,6 +162,9 @@ public class ResourceFinder {
                 LOG.debug("Trying to find [" + resource + "] using system class loader");
             }
             url = ClassLoader.getSystemResource(resource);
+        }
+        if (url != null && LOG.isDebugEnabled()) {
+            LOG.debug("... found url is [" + url.toString() + "]");
         }
         return url;
     }
