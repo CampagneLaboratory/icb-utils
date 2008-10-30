@@ -96,7 +96,7 @@ public class TestResourceFinder {
     /**
      * Create the temp file and directory, something outside of the current
      * directory.
-     * @throws IOException
+     * @throws IOException error making directory or file
      */
     @BeforeClass
     public static void beforeClass() throws IOException {
@@ -117,6 +117,7 @@ public class TestResourceFinder {
 
     /**
      * Make the temp file outside of existing directory.
+     * @throws IOException error making file
      */
     private static void makeTmpFile() throws IOException {
         final File tmpFile = new File("/tmp/temp-file.txt");
