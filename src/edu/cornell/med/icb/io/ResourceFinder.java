@@ -25,8 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.io.File;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -49,7 +47,6 @@ public class ResourceFinder {
      */
     public ResourceFinder() {
         this(new String[0]);
-        System.out.println("In no args constructor.");
     }
 
     /**
@@ -59,7 +56,6 @@ public class ResourceFinder {
      * @param searchPathsVal the additional searchPaths to search for the resource.
      */
     public ResourceFinder(final String... searchPathsVal) {
-        System.out.println("In multi args constructor");
         searchPaths = new LinkedList<String>();
         if (searchPathsVal != null) {
             for (String searchPath : searchPathsVal) {
