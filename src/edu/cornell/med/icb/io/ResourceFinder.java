@@ -170,21 +170,6 @@ public class ResourceFinder {
     }
 
     /**
-     * Return a BufferedReader for a given resource using the ResourceFinder.
-     * @param resource the resource to get a BufferedReader for
-     * @return the buffered reader or null if the resource could not be located
-     * @throws IOException error obtaining reader after resource was located
-     */
-    public BufferedReader bufferedReaderForResource(final String resource) throws IOException {
-        final URL url = findResource(resource);
-        BufferedReader reader = null;
-        if (url != null) {
-            reader = new BufferedReader(new InputStreamReader(url.openStream()));
-        }
-        return reader;
-    }
-
-    /**
      * Return an InputStream for a given resource using the ResourceFinder.
      * @param resource the resource to get a BufferedReader for
      * @return the buffered reader or null if the resource could not be located
