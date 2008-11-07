@@ -40,6 +40,7 @@ public class TestLinearRegression {
         assertEquals(40.0d, reg.getXIntercept());
         assertEquals(4.0d, reg.getYIntercept());
         assertEquals(-0.1d, reg.getSlope());
+        assertEquals(-1.0d, reg.getCorrelationCoefficient(), 0.001d);
     }
 
     /**
@@ -66,6 +67,7 @@ public class TestLinearRegression {
         assertEquals(70.0d, reg.getXIntercept());
         assertEquals(3.5d, reg.getYIntercept());
         assertEquals(-0.05d, reg.getSlope());
+        assertEquals(-1.0d, reg.getCorrelationCoefficient(), 0.001d);
     }
 
     /**
@@ -80,5 +82,19 @@ public class TestLinearRegression {
         assertEquals(10.0d, reg.getXIntercept());
         assertEquals(-20.0d, reg.getYIntercept());
         assertEquals(2.0d, reg.getSlope());
+        assertEquals(1.0d, reg.getCorrelationCoefficient(), 0.001d);
+    }
+
+    @Test
+    public void testArraysOfValues() {
+        final double[] x = new double[] {5.05, 6.75, 3.21, 2.66};
+        final double[] y = new double[] {1.65, 26.5, -5.93, 7.96};
+        final LinearRegression reg = new LinearRegression();
+        reg.addDataPoints(x, y);
+        reg.regress();
+        assertEquals(3.018d, reg.getXIntercept(), 0.001d);
+        assertEquals(-16.281d, reg.getYIntercept(), 0.001d);
+        assertEquals(5.393d, reg.getSlope(), 0.001d);
+        assertEquals(0.724d, reg.getCorrelationCoefficient(), 0.001d);
     }
 }

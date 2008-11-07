@@ -19,16 +19,23 @@
 package edu.cornell.med.icb.stat;
 
 /**
- * This class performs a Linear Regression. Based partly on the code found within
- * RegressionApplet.java found at  
- * http://www.math.csusb.edu/faculty/stanton/m262/regress/regress.html
+ * This class performs a Linear Regression. It is based on the formula from
+ * http://phoenix.phys.clemson.edu/tutorials/regression/index.html
+ * This asumes the relationship between the sets of data (x and y) is linear.
+ * I verified the values including correlation coefficient using Excel with the
+ * method described in
+ * http://phoenix.phys.clemson.edu/tutorials/excel/regression.html
  */
 public class LinearRegression {
+
     /** The number of data points. */
     private int numberDataPoints;
 
     /** The sum of all data point x*x values. */
     private double sumxx;
+
+    /** The sum of all data point y*y values. */
+    private double sumyy;
 
     /** The sum of all data point x*y values. */
     private double sumxy;
@@ -48,6 +55,9 @@ public class LinearRegression {
     /** The slope as calculated in regress(). */
     private double slope;
 
+    /** The correlation coefficient as calculated in regress(). */
+    private double correlationCoefficient;
+
     /**
      * Create a linear regression calculator.
      */
@@ -57,15 +67,29 @@ public class LinearRegression {
 
     /**
      * Add a point to the linear regression calculation.
-     * @param x the x of the point being added
-     * @param y the y of the point being added
+     * @param x the x value of the point being added
+     * @param y the y value of the point being added
      */
     public void addDataPoint(final double x, final double y) {
         numberDataPoints++;
         sumx += x;
         sumy += y;
         sumxx += x * x;
+        sumyy += y * y;
         sumxy += x * y;
+    }
+
+    /**
+     * Add a points to the linear regression calculation. Variables
+     * x and y need to be the same length.
+     * @param x the array of x values of the points being added
+     * @param y the array of y values of the points being added
+     */
+    public void addDataPoints(final double[] x, final double[] y) {
+        assert x.length == y.length;
+        for (int i = 0; i < x.length; i++) {
+            addDataPoint(x[i], y[i]);
+        }
     }
 
     /**
@@ -75,9 +99,11 @@ public class LinearRegression {
         xIntercept = Double.NaN;
         yIntercept = Double.NaN;
         slope = Double.NaN;
+        correlationCoefficient = 0;
 
         numberDataPoints = 0;
         sumxx = 0;
+        sumyy = 0;
         sumxy = 0;
         sumx = 0;
         sumy = 0;
@@ -85,21 +111,28 @@ public class LinearRegression {
 
     /**
      * Run the regression. This should be done before calling
-     * any of getXIntercept(), getYIntercept(), or getSlope().
+     * any of getXIntercept(), getYIntercept(), getSlope(), or getCorrelationCoefficient().
      */
     public void regress() {
         if (numberDataPoints > 1) {
-            final double Sxx = sumxx - sumx * sumx / numberDataPoints;
-            final double Sxy = sumxy - sumx * sumy / numberDataPoints;
-            slope = Sxy / Sxx;
-            yIntercept = (sumy - slope * sumx) / numberDataPoints;
+            // Calculate slop, x, and y intercepts
+            final double top = (numberDataPoints * sumxy) - (sumx * sumy);
+            final double bottom = (numberDataPoints * sumxx) - (sumx * sumx);
+            slope = top / bottom;
+            yIntercept = (sumy - (slope * sumx)) / numberDataPoints;
             xIntercept = (-yIntercept) / slope;
+
+            // Calculate correlation coefficient
+            final double corTop = (numberDataPoints * sumxy) - (sumx * sumy);
+            final double corBottomLeft = (numberDataPoints * sumxx) - (sumx * sumx);
+            final double corBottomRight = (numberDataPoints * sumyy) - (sumy * sumy);
+            correlationCoefficient = corTop / Math.sqrt(corBottomLeft * corBottomRight);
         }
     }
 
     /**
      * Obtain the x-intercept. regress() should be called before calling
-     * any of getXIntercept(), getYIntercept(), or getSlope().
+     * any of getXIntercept(), getYIntercept(), getSlope(), or getCorrelationCoefficient().
      * @return the x-intercept
      */
     public double getXIntercept() {
@@ -108,7 +141,7 @@ public class LinearRegression {
 
     /**
      * Obtain the y-intercept. regress() should be called before calling
-     * any of getXIntercept(), getYIntercept(), or getSlope().
+     * any of getXIntercept(), getYIntercept(), getSlope(), or getCorrelationCoefficient().
      * @return the x-intercept
      */
     public double getYIntercept() {
@@ -117,10 +150,21 @@ public class LinearRegression {
 
     /**
      * Obtain the slope. regress() should be called before calling
-     * any of getXIntercept(), getYIntercept(), or getSlope().
+     * any of getXIntercept(), getYIntercept(), getSlope(), or getCorrelationCoefficient().
      * @return the slope
      */
     public double getSlope() {
         return this.slope;
     }
+
+    /**
+     * Obtain the correlation coefficient. regress() should be called before calling
+     * any of getXIntercept(), getYIntercept(), getSlope(), or getCorrelationCoefficient().
+     * @return the slope
+     */
+    public double getCorrelationCoefficient() {
+        return this.correlationCoefficient;
+    }
+
+
 }
