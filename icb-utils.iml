@@ -41,15 +41,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.4.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/commons-beanutils.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -92,6 +83,15 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/icu4j_3_4_4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/testsupport/junit/lib/junit-4.5.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
