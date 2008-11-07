@@ -77,9 +77,8 @@ public class TestLinearRegression {
         reg.addDataPoint(15, 10);
         reg.addDataPoint(20, 20);
         reg.regress();
-        assertEquals(9.7d, reg.getXIntercept());
-        assertEquals(-18.65, reg.getYIntercept(), 0.01d);
-        assertEquals(1.92d, reg.getSlope(), 0.01d);
+        assertEquals(10.0d, reg.getXIntercept());
+        assertEquals(-20.0d, reg.getYIntercept());
+        assertEquals(2.0d, reg.getSlope());
     }
-
 }

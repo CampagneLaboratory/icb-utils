@@ -28,16 +28,16 @@ public class LinearRegression {
     private int numberDataPoints;
 
     /** The sum of all data point x*x values. */
-    private int sumxx;
+    private double sumxx;
 
     /** The sum of all data point x*y values. */
-    private int sumxy;
+    private double sumxy;
 
     /** The sum of all data point x values. */
-    private int sumx;
+    private double sumx;
 
     /** The sum of all data point y values. */
-    private int sumy;
+    private double sumy;
 
     /** The x-intercept as calculated in regress(). */
     private double xIntercept;
@@ -60,7 +60,7 @@ public class LinearRegression {
      * @param x the x of the point being added
      * @param y the y of the point being added
      */
-    public void addDataPoint(final int x, final int y) {
+    public void addDataPoint(final double x, final double y) {
         numberDataPoints++;
         sumx += x;
         sumy += y;
