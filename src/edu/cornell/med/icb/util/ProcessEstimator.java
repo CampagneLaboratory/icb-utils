@@ -22,25 +22,26 @@ import org.apache.commons.lang.time.StopWatch;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import edu.cornell.med.icb.stat.LinearRegression;
+
 /**
  * Assist with estimation of time remaining for a long running process with a known number of
  * units of work. This will be the most reliable for tasks where each unit of work takes
- * roughly the same amount of time to complete.
- *
- * This class takes an incredibly simplistic approach to the estimation process making the
- * assumption that each future unit of work will take the average amount of time of each
- * completed unit of work. A more complete solution would use something like Apache
- * Commons Math's SimpleRegression to help calculate the estimated remaining time.
+ * roughly the same amount of time to complete but uses a simple LinearRegression to help
+ * estimate the time remaining.
  */
 public class ProcessEstimator {
     /** The stop watch, for determining the total running time. */
-    private StopWatch stopWatch = new StopWatch();
+    private final StopWatch stopWatch;
 
     /** The total number of units. */
-    private AtomicInteger totalUnits = new AtomicInteger(0);
+    private final AtomicInteger totalUnits;
 
     /** The number of completed units. */
-    private AtomicInteger unitsCompleted = new AtomicInteger(0);
+    private final AtomicInteger unitsCompleted;
+
+    /** The LinearRegression used to help estimate the time remaining. */
+    private final LinearRegression regressor;
 
     /**
      * Create a process estimator for a specified number of totalUnits.
@@ -48,47 +49,30 @@ public class ProcessEstimator {
      * @param totalUnitsVal the number of totalUnits this will estimate completeion for
      */
     public ProcessEstimator(final int totalUnitsVal) {
-        totalUnits.set(totalUnitsVal);
+        assert totalUnitsVal > 0;
+        totalUnits = new AtomicInteger(totalUnitsVal);
+        stopWatch = new StopWatch();
         stopWatch.start();
+        unitsCompleted = new AtomicInteger(0);
+        regressor = new LinearRegression();
     }
 
     /**
      * Call when a unit of work has been completed. This should be called a total
-     * of totalUnits times.
+     * of totalUnits times. Returns the estimated time remaining. The first time this is
+     * called it will return Long.MAX_VALUE as no estimate can be made without at least
+     * two data points. The result can be nicely formatted using ICBStringUtils.millis2hms().
+     * @return the estimated time remaining. The first time this is called it will
+     * return Long.MAX_VALUE as no estimate can be made without at least two data points.
      */
-    public void unitCompleted() {
-        unitsCompleted.incrementAndGet();
-    }
-
-    /**
-     * The project number of milliseconds remaining.
-     * This can be nicely formatted using ICBStringUtils.millis2hms().
-     * @return project number of milliseconds remaining
-     */
-    public long getEstimatedTimeRemaining() {
-        final long remain = (getTotalUnits() - getUnitsCompleted())
-                * getTimePerUnit();
-        if (remain >= 0) {
-            return remain;
-        } else {
-            return 0;
+    public long unitCompleted() {
+        final int numUnits = unitsCompleted.incrementAndGet();
+        regressor.addDataPoint(stopWatch.getTime(), getTimeSpent() - numUnits);
+        if (numUnits < 2) {
+            return Long.MAX_VALUE;
         }
-    }
-
-    /**
-     * Add to the new number of total units (used if it changes from the constructor).
-     * @param toAdd the number to add to totalUnits
-     */
-    public void addToTotalUnits(final int toAdd) {
-        totalUnits.addAndGet(toAdd);
-    }
-
-    /**
-     * Set the new number of total units (used if it changes from the constructor).
-     * @param newValue the new number of total units
-     */
-    public void setTotalUnits(final int newValue) {
-        totalUnits.set(newValue);
+        regressor.regress();
+        return (long) regressor.getXIntercept();
     }
 
     /**
@@ -136,19 +120,5 @@ public class ProcessEstimator {
      */
     public int getUnitsCompleted() {
         return unitsCompleted.intValue();
-    }
-
-    /**
-     * The average time spent per unit while the clock was running (not suspended).
-     * This can be nicely formatted using ICBStringUtils.millis2hms().
-     * @return average time spent per unit
-     */
-    public long getTimePerUnit() {
-        final int numCompleted = unitsCompleted.intValue();
-        final long timeSpent = getTimeSpent();
-        if (timeSpent == 0 || numCompleted == 0) {
-            return 0;
-        }
-        return timeSpent / numCompleted;
     }
 }
