@@ -121,7 +121,7 @@ public class LinearRegression {
             slope = top / bottom;
             yIntercept = (sumy - (slope * sumx)) / numberDataPoints;
             xIntercept = (-yIntercept) / slope;
-
+            
             // Calculate correlation coefficient
             final double corTop = (numberDataPoints * sumxy) - (sumx * sumy);
             final double corBottomLeft = (numberDataPoints * sumxx) - (sumx * sumx);

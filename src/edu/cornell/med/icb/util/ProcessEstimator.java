@@ -67,12 +67,14 @@ public class ProcessEstimator {
      */
     public long unitCompleted() {
         final int numUnits = unitsCompleted.incrementAndGet();
-        regressor.addDataPoint(stopWatch.getTime(), getTimeSpent() - numUnits);
+        final long currentTime = stopWatch.getTime();
+        regressor.addDataPoint(stopWatch.getTime(), totalUnits.intValue() - numUnits);
         if (numUnits < 2) {
             return Long.MAX_VALUE;
         }
         regressor.regress();
-        return (long) regressor.getXIntercept();
+        final long completeAt = (long) regressor.getXIntercept();
+        return completeAt - currentTime;
     }
 
     /**
