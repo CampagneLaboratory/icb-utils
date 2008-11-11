@@ -18,10 +18,7 @@
 
 package edu.cornell.med.icb.stat;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * This class performs a Linear Regression. It is based on the formula from
@@ -33,13 +30,8 @@ import java.util.concurrent.Semaphore;
  */
 public class LinearRegression {
 
-    /**
-     * Used to log debug and informational messages.
-     */
-    private static final Log LOG = LogFactory.getLog(LinearRegression.class);
-
     /** Lock when doing calculations on local members variables. */
-    private final Semaphore mathLock = new Semaphore(1, true);
+    private final ReentrantLock mathLock;
 
     /** The number of data points. */
     private int numberDataPoints;
@@ -75,6 +67,7 @@ public class LinearRegression {
      * Create a linear regression calculator.
      */
     public LinearRegression() {
+        mathLock = new ReentrantLock();
         reset();
     }
 
@@ -85,17 +78,15 @@ public class LinearRegression {
      */
     public void addDataPoint(final double x, final double y) {
         try {
-            mathLock.acquire();
+            mathLock.lock();
             numberDataPoints++;
             sumx += x;
             sumy += y;
             sumxx += x * x;
             sumyy += y * y;
             sumxy += x * y;
-        } catch (InterruptedException e) {
-            LOG.error(e);
         } finally {
-            mathLock.release();
+            mathLock.unlock();
         }
     }
 
@@ -107,8 +98,13 @@ public class LinearRegression {
      */
     public void addDataPoints(final double[] x, final double[] y) {
         assert x.length == y.length;
-        for (int i = 0; i < x.length; i++) {
-            addDataPoint(x[i], y[i]);
+        try {
+            mathLock.lock();
+            for (int i = 0; i < x.length; i++) {
+                addDataPoint(x[i], y[i]);
+            }
+        } finally {
+            mathLock.unlock();
         }
     }
 
@@ -116,17 +112,22 @@ public class LinearRegression {
      * Prepare for a new regression calculation.
      */
     public void reset() {
-        xIntercept = Double.NaN;
-        yIntercept = Double.NaN;
-        slope = Double.NaN;
-        correlationCoefficient = 0;
+        try {
+            mathLock.lock();
+            xIntercept = Double.NaN;
+            yIntercept = Double.NaN;
+            slope = Double.NaN;
+            correlationCoefficient = 0;
 
-        numberDataPoints = 0;
-        sumxx = 0;
-        sumyy = 0;
-        sumxy = 0;
-        sumx = 0;
-        sumy = 0;
+            numberDataPoints = 0;
+            sumxx = 0;
+            sumyy = 0;
+            sumxy = 0;
+            sumx = 0;
+            sumy = 0;
+        } finally {
+            mathLock.unlock();
+        }
     }
 
     /**
@@ -135,7 +136,7 @@ public class LinearRegression {
      */
     public void regress() {
         try {
-            mathLock.acquire();
+            mathLock.lock();
             if (numberDataPoints > 1) {
                 // Calculate slop, x, and y intercepts
                 final double top = (numberDataPoints * sumxy) - (sumx * sumy);
@@ -150,10 +151,8 @@ public class LinearRegression {
                 final double corBottomRight = (numberDataPoints * sumyy) - (sumy * sumy);
                 correlationCoefficient = corTop / Math.sqrt(corBottomLeft * corBottomRight);
             }
-        } catch (InterruptedException e) {
-            LOG.error(e);
         } finally {
-            mathLock.release();
+            mathLock.unlock();
         }
     }
 
@@ -192,6 +191,4 @@ public class LinearRegression {
     public double getCorrelationCoefficient() {
         return this.correlationCoefficient;
     }
-
-
 }
