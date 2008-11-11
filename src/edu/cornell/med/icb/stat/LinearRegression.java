@@ -133,7 +133,7 @@ public class LinearRegression {
      * Run the regression. This should be done before calling
      * any of getXIntercept(), getYIntercept(), getSlope(), or getCorrelationCoefficient().
      */
-    public synchronized void regress() {
+    public void regress() {
         try {
             mathLock.acquire();
             if (numberDataPoints > 1) {
