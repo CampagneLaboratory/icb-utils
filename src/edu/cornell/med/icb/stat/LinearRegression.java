@@ -18,6 +18,11 @@
 
 package edu.cornell.med.icb.stat;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.util.concurrent.Semaphore;
+
 /**
  * This class performs a Linear Regression. It is based on the formula from
  * http://phoenix.phys.clemson.edu/tutorials/regression/index.html
@@ -27,6 +32,14 @@ package edu.cornell.med.icb.stat;
  * http://phoenix.phys.clemson.edu/tutorials/excel/regression.html
  */
 public class LinearRegression {
+
+    /**
+     * Used to log debug and informational messages.
+     */
+    private static final Log LOG = LogFactory.getLog(LinearRegression.class);
+
+    /** Lock when doing calculations on local members variables. */
+    private final Semaphore mathLock = new Semaphore(1, true);
 
     /** The number of data points. */
     private int numberDataPoints;
@@ -71,12 +84,19 @@ public class LinearRegression {
      * @param y the y value of the point being added
      */
     public void addDataPoint(final double x, final double y) {
-        numberDataPoints++;
-        sumx += x;
-        sumy += y;
-        sumxx += x * x;
-        sumyy += y * y;
-        sumxy += x * y;
+        try {
+            mathLock.acquire();
+            numberDataPoints++;
+            sumx += x;
+            sumy += y;
+            sumxx += x * x;
+            sumyy += y * y;
+            sumxy += x * y;
+        } catch (InterruptedException e) {
+            LOG.error(e);
+        } finally {
+            mathLock.release();
+        }
     }
 
     /**
@@ -113,20 +133,27 @@ public class LinearRegression {
      * Run the regression. This should be done before calling
      * any of getXIntercept(), getYIntercept(), getSlope(), or getCorrelationCoefficient().
      */
-    public void regress() {
-        if (numberDataPoints > 1) {
-            // Calculate slop, x, and y intercepts
-            final double top = (numberDataPoints * sumxy) - (sumx * sumy);
-            final double bottom = (numberDataPoints * sumxx) - (sumx * sumx);
-            slope = top / bottom;
-            yIntercept = (sumy - (slope * sumx)) / numberDataPoints;
-            xIntercept = (-yIntercept) / slope;
-            
-            // Calculate correlation coefficient
-            final double corTop = (numberDataPoints * sumxy) - (sumx * sumy);
-            final double corBottomLeft = (numberDataPoints * sumxx) - (sumx * sumx);
-            final double corBottomRight = (numberDataPoints * sumyy) - (sumy * sumy);
-            correlationCoefficient = corTop / Math.sqrt(corBottomLeft * corBottomRight);
+    public synchronized void regress() {
+        try {
+            mathLock.acquire();
+            if (numberDataPoints > 1) {
+                // Calculate slop, x, and y intercepts
+                final double top = (numberDataPoints * sumxy) - (sumx * sumy);
+                final double bottom = (numberDataPoints * sumxx) - (sumx * sumx);
+                slope = top / bottom;
+                yIntercept = (sumy - (slope * sumx)) / numberDataPoints;
+                xIntercept = (-yIntercept) / slope;
+
+                // Calculate correlation coefficient
+                final double corTop = (numberDataPoints * sumxy) - (sumx * sumy);
+                final double corBottomLeft = (numberDataPoints * sumxx) - (sumx * sumx);
+                final double corBottomRight = (numberDataPoints * sumyy) - (sumy * sumy);
+                correlationCoefficient = corTop / Math.sqrt(corBottomLeft * corBottomRight);
+            }
+        } catch (InterruptedException e) {
+            LOG.error(e);
+        } finally {
+            mathLock.release();
         }
     }
 

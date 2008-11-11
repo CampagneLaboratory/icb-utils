@@ -43,6 +43,9 @@ public class ProcessEstimator {
     /** The LinearRegression used to help estimate the time remaining. */
     private final LinearRegression regressor;
 
+    /** The LinearRegression's correlation coefficient. */
+    private double correlationCoefficient;
+
     /**
      * Create a process estimator for a specified number of totalUnits.
      * This will start the timer immediately.
@@ -73,8 +76,18 @@ public class ProcessEstimator {
             return Long.MAX_VALUE;
         }
         regressor.regress();
+        this.correlationCoefficient = regressor.getCorrelationCoefficient();
         final long completeAt = (long) regressor.getXIntercept();
         return completeAt - currentTime;
+    }
+
+    /**
+     * Obtain the correlation coefficient. Contains a valid value after unitCompleted has
+     * been called at least twice.
+     * @return the linear regression's correlation coefficient
+     */
+    public double getCorrelationCoefficient() {
+        return this.correlationCoefficient;
     }
 
     /**
