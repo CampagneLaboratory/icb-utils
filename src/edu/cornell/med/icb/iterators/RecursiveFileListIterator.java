@@ -31,7 +31,8 @@ import java.util.Iterator;
  *
  * ------------------------------------------------------------------
  * Iterates over all non-directory files contained in some subdirectory of the
- * current one.
+ * current one. Some modifications (such as making it Iterable<File> not just
+ * Iterator<File) by Kevin Dorff.
  *
  * @author David R. MacIver
  */
