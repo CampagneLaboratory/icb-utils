@@ -18,8 +18,6 @@
 
 package edu.cornell.med.icb.iterators;
 
-import edu.cornell.med.icb.iterators.FlatteningIterator;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
@@ -37,7 +35,8 @@ import java.util.Iterator;
  *
  * @author David R. MacIver
  */
-public class RecursiveFileListIterator implements Iterator<File> {
+public class RecursiveFileListIterator implements Iterable<File> {
+
     /** The flattening iterator to use. */
     private final FlatteningIterator flatteningIterator;
 
@@ -45,6 +44,15 @@ public class RecursiveFileListIterator implements Iterator<File> {
      * Remove, does nothing.
      */
     public void remove() {
+    }
+
+    /**
+     * The augmented iterator.
+     * @return The augmented iterator
+     */
+    @SuppressWarnings("unchecked")
+    public Iterator<File> iterator() {
+        return flatteningIterator;
     }
 
     /**
