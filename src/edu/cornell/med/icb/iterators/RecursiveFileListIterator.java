@@ -36,7 +36,7 @@ import java.util.Iterator;
  *
  * @author David R. MacIver
  */
-public class RecursiveFileListIterator implements Iterable<File> {
+public class RecursiveFileListIterator implements Iterable<File>, Iterator<File> {
 
     /** The flattening iterator to use. */
     private final FlatteningIterator flatteningIterator;
