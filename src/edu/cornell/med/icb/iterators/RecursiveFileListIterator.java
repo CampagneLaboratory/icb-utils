@@ -36,16 +36,10 @@ import java.util.Iterator;
  *
  * @author David R. MacIver
  */
-public class RecursiveFileListIterator implements Iterable<File>, Iterator<File> {
+public class RecursiveFileListIterator implements Iterable<File> {
 
     /** The flattening iterator to use. */
     private final FlatteningIterator flatteningIterator;
-
-    /**
-     * Remove, does nothing.
-     */
-    public void remove() {
-    }
 
     /**
      * The augmented iterator.
@@ -73,22 +67,6 @@ public class RecursiveFileListIterator implements Iterable<File>, Iterator<File>
         this(file, null);
     }
 
-
-    /**
-     * If there is a next file.
-     * @return true if there is a next file
-     */
-    public boolean hasNext() {
-        return flatteningIterator.hasNext();
-    }
-
-    /**
-     * Return the next file.
-     * @return the next file
-     */
-    public File next() {
-        return (File) flatteningIterator.next();
-    }
 
     /**
      * Iterator to iterate over all the files contained in a directory. It returns
