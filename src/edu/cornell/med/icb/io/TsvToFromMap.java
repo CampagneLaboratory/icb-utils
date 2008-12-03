@@ -18,20 +18,20 @@
 
 package edu.cornell.med.icb.io;
 
-import org.apache.commons.lang.StringUtils;
+import edu.cornell.med.icb.maps.LinkedHashToMultiTypeMap;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
-import java.util.Map;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.io.PrintWriter;
-import java.io.IOException;
-import java.io.File;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Generic way to read/write TSV files given the column headers. This class uses
@@ -142,7 +142,7 @@ public class TsvToFromMap {
      * @throws IOException error converting the data, the number of columns found
      * in the data is incorrect given the number of columns expected in the TSV file
      */
-    public Map<String, String> readDataToMap(final String line) throws IOException {
+    public LinkedHashToMultiTypeMap<String> readDataToMap(final String line) throws IOException {
         if (line.startsWith("#")) {
             return null;
         }
@@ -152,7 +152,7 @@ public class TsvToFromMap {
                     "Line should have %d columns but has %d",
                     numColumnHeaders, parts.length));
         }
-        Map<String, String> result = new LinkedHashMap<String, String>();
+        LinkedHashToMultiTypeMap<String> result = new LinkedHashToMultiTypeMap<String>();
         int i = 0;
         for (String columnHeader : columnHeaders) {
             result.put(columnHeader, parts[i]);
