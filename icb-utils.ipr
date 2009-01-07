@@ -23,8 +23,8 @@
   <component name="CheckStyle-IDEA">
     <option name="configuration">
       <map>
-        <entry key="check-test-classes" value="true" />
-        <entry key="config-file" value="$PROJECT_DIR$/../icb-utils\testsupport\checkstyle\config\icb_checks.xml" />
+        <entry key="config-file" value="$PROJECT_DIR$/testsupport\checkstyle\config\icb_checks.xml" />
+        <entry key="property.checkstyle.basedir" value="$PROJECT_DIR$/testsupport\checkstyle" />
       </map>
     </option>
   </component>
@@ -272,6 +272,28 @@
     <option name="ADDITIONAL_OPTIONS_STRING" value="" />
   </component>
   <component name="SvnBranchConfigurationManager">
+    <option name="myConfigurationMap">
+      <map>
+        <entry key="$PROJECT_DIR$">
+          <value>
+            <SvnBranchConfiguration>
+              <option name="branchUrls">
+                <list>
+                  <option value="https://pbtech-vc.med.cornell.edu/public/svn/icb/3rdparty" />
+                  <option value="https://pbtech-vc.med.cornell.edu/public/svn/icb/branches" />
+                  <option value="https://pbtech-vc.med.cornell.edu/public/svn/icb/buildsupport" />
+                  <option value="https://pbtech-vc.med.cornell.edu/public/svn/icb/data" />
+                  <option value="https://pbtech-vc.med.cornell.edu/public/svn/icb/scripts" />
+                  <option value="https://pbtech-vc.med.cornell.edu/public/svn/icb/tags" />
+                  <option value="https://pbtech-vc.med.cornell.edu/public/svn/icb/testsupport" />
+                </list>
+              </option>
+              <option name="trunkUrl" value="https://pbtech-vc.med.cornell.edu/public/svn/icb/trunk" />
+            </SvnBranchConfiguration>
+          </value>
+        </entry>
+      </map>
+    </option>
     <option name="myVersion" value="124" />
   </component>
   <component name="VcsDirectoryMappings">
