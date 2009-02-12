@@ -54,10 +54,9 @@ public class TsvToFromMap {
     private boolean headerWritten;
 
     /**
-     * When executing readDataToMap() if the input string has too many columns,
-     * it will throw an exception unless this is false.
+     * If true, readDataToMap() will be lenient with respect to column count.
      */
-    private boolean exceptionOnTooManyFields = true;
+    private boolean lenientColumnCount;
 
     /**
      * Create a new TsvToFromMap object with no columns, it is expected that the columns
@@ -67,6 +66,7 @@ public class TsvToFromMap {
         this.columnHeaders = new LinkedList<String>();
         this.numColumnHeaders = columnHeaders.size();
         headerWritten = false;
+        lenientColumnCount = false;
     }
 
     /**
@@ -153,16 +153,20 @@ public class TsvToFromMap {
             return null;
         }
         final String[] parts = StringUtils.split(line, '\t');
-        if ((parts.length < numColumnHeaders)
-                || (exceptionOnTooManyFields && (parts.length > numColumnHeaders))) {
+        if ((!lenientColumnCount) && (parts.length != numColumnHeaders)) {
             throw new IOException(String.format(
                     "Line should have %d columns but has %d",
                     numColumnHeaders, parts.length));
         }
         LinkedHashToMultiTypeMap<String> result = new LinkedHashToMultiTypeMap<String>();
         int i = 0;
+        int numActualParts = parts.length;
         for (String columnHeader : columnHeaders) {
-            result.put(columnHeader, parts[i]);
+            if (lenientColumnCount && (i >= numActualParts)) {
+                result.put(columnHeader, "");
+            } else {
+                result.put(columnHeader, parts[i]);
+            }
             i++;
         }
         return result;
@@ -227,22 +231,22 @@ public class TsvToFromMap {
     }
 
     /**
-     * When executing readDataToMap() if the input string has too many columns,
-     * it will throw an exception unless this is false. If there are too few fields
-     * readDataToMap() will always throw an exception.
+     * When executing readDataToMap() if the input string has too many or too few
+     * columns it will normally throw an exception. If lenientColumnCount is set
+     * to true, it will not. You should be careful if this is on!
      * @return the value of exceptionOnTooManyFields
      */
-    public boolean isExceptionOnTooManyFields() {
-        return exceptionOnTooManyFields;
+    public boolean isLenientColumnCount() {
+        return lenientColumnCount;
     }
 
     /**
-     * When executing readDataToMap() if the input string has too many columns,
-     * it will throw an exception unless this is false. If there are too few fields
-     * readDataToMap() will always throw an exception.
-     * @param exceptionOnTooManyFields the new value of exceptionOnTooManyFields
+     * When executing readDataToMap() if the input string has too many or too few
+     * columns it will normally throw an exception. If lenientColumnCount is set
+     * to true, it will not. You should be careful if this is on!
+     * @param lenientColumnCount the new value of exceptionOnTooManyFields
      */
-    public void setExceptionOnTooManyFields(final boolean exceptionOnTooManyFields) {
-        this.exceptionOnTooManyFields = exceptionOnTooManyFields;
+    public void setLenientColumnCount(final boolean lenientColumnCount) {
+        this.lenientColumnCount = lenientColumnCount;
     }
 }
