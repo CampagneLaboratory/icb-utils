@@ -54,6 +54,12 @@ public class TsvToFromMap {
     private boolean headerWritten;
 
     /**
+     * When executing readDataToMap() if the input string has too many columns,
+     * it will throw an exception unless this is false.
+     */
+    private boolean exceptionOnTooManyFields = true;
+
+    /**
      * Create a new TsvToFromMap object with no columns, it is expected that the columns
      * will be added later with addColumn(...).
      */
@@ -147,7 +153,8 @@ public class TsvToFromMap {
             return null;
         }
         final String[] parts = StringUtils.split(line, '\t');
-        if (parts.length != numColumnHeaders) {
+        if ((parts.length < numColumnHeaders)
+                || (exceptionOnTooManyFields && (parts.length > numColumnHeaders))) {
             throw new IOException(String.format(
                     "Line should have %d columns but has %d",
                     numColumnHeaders, parts.length));
@@ -209,5 +216,33 @@ public class TsvToFromMap {
         }
         // Empty file or all lines were comments (start with "#")
         return null;
+    }
+
+    /**
+     * Retrieve the number of column headers.
+     * @return the number of column headers.
+     */
+    public int getNumColumnHeaders() {
+        return numColumnHeaders;
+    }
+
+    /**
+     * When executing readDataToMap() if the input string has too many columns,
+     * it will throw an exception unless this is false. If there are too few fields
+     * readDataToMap() will always throw an exception.
+     * @return the value of exceptionOnTooManyFields
+     */
+    public boolean isExceptionOnTooManyFields() {
+        return exceptionOnTooManyFields;
+    }
+
+    /**
+     * When executing readDataToMap() if the input string has too many columns,
+     * it will throw an exception unless this is false. If there are too few fields
+     * readDataToMap() will always throw an exception.
+     * @param exceptionOnTooManyFields the new value of exceptionOnTooManyFields
+     */
+    public void setExceptionOnTooManyFields(final boolean exceptionOnTooManyFields) {
+        this.exceptionOnTooManyFields = exceptionOnTooManyFields;
     }
 }
