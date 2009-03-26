@@ -21,14 +21,21 @@ package edu.cornell.med.icb.io;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.ClassUtils;
 
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Enumeration;
+import java.util.jar.JarFile;
+import java.util.jar.JarEntry;
 
 /**
  * Help with obtaining resources. This will look
@@ -178,5 +185,88 @@ public class ResourceFinder {
             is = url.openStream();
         }
         return is;
+    }
+
+    /**
+     * List directory contents for a resource folder that contains the specified
+     * class, this list will include the .class file associated with clazz.
+     *
+     * @param clazz The java class which lives in the directory you want listed
+     * @return Each member item (no path information)
+     * @throws java.net.URISyntaxException bad URI syntax
+     * @throws IOException error reading
+     */
+    public static String[] getResourceListing(final Class clazz)
+            throws URISyntaxException, IOException {
+        final String classPackage = ClassUtils.getPackageName(clazz);
+        final String classPacakgePath = classPackage.replace(".", "/");
+        return getResourceListing(clazz, classPacakgePath);
+    }
+
+    /**
+     * List directory contents for a resource folder. Not recursive, does not return
+     * directory entries. Works for regular files and also JARs.
+     *
+     * @param clazz Any java class that lives in the same place as the resources you want.
+     * @param pathVal the path to find files for
+     * @return Each member item (no path information)
+     * @throws URISyntaxException bad URI syntax
+     * @throws IOException error reading
+     */
+    public static String[] getResourceListing(final Class clazz, final String pathVal)
+            throws URISyntaxException, IOException {
+        // Enforce all paths are separated by "/", they do not start with "/" and
+        // the DO end with "/".
+        String path = pathVal.replace("\\", "/");
+        if (!path.endsWith("/")) {
+            path += "/";
+        }
+        while (path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        URL dirURL = clazz.getClassLoader().getResource(path);
+        if (dirURL != null && dirURL.getProtocol().equals("file")) {
+            /* A file path: easy enough */
+            return new File(dirURL.toURI()).list();
+        }
+
+        if (dirURL == null) {
+            /*
+             * In case of a jar file, we can't actually find a directory.
+             * Have to assume the same jar as clazz.
+             */
+            final String classFilename = clazz.getName().replace(".", "/") + ".class";
+            dirURL = clazz.getClassLoader().getResource(classFilename);
+        }
+
+        if (dirURL.getProtocol().equals("jar")) {
+            /* A JAR path */
+            String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!"));
+            if (jarPath.charAt(2) == ':') {
+                jarPath = jarPath.substring(1);
+            }
+            JarFile jar = new JarFile(jarPath);
+            final Enumeration<JarEntry> entries = jar.entries();
+            final Set<String> result = new HashSet<String>();
+            while (entries.hasMoreElements()) {
+                String name = entries.nextElement().getName();
+                //filter according to the path
+                if (name.startsWith(path)) {
+                    String entry = name.substring(path.length());
+                    if (entry.length() == 0) {
+                        // Skip the directory entry for path
+                        continue;
+                    }
+                    int checkSubdir = entry.indexOf("/");
+                    if (checkSubdir >= 0) {
+                        // Skip sub dirs
+                        continue;
+                    }
+                    result.add(entry);
+                }
+            }
+            return result.toArray(new String[result.size()]);
+        }
+        throw new UnsupportedOperationException("Cannot list files for URL " + dirURL);
     }
 }
