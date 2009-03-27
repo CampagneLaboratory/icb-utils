@@ -196,7 +196,7 @@ public class ResourceFinder {
      * @throws java.net.URISyntaxException bad URI syntax
      * @throws IOException error reading
      */
-    public static String[] getResourceListing(final Class clazz)
+    public String[] getResourceListing(final Class clazz)
             throws URISyntaxException, IOException {
         final String classPackage = ClassUtils.getPackageName(clazz);
         final String classPacakgePath = classPackage.replace(".", "/");
@@ -213,7 +213,7 @@ public class ResourceFinder {
      * @throws URISyntaxException bad URI syntax
      * @throws IOException error reading
      */
-    public static String[] getResourceListing(final Class clazz, final String pathVal)
+    public String[] getResourceListing(final Class clazz, final String pathVal)
             throws URISyntaxException, IOException {
         // Enforce all paths are separated by "/", they do not start with "/" and
         // the DO end with "/".
@@ -224,7 +224,7 @@ public class ResourceFinder {
         while (path.startsWith("/")) {
             path = path.substring(1);
         }
-        URL dirURL = clazz.getClassLoader().getResource(path);
+        URL dirURL = findResource(path);
         if (dirURL != null && dirURL.getProtocol().equals("file")) {
             /* A file path: easy enough */
             return new File(dirURL.toURI()).list();
@@ -236,7 +236,7 @@ public class ResourceFinder {
              * Have to assume the same jar as clazz.
              */
             final String classFilename = clazz.getName().replace(".", "/") + ".class";
-            dirURL = clazz.getClassLoader().getResource(classFilename);
+            dirURL = findResource(classFilename);
         }
 
         if (dirURL.getProtocol().equals("jar")) {
