@@ -20,8 +20,8 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="file://$MODULE_DIR$/../../../java/commons-beanutils-1.7.0-src/optional/bean-collections/src/java" />
-          <root url="file://$MODULE_DIR$/../../../java/commons-beanutils-1.7.0-src/src/java" />
+          <root url="jar://$MODULE_DIR$/../../../../../../java/commons-beanutils-1.7.0-src.zip!/commons-beanutils-1.7.0-src/optional/bean-collections/src/java" />
+          <root url="jar://$MODULE_DIR$/../../../../../../java/commons-beanutils-1.7.0-src.zip!/commons-beanutils-1.7.0-src/src/java" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -55,15 +55,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../tissueinfo/lib/dsiutils-1.0.5.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/commons-io-1.4.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -86,6 +77,28 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/colt.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../../../../../java/colt-1.2.0.zip!/colt/src" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/commons-math-1.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../../../../../java/commons-math-1.2-src.zip!/commons-math-1.2-src/src/java" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>
