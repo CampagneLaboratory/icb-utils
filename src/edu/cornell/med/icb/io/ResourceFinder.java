@@ -22,6 +22,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -245,6 +246,7 @@ public class ResourceFinder {
             if (jarPath.charAt(2) == ':') {
                 jarPath = jarPath.substring(1);
             }
+            jarPath = StringUtils.replace(jarPath, "%20", " ");
             JarFile jar = new JarFile(jarPath);
             final Enumeration<JarEntry> entries = jar.entries();
             final Set<String> result = new HashSet<String>();
