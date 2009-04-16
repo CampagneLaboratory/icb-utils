@@ -1,21 +1,7 @@
 <project name="icb-utils" default="test" basedir=".">
-    <tstamp>
-        <!-- current time for buildstamp purposes -->
-        <format property="buildstamp" pattern="yyyyMMddHHmmss"/>
-    </tstamp>
-    <tstamp>
-        <format property="year" pattern="yyyy"/>
-    </tstamp>
+    <import file="buildsupport/build.xml"/>
 
-    <property environment="env" />
-    <property name="classes" location="classes"/>
-    <property name="lib" location="lib"/>
-    <property name="src" location="src"/>
-    <property name="javadocs" location="javadocs"/>
-    <property name="logs" location="logs"/>
-    <property name="config" location="config"/>
     <property name="jarfile" value="icb-utils.jar"/>
-    <property name="compound-file-tool-jarfile" value="compound-file-tool.jar"/>
 
     <!-- compiler and javadoc settings -->
     <property name="debug" value="on"/>
@@ -41,13 +27,7 @@
     <!-- =================================================================== -->
     <!-- Initialization target                                               -->
     <!-- =================================================================== -->
-    <target name="init" depends="testsupport.init">
-        <tstamp/>
-        <mkdir dir="${classes}"/>
-        <!--  Create the logs directory -->
-        <mkdir dir="${logs}"/>
-        <mkdir dir="test-data"/>
-    </target>
+    <target name="init" depends="buildsupport.init, testsupport.init"/>
 
     <target name="compile" depends="init" description="compiles the source code">
         <javac srcdir="${src}" destdir="${classes}" debug="${debug}"
@@ -91,14 +71,8 @@
         </javadoc>
     </target>
 
-    <target name="clean" depends="testsupport.clean" description="Cleans up the directory">
-        <delete dir="${classes}"/>
-        <delete dir="${javadocs}"/>
-
+    <target name="clean" depends="buildsupport.init, testsupport.clean" description="Cleans up the directory">
         <delete file="${jarfile}"/>
-        <delete file="${compound-file-tool-jarfile}"/>
-        <delete dir="${logs}"/>
-        <delete dir="test-data"/>
     </target>
 
     <target name="distclean" depends="clean">
@@ -112,42 +86,6 @@
     </target>
 
     <target name="cruisecontrol" depends="clean, cobertura-setup, findbugs,
-                  test, jar, compound-file-tool, javadocs, pmd, cpd, checkstyle, cobertura-report"
+                  test, jar, javadocs, pmd, cpd, checkstyle, cobertura-report"
             description="Run CruiseControl Build and Tests"/>
-
-    <!-- This is based on creation of tlookup.jar and is not optimized -->
-    <target name="compound-file-tool" description="creates compound-file-tool.jar" depends="compile">
-        <copy file="${config}/log4j.standalone.properties" tofile="${classes}/log4j.properties" overwrite="true"
-              failonerror="true"/>
-        <jar jarfile="${compound-file-tool-jarfile}">
-            <fileset dir="${classes}">
-                <include name="edu/cornell/med/icb/io/compound/**.class"/>
-            </fileset>
-            <zipgroupfileset dir="${lib}">
-                <include name="log4j-1.2.14.jar"/>
-                <include name="commons-logging-1.1.jar"/>
-                <include name="JSAP-2.1.jar"/>
-            </zipgroupfileset>
-            <manifest>
-                <attribute name="Specification-Title" value="CompoundFileTool-Not-Autojar"/>
-                <attribute name="Specification-Vendor"
-                           value="Institute for Computational Biomedicine (ICB), Weill Medical College of Cornell University"/>
-                <attribute name="Implementation-Version" value="${label} (${buildstamp})"/>
-                <attribute name="Implementation-Vendor"
-                           value="Institute for Computational Biomedicine (ICB), Weill Medical College of Cornell University"/>
-                <attribute name="Main-Class" value="edu.cornell.med.icb.io.compound.CompoundFileTool"/>
-            </manifest>
-        </jar>
-        <delete file="${classes}/log4j.properties" failonerror="true"/>
-    </target>
-
-
-    <target name="cl" depends="compile">
-        <java classname="edu.cornell.med.icb.io.compound.CompoundFileTool" classpathref="classpath" fork="true">
-            <arg value="working.compound-file"/>
-            <arg value="-l"/>
-        </java>
-    </target>
-
-
 </project>
