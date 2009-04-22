@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import edu.cornell.med.icb.identifier.PropertyMappable;
-
 /**
  * Maintains a mapping between identifiers and indices.
  *
@@ -53,6 +51,14 @@ public class IndexedIdentifier extends Object2IntOpenHashMap<MutableString>
 
     /** Key to use for the runningIndex property. */
     private static final String RUNNING_INDEX_KEY = "runningIndex";
+
+    /**
+     * Create a new empty IndexedIdentifier with an estimated size.
+     */
+    public IndexedIdentifier(final int estimatedSize) {
+        super(estimatedSize);
+        defaultReturnValue(UNDEFINED_VALUE);
+    }
 
     /**
      * Create a new empty IndexedIdentifier.
