@@ -19,7 +19,7 @@
 package edu.cornell.med.icb.iterators;
 
 import org.junit.Test;
-import static org.testng.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
