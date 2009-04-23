@@ -31,7 +31,7 @@ import java.util.List;
  * Test the PreSortedMergeTextFilesLineIterator.
  * @author Kevin Dorff
  */
-public class TesTextFileLineIterator {
+public class TestTextFileLineIterator {
 
     /**
      * Try to read from multiple files, removing blank lines and removing duplicates.
