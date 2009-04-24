@@ -32,7 +32,7 @@ import java.util.zip.GZIPInputStream;
 
 /**
  * Take a list of pre-sorted input files and return their lines in sorted order.
- * NOTE: Blank lines are INTENTIONALLY ignored. Duplicates will only be returned ONCE.
+ * By default, duplicates and blank lines are skipped - which can be adjusted.
  * @author Kevin Dorff
  */
 public class PreSortedMergeTextFilesLineIterator implements Iterable<String>, Iterator<String> {
@@ -55,13 +55,62 @@ public class PreSortedMergeTextFilesLineIterator implements Iterable<String>, It
      */
     private String lastLine;
 
+    /** If true, duplicates will be skipped. */
+    private boolean skipDuplicates;
+
+    /** If true, empty lines will be skipped. */
+    private boolean skipEmptyLines;
+
     /**
-     * Constructor for filenames. This automatically supports .gz'ipped files if the
-     * filename ends in .gz.
-     * @param inputFiles the filenames to read
+     * Constructor with a String array of filenames.
+     * @param inputFiles the filenames
      * @throws IOException error reading
      */
     public PreSortedMergeTextFilesLineIterator(final String[] inputFiles) throws IOException {
+        initialize(inputFiles);
+    }
+
+    /**
+     * Constructor for filenames OR streams in a list. If filenames, gziped (.gz suffixed filenames)
+     * are seamlessly supported. NOTE: This assumes a list that is entirely List[String] or
+     * List[InputStream] - this list cannot be a mix.
+     * @param inputObjects the filenames / streams to read
+     * @throws IOException error reading
+     */
+    @SuppressWarnings("unchecked")
+    public PreSortedMergeTextFilesLineIterator(final List inputObjects) throws IOException {
+        if (inputObjects == null) {
+            throw new FileNotFoundException("No specified files");
+        }
+        if (inputObjects.size() == 0) {
+            throw new FileNotFoundException("No specified files");
+        }
+        Object inputFile = inputObjects.get(0);
+        if (inputFile instanceof String) {
+            initialize((String[]) inputObjects.toArray(new String[inputObjects.size()]));
+        } else if (inputFile instanceof InputStream) {
+            initialize((InputStream[]) inputObjects.toArray(new InputStream[inputObjects.size()]));
+        } else {
+            throw new IOException("Only List<String> and List<InputStream> supported.");
+        }
+    }
+
+    /**
+     * Constructor for input streams.
+     * @param inputStreams the input streams to read
+     * @throws IOException error reading
+     */
+    public PreSortedMergeTextFilesLineIterator(final InputStream[] inputStreams)
+            throws IOException {
+        initialize(inputStreams);
+    }
+
+    /**
+     * Initialize with a String array of filenames.
+     * @param inputFiles the filenames
+     * @throws IOException error reading
+     */
+    private void initialize(final String[] inputFiles) throws IOException {
         final InputStream[] inputStreams = new InputStream[inputFiles.length];
         for (int pos = 0; pos < inputFiles.length; pos++) {
             final String inputFile = inputFiles[pos];
@@ -81,22 +130,15 @@ public class PreSortedMergeTextFilesLineIterator implements Iterable<String>, It
     }
 
     /**
-     * Constructor for input streams.
-     * @param inputStreams the input streams to read
-     * @throws IOException error reading
-     */
-    public PreSortedMergeTextFilesLineIterator(final InputStream[] inputStreams)
-            throws IOException {
-        initialize(inputStreams);
-    }
-
-    /**
-     * Initialize the reader.
+     * Initialize the reader. THE MAIN CONSTRUCTION OCCURS HERE.
      * @param inputStreams the input streams to read from
      * @throws IOException error reading (opening the TextFileLineIterators)
      */
     @SuppressWarnings("unchecked")
     private void initialize(final InputStream[] inputStreams) throws IOException {
+        if (inputStreams.length == 0) {
+            throw new FileNotFoundException("No specified files");
+        }
         lineIterators = new Iterator[inputStreams.length];
         nextLines = new String[inputStreams.length];
         sortedList = new ArrayList<String>(inputStreams.length);
@@ -105,6 +147,8 @@ public class PreSortedMergeTextFilesLineIterator implements Iterable<String>, It
             lineIterators[pos++] = new TextFileLineIterator(inputStream).iterator();
         }
         lastLine = "";
+        skipDuplicates = true;
+        skipEmptyLines = true;
     }
 
     /**
@@ -127,9 +171,11 @@ public class PreSortedMergeTextFilesLineIterator implements Iterable<String>, It
             throw new NoSuchElementException("No more elements in iterator, use hasNext()");
         }
         lastLine = sortedList.remove(0);
-        while (sortedList.contains(lastLine)) {
-            // Remove dupliate lines
-            sortedList.remove(lastLine);
+        if (skipDuplicates) {
+            while (sortedList.contains(lastLine)) {
+                // Remove dupliate lines
+                sortedList.remove(lastLine);
+            }
         }
         for (int i = 0; i < nextLines.length; i++) {
             if (nextLines[i] != null && nextLines[i].equals(lastLine)) {
@@ -151,13 +197,17 @@ public class PreSortedMergeTextFilesLineIterator implements Iterable<String>, It
                 while (true) {
                     if (lineIterators[i].hasNext()) {
                         final String nextLine = lineIterators[i].next();
-                        if (nextLine.length() == 0) {
-                            // Ignore empty lines
-                            continue;
+                        if (skipEmptyLines) {
+                            if (nextLine.length() == 0) {
+                                // Ignore empty lines
+                                continue;
+                            }
                         }
-                        if (nextLine.equals(lastLine)) {
-                            // Ignore duplicate lines
-                            continue;
+                        if (skipDuplicates) {
+                            if (nextLine.equals(lastLine)) {
+                                // Ignore duplicate lines
+                                continue;
+                            }
                         }
                         nextLines[i] = nextLine;
                         sortedList.add(nextLines[i]);
@@ -201,5 +251,37 @@ public class PreSortedMergeTextFilesLineIterator implements Iterable<String>, It
      */
     public void remove() {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Get if empty lines will be skipped.
+     * @return if empty lines will be skipped.
+     */
+    public boolean isSkipEmptyLines() {
+        return skipEmptyLines;
+    }
+
+    /**
+     * Set if empty lines will be skipped.
+     * @param skipEmptyLines if empty lines will be skipped.
+     */
+    public void setSkipEmptyLines(final boolean skipEmptyLines) {
+        this.skipEmptyLines = skipEmptyLines;
+    }
+
+    /**
+     * Get if duplicates will be skipped.
+     * @return if duplicates will be skipped.
+     */
+    public boolean isSkipDuplicates() {
+        return skipDuplicates;
+    }
+
+    /**
+     * Set if duplicates will be skipped.
+     * @param skipDuplicates if duplicates will be skipped.
+     */
+    public void setSkipDuplicates(final boolean skipDuplicates) {
+        this.skipDuplicates = skipDuplicates;
     }
 }
