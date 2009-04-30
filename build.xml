@@ -10,6 +10,9 @@
     <property name="ant.build.javac.source" value="1.5"/>
     <property name="ant.build.javac.target" value="1.5"/>
 
+    <!-- the label gets overridden by CruiseControl and/or during a release -->
+    <property name="label" value="development"/>
+
     <path id="compile.classpath">
         <fileset dir="${lib}">
             <include name="*.jar"/>
