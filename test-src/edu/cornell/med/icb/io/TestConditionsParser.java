@@ -25,9 +25,9 @@ import org.apache.commons.lang.ArrayUtils;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Test the ConditionsParser.
@@ -285,7 +285,7 @@ public class TestConditionsParser extends TestCase {
         expectedDict.put("e", "3bf");
         checkMap(expectedDict, parser.parseFieldMap("one"));
         assertEquals("", parser.parseFieldValueString("two"));
-        checkIntArray(new int[0], parser.parseFieldValueIntArray("three"));
+        checkIntArray(ArrayUtils.EMPTY_INT_ARRAY, parser.parseFieldValueIntArray("three"));
         assertEquals(3, parser.getLineNumber());
         assertFalse(parser.hasNext());
 
@@ -325,7 +325,7 @@ public class TestConditionsParser extends TestCase {
         assertEquals("123", parser.parseFieldValueString("two"));
         checkIntArray(new int[] {5, 6, 7}, parser.parseFieldValueIntArray("three"));
         assertEquals(123, testBean.getOneInt());
-        assertEquals(456d, testBean.getTwoDouble());
+        assertEquals(456.0d, testBean.getTwoDouble());
         assertEquals("def", testBean.getThreeString());
         assertEquals(1, parser.getLineNumber());
         assertTrue(parser.hasNext());
@@ -341,7 +341,7 @@ public class TestConditionsParser extends TestCase {
         assertTrue(testBean == retval);
         checkMap(expValues, foundValues);
         assertEquals("", parser.parseFieldValueString("two"));
-        checkIntArray(new int[0], parser.parseFieldValueIntArray("three"));
+        checkIntArray(ArrayUtils.EMPTY_INT_ARRAY, parser.parseFieldValueIntArray("three"));
         assertEquals(567, testBean.getOneInt());
         assertEquals(8.367d, testBean.getTwoDouble());
         assertEquals("3bf", testBean.getThreeString());
@@ -381,7 +381,7 @@ public class TestConditionsParser extends TestCase {
         assertEquals("123", parser.parseFieldValueString("two"));
         checkIntArray(new int[] {5, 6, 7}, parser.parseFieldValueIntArray("three"));
         assertEquals(123, testBean.getOneInt());
-        assertEquals(456d, testBean.getTwoDouble());
+        assertEquals(456.0d, testBean.getTwoDouble());
         assertEquals("def", testBean.getThreeString());
         assertEquals(1, parser.getLineNumber());
         assertFalse(parser.hasNext());

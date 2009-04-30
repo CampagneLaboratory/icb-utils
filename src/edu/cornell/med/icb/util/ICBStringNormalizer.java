@@ -18,8 +18,8 @@
 
 package edu.cornell.med.icb.util;
 
-import org.apache.unicode.UnicodeCharUtil;
 import com.ibm.icu.text.Transliterator;
+import org.apache.unicode.UnicodeCharUtil;
 
 /**
  * Class for normalizing strings, such as removing accents.
@@ -33,8 +33,8 @@ public class ICBStringNormalizer {
     }
 
     /** Helper object to remove accents using ICU4J. */
-    private static Transliterator accentsRemover = Transliterator
-            .getInstance("NFD; [:M:] Remove; NFC;");
+    private static final Transliterator ACCENTS_REMOVER =
+            Transliterator.getInstance("NFD; [:M:] Remove; NFC;");
 
     /**
      * Take a string with (international) access and return the same
@@ -48,11 +48,11 @@ public class ICBStringNormalizer {
      * @return the string without the accents.
      */
     public static String removeAccents(final String accentedValue) {
-        String noAccents = accentsRemover.transliterate(accentedValue);
+        final String noAccents = ACCENTS_REMOVER.transliterate(accentedValue);
         final int length = noAccents.length();
-        StringBuilder result = new StringBuilder(length);
+        final StringBuilder result = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
-            char curChar = noAccents.charAt(i);
+            final char curChar = noAccents.charAt(i);
             if (UnicodeCharUtil.isCombiningCharacter(curChar)) {
                 continue;
             } else if (UnicodeCharUtil.isSpacingModifier(curChar)) {

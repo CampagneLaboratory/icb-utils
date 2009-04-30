@@ -18,12 +18,11 @@
 
 package edu.cornell.med.icb.ip;
 
-import org.junit.Test;
-import static org.junit.Assert.fail;
 import static junit.framework.Assert.assertEquals;
+import org.junit.Test;
 
-import java.net.UnknownHostException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * Describe class here.
@@ -160,7 +159,7 @@ public class TestIpUtils {
      */
     @Test(expected = UnknownHostException.class)
     public void testIgnoreErrors() throws UnknownHostException {
-        StringBuilder source = new StringBuilder();
+        final StringBuilder source = new StringBuilder();
         source.append("192.168.1.1  # Some local pc");
         source.append("193.169.2.3  # Some other local pc");
         source.append("192.168.1.1  # Some local pc"); // Duplicate

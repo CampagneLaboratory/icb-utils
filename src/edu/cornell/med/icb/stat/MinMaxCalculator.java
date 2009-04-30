@@ -20,19 +20,20 @@ package edu.cornell.med.icb.stat;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.Collections;
 
 /**
- * Calculates the Min/Max statistics for a feature. Each feature must be given as a list of value and associated
- * class label. For each feature, we determine the minimum and maximum feature values in the positive and in the
- * negative class. We refer to these values as minL0, minL1, maxL0 and maxL1.
- * The Min/Max statistics is defined as (Math.abs(maxL1 - minL0) / Math.abs(minL1 - maxL0)). This class also
- * support averaging the k smallest and k largest observations of the feature values to estimate minL0, minL1, maxL0 and
- * maxL1 in a more robust manner. The statistics is larger when the separation of minimum and maximum values of a feature
- * among classes suggest that the feature
+ * Calculates the Min/Max statistics for a feature. Each feature must be given as a list of
+ * value and associated class label. For each feature, we determine the minimum and maximum
+ * feature values in the positive and in the negative class. We refer to these values as
+ * minL0, minL1, maxL0 and maxL1. The Min/Max statistics is defined as
+ * (Math.abs(maxL1 - minL0) / Math.abs(minL1 - maxL0)). This class also supports averaging
+ * the k smallest and k largest observations of the feature values to estimate minL0, minL1,
+ * maxL0 and maxL1 in a more robust manner. The statistics is larger when the separation of
+ * minimum and maximum values of a feature among classes suggest that the feature
  * may be predictive in a subset of the samples observed.
  *
  * @author Fabien Campagne
@@ -50,7 +51,7 @@ public class MinMaxCalculator {
     }
 
     /**
-     * Compute the min/max statistics
+     * Compute the min/max statistics.
      *
      * @param values
      * @param labels
@@ -109,7 +110,9 @@ public class MinMaxCalculator {
     private static double maxOverSortedArray(final double[] array, int k) {
         double sum = 0;
         int count = 0;
-        if(k > array.length) k = array.length;
+        if (k > array.length) {
+            k = array.length;
+        }
         for (int i = array.length - k; i < array.length; i++) {
             sum += array[i];
             count++;
@@ -119,7 +122,7 @@ public class MinMaxCalculator {
     }
 
     /**
-     * Return the average of the k smallest values of array
+     * Return the average of the k smallest values of array.
      *
      * @param array Must be sorted from smallest to largest values.
      * @param k     Number of largest elements to average.
@@ -128,7 +131,9 @@ public class MinMaxCalculator {
     private static double minOverSortedArray(final double[] array, int k) {
         double sum = 0;
         int count = 0;
-        if(k > array.length) k = array.length;
+        if (k > array.length) {
+            k = array.length;
+        }
         for (int i = 0; i < k; i++) {
             sum += array[i];
             count++;
@@ -138,10 +143,10 @@ public class MinMaxCalculator {
     }
 
     public static void main(final String[] args) {
-        final double[] values = new double[]{
+        final double[] values = {
                 1, 2, 3, 4, 5, 6, 7, 8
         };
-        final double[] labels = new double[]{
+        final double[] labels = {
                 0, 0, 0, 0, 1, 1, 1, 1
         };
         System.out.println("min/max " + compute(values, labels, 1));

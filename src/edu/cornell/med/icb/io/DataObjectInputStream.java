@@ -18,10 +18,10 @@
 
 package edu.cornell.med.icb.io;
 
-import java.io.DataInputStream;
-import java.io.InputStream;
-import java.io.IOException;
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 
 /**
@@ -36,7 +36,7 @@ public class DataObjectInputStream extends DataInputStream {
      * underlying InputStream.
      * @param in the specified input stream
      */
-    public DataObjectInputStream(InputStream in) {
+    public DataObjectInputStream(final InputStream in) {
         super(in);
     }
 

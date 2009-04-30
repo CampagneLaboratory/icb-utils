@@ -21,7 +21,6 @@ package edu.cornell.med.icb.identifier;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.lang.MutableString;
-import edu.cornell.med.icb.identifier.IndexedIdentifier;
 
 /**
  * Associates identifiers to indices, both ways.

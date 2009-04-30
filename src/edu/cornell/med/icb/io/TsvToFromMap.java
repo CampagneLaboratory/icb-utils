@@ -99,7 +99,7 @@ public class TsvToFromMap {
      * @return the list of column headers
      */
     public List<String> getColumnHeaders() {
-        List<String> copy = new ArrayList<String>(columnHeaders.size());
+        final List<String> copy = new ArrayList<String>(columnHeaders.size());
         copy.addAll(columnHeaders);
         return copy;
     }
@@ -132,7 +132,7 @@ public class TsvToFromMap {
         }
         headerWritten = true;
         int pos = 0;
-        for (String columnHeader : columnHeaders) {
+        for (final String columnHeader : columnHeaders) {
             if (pos++ > 0) {
                 out.print("\t");
             }
@@ -158,10 +158,10 @@ public class TsvToFromMap {
                     "Line should have %d columns but has %d",
                     numColumnHeaders, parts.length));
         }
-        LinkedHashToMultiTypeMap<String> result = new LinkedHashToMultiTypeMap<String>();
+        final LinkedHashToMultiTypeMap<String> result = new LinkedHashToMultiTypeMap<String>();
         int i = 0;
-        int numActualParts = parts.length;
-        for (String columnHeader : columnHeaders) {
+        final int numActualParts = parts.length;
+        for (final String columnHeader : columnHeaders) {
             if (lenientColumnCount && (i >= numActualParts)) {
                 result.put(columnHeader, "");
             } else {
@@ -183,11 +183,11 @@ public class TsvToFromMap {
     public void writeDataFromMap(
             final PrintWriter out, final Map<String, String> data) {
         int pos = 0;
-        for (String columnHeader : columnHeaders) {
+        for (final String columnHeader : columnHeaders) {
             if (pos++ > 0) {
                 out.print('\t');
             }
-            String dataItem = data.get(columnHeader);
+            final String dataItem = data.get(columnHeader);
             if (dataItem != null) {
                 out.print(dataItem);
             }
@@ -212,7 +212,7 @@ public class TsvToFromMap {
                 if (line.startsWith("#")) {
                     continue;
                 }
-                String[] parts = StringUtils.split(line, '\t');
+                final String[] parts = StringUtils.split(line, '\t');
                 return new TsvToFromMap(parts);
             }
         } finally {

@@ -22,14 +22,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * An extension of LinkedHashMap[T, String]. Internally, all values are stored as strings
  * but they can be retrieved directly as String, Integer, Double, in[], or double[].
  * @author Kevin Dorff
  */
-public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> implements Map<T, String> {
+public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
     /**
      * Synonym for just using get(field). Returns the mapped value as a String
      * or null if the field doesn't exist in the map.

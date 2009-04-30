@@ -243,24 +243,24 @@ public class ResourceFinder {
 
         if (dirURL.getProtocol().equals("jar")) {
             /* A JAR path */
-            String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf("!"));
+            String jarPath = dirURL.getPath().substring(5, dirURL.getPath().indexOf('!'));
             if (jarPath.charAt(2) == ':') {
                 jarPath = jarPath.substring(1);
             }
             jarPath = StringUtils.replace(jarPath, "%20", " ");
-            JarFile jar = new JarFile(jarPath);
+            final JarFile jar = new JarFile(jarPath);
             final Enumeration<JarEntry> entries = jar.entries();
             final Set<String> result = new HashSet<String>();
             while (entries.hasMoreElements()) {
-                String name = entries.nextElement().getName();
+                final String name = entries.nextElement().getName();
                 //filter according to the path
                 if (name.startsWith(path)) {
-                    String entry = name.substring(path.length());
+                    final String entry = name.substring(path.length());
                     if (entry.length() == 0) {
                         // Skip the directory entry for path
                         continue;
                     }
-                    int checkSubdir = entry.indexOf("/");
+                    final int checkSubdir = entry.indexOf('/');
                     if (checkSubdir >= 0) {
                         // Skip sub dirs
                         continue;

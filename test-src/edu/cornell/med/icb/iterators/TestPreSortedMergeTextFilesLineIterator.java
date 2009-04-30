@@ -23,10 +23,10 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,7 +77,7 @@ public class TestPreSortedMergeTextFilesLineIterator {
         streams.add(new ByteArrayInputStream(file2.getBytes()));
 
         final List<String> result = new ArrayList<String>();
-        PreSortedMergeTextFilesLineIterator reader =
+        final PreSortedMergeTextFilesLineIterator reader =
                 new PreSortedMergeTextFilesLineIterator(streams);
         reader.setSkipDuplicates(false);
         for (final String line : reader) {
@@ -107,7 +107,7 @@ public class TestPreSortedMergeTextFilesLineIterator {
             files[2] = filename2;
 
             final List<String> result = new ArrayList<String>();
-            PreSortedMergeTextFilesLineIterator reader =
+            final PreSortedMergeTextFilesLineIterator reader =
                     new PreSortedMergeTextFilesLineIterator(files);
             reader.setSkipEmptyLines(false);
             for (final String line : reader) {
@@ -142,7 +142,7 @@ public class TestPreSortedMergeTextFilesLineIterator {
             files.add(filename2);
 
             final List<String> result = new ArrayList<String>();
-            PreSortedMergeTextFilesLineIterator reader =
+            final PreSortedMergeTextFilesLineIterator reader =
                     new PreSortedMergeTextFilesLineIterator(files);
             reader.setSkipDuplicates(false);
             reader.setSkipEmptyLines(false);

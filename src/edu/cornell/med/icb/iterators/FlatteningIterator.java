@@ -119,7 +119,7 @@ public class FlatteningIterator implements Iterator {
         if (this.next == blank) {
             throw new NoSuchElementException();
         } else {
-            Object nextOne = this.next;
+            final Object nextOne = this.next;
             this.next = blank;
             return nextOne;
         }

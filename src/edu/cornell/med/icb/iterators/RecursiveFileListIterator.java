@@ -99,7 +99,7 @@ public class RecursiveFileListIterator implements Iterable<File> {
          * @return the next object.
          */
         public Object next() {
-            File next = this.files.next();
+            final File next = this.files.next();
 
             if (next.isDirectory()) {
                 return new FileIterator(next, this.filter);

@@ -18,9 +18,9 @@
 
 package edu.cornell.med.icb.ip;
 
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
+import org.junit.Test;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -37,8 +37,8 @@ public class TestIpAddress {
      */
     @Test
     public void testEqualsLocalhostWorks() throws UnknownHostException {
-        IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip");
-        IpAddress ipAddressLocalhost = new IpAddress(InetAddress.getByName("localhost"), "localhost ip");
+        final IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip");
+        final IpAddress ipAddressLocalhost = new IpAddress(InetAddress.getByName("localhost"), "localhost ip");
         assertEquals(ipAddress127, ipAddressLocalhost);
         assertEquals(ipAddressLocalhost, ipAddress127);
     }
@@ -49,8 +49,8 @@ public class TestIpAddress {
      */
     @Test
     public void testSameValues() throws UnknownHostException {
-        IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip");
-        IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip");
+        final IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip");
+        final IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip");
         assertEquals(ipAddress127, ipAddress127b);
         assertEquals(ipAddress127b, ipAddress127);
     }
@@ -61,8 +61,8 @@ public class TestIpAddress {
      */
     @Test
     public void testNotEqualsDiffComment() throws UnknownHostException {
-        IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip diff");
-        IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip");
+        final IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip diff");
+        final IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip");
         assertNotSame(ipAddress127, ipAddress127b);
         assertNotSame(ipAddress127b, ipAddress127);
     }
@@ -73,8 +73,8 @@ public class TestIpAddress {
      */
     @Test
     public void testNotEqualsDiffIp() throws UnknownHostException {
-        IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip");
-        IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.2"), "localhost ip");
+        final IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip");
+        final IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.2"), "localhost ip");
         assertNotSame(ipAddress127, ipAddress127b);
         assertNotSame(ipAddress127b, ipAddress127);
     }
@@ -85,8 +85,8 @@ public class TestIpAddress {
      */
     @Test
     public void testNotEqualsDiffIpDiffComment() throws UnknownHostException {
-        IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip diff");
-        IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.2"), "localhost ip");
+        final IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), "localhost ip diff");
+        final IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.2"), "localhost ip");
         assertNotSame(ipAddress127, ipAddress127b);
         assertNotSame(ipAddress127b, ipAddress127);
     }
@@ -97,8 +97,8 @@ public class TestIpAddress {
      */
     @Test
     public void testEqualsNullComment() throws UnknownHostException {
-        IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), null);
-        IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), null);
+        final IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), null);
+        final IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), null);
         assertNotSame(ipAddress127, ipAddress127b);
         assertNotSame(ipAddress127b, ipAddress127);
     }
@@ -109,8 +109,8 @@ public class TestIpAddress {
      */
     @Test
     public void testNotEqualsOneNullComment() throws UnknownHostException {
-        IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), null);
-        IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), "comment");
+        final IpAddress ipAddress127 = new IpAddress(InetAddress.getByName("127.0.0.1"), null);
+        final IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), "comment");
         assertNotSame(ipAddress127, ipAddress127b);
         assertNotSame(ipAddress127b, ipAddress127);
     }
@@ -121,8 +121,8 @@ public class TestIpAddress {
      */
     @Test
     public void testNotEqualsOneNullIp() throws UnknownHostException {
-        IpAddress ipAddress127 = new IpAddress(null, "comment");
-        IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), "comment");
+        final IpAddress ipAddress127 = new IpAddress(null, "comment");
+        final IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), "comment");
         assertNotSame(ipAddress127, ipAddress127b);
         assertNotSame(ipAddress127b, ipAddress127);
     }
@@ -133,8 +133,8 @@ public class TestIpAddress {
      */
     @Test
     public void testNotEqualsOneNullIpOneNullComment() throws UnknownHostException {
-        IpAddress ipAddress127 = new IpAddress(null, "comment");
-        IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), null);
+        final IpAddress ipAddress127 = new IpAddress(null, "comment");
+        final IpAddress ipAddress127b = new IpAddress(InetAddress.getByName("127.0.0.1"), null);
         assertNotSame(ipAddress127, ipAddress127b);
         assertNotSame(ipAddress127b, ipAddress127);
     }

@@ -19,9 +19,9 @@
 package edu.cornell.med.icb.iterators;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
@@ -134,7 +134,7 @@ public class TextFileLineIterator implements Iterable<String> {
          */
         public String next() {
             try {
-                String result = nextline;
+                final String result = nextline;
 
                 // If we haven't reached EOF yet
                 if (nextline != null) {

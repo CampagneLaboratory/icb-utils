@@ -30,8 +30,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import edu.cornell.med.icb.identifier.IndexedIdentifier;
-
 /**
  * Validates the functionality of the {@link edu.cornell.med.icb.identifier.IndexedIdentifier}
  * class.

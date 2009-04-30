@@ -85,7 +85,7 @@ public class PreSortedMergeTextFilesLineIterator implements Iterable<String>, It
         if (inputObjects.size() == 0) {
             throw new FileNotFoundException("No specified files");
         }
-        Object inputFile = inputObjects.get(0);
+        final Object inputFile = inputObjects.get(0);
         if (inputFile instanceof String) {
             initialize((String[]) inputObjects.toArray(new String[inputObjects.size()]));
         } else if (inputFile instanceof InputStream) {

@@ -18,12 +18,12 @@
 
 package edu.cornell.med.icb.io;
 
-import java.io.DataOutputStream;
-import java.io.OutputStream;
-import java.io.IOException;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 
 /**
  * A DataOutputStream but with a writeObject(o) method to
@@ -39,7 +39,7 @@ public class DataObjectOutputStream extends DataOutputStream {
      *            use.
      * @see java.io.FilterOutputStream#out
      */
-    public DataObjectOutputStream(OutputStream out) {
+    public DataObjectOutputStream(final OutputStream out) {
         super(out);
     }
 

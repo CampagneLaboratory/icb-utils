@@ -20,14 +20,14 @@ package edu.cornell.med.icb.ip;
 
 import org.apache.commons.lang.StringUtils;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Utility class for validating ip addresses, reading IpAddress files, etc.
@@ -57,7 +57,7 @@ public final class IpUtils {
      * @throws UnknownHostException error parsing the ip address / hostname part of the string
      */
     public static IpAddress validateIpAddress(final String toValidate) throws UnknownHostException {
-        String trimmedIpAddress;
+        final String trimmedIpAddress;
         if (StringUtils.isBlank(toValidate)) {
             // No IP, no comment. Blank-ish line
             return new IpAddress(null, "");
@@ -163,7 +163,7 @@ public final class IpUtils {
         if (list == null || address == null) {
             return false;
         }
-        for (IpAddress listAddr : list) {
+        for (final IpAddress listAddr : list) {
             if (address.equals(listAddr.getIpAddress())) {
                 return true;
             }

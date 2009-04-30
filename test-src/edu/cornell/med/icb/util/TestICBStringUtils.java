@@ -139,7 +139,7 @@ public class TestICBStringUtils extends TestCase {
     }
 
     public void testSplitEmpty() {
-        checkStringArray("testSplitEmpty", new String[0], ICBStringUtils.split("", ':', ' '));
+        checkStringArray("testSplitEmpty", ArrayUtils.EMPTY_STRING_ARRAY, ICBStringUtils.split("", ':', ' '));
     }
 
     public void testSingleCharString() {

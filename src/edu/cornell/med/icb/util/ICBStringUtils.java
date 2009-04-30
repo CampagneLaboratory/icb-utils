@@ -18,12 +18,13 @@
 
 package edu.cornell.med.icb.util;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
  *
@@ -415,7 +416,7 @@ public final class ICBStringUtils {
             return null;
         }
         if (inval.length() == 0) {
-            return new String[0];
+            return ArrayUtils.EMPTY_STRING_ARRAY;
         }
         Character escape = escapeChar;
         if (escape != null && escape == splitChar) {
@@ -594,7 +595,7 @@ public final class ICBStringUtils {
             return "";
         }
         String work = html;
-        for (String htmlVal : HTML_TO_CONSOLE_MAP.keySet()) {
+        for (final String htmlVal : HTML_TO_CONSOLE_MAP.keySet()) {
             final String replaceVal = HTML_TO_CONSOLE_MAP.get(htmlVal);
             work = StringUtils.replace(work, htmlVal, replaceVal);
         }
@@ -611,7 +612,7 @@ public final class ICBStringUtils {
             return "";
         }
         String work = console;
-        for (String consoleVal : CONSOLE_TO_HTML_MAP.keySet()) {
+        for (final String consoleVal : CONSOLE_TO_HTML_MAP.keySet()) {
             final String replaceVal = HTML_TO_CONSOLE_MAP.get(consoleVal);
             work = StringUtils.replace(work, consoleVal, replaceVal);
         }
