@@ -19,24 +19,25 @@
 package edu.cornell.med.icb.io;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.LinkedList;
-import java.util.Set;
-import java.util.HashSet;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Enumeration;
-import java.util.jar.JarFile;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * Help with obtaining resources. This will look
@@ -54,7 +55,7 @@ public class ResourceFinder {
      * No extra paths configuration.
      */
     public ResourceFinder() {
-        this(new String[0]);
+        this(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
     /**
