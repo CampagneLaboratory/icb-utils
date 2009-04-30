@@ -71,7 +71,7 @@
         </javadoc>
     </target>
 
-    <target name="clean" depends="buildsupport.init, testsupport.clean" description="Cleans up the directory">
+    <target name="clean" depends="buildsupport.clean, testsupport.clean" description="Cleans up the directory">
         <delete file="${jarfile}"/>
     </target>
 
