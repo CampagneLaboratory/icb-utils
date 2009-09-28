@@ -19,6 +19,7 @@
 package edu.cornell.med.icb.io;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
@@ -45,6 +46,16 @@ import java.util.jar.JarFile;
  */
 public class ResourceFinder {
 
+    /** When to search the classpath enum. */
+    public enum SearchInClasspath {
+        BEFORE_LOCAL,
+        AFTER_LOCAL,
+        NEVER
+    }
+
+    /** When to search the classpath. Default to search before searching locally. */
+    public SearchInClasspath searchInClasspath = SearchInClasspath.BEFORE_LOCAL;
+
     /** Used to log debug and informational messages. */
     private static final Log LOG = LogFactory.getLog(ResourceFinder.class);
 
@@ -66,13 +77,17 @@ public class ResourceFinder {
      */
     public ResourceFinder(final String... searchPathsVal) {
         searchPaths = new LinkedList<String>();
-        if (searchPathsVal != null) {
+        if (searchPathsVal != null && searchPathsVal.length > 0) {
             for (String searchPath : searchPathsVal) {
-                while (searchPath.endsWith("/") || searchPath.endsWith("\\")) {
+                searchPath = FilenameUtils.separatorsToUnix(searchPath);
+                while (searchPath.endsWith("/")) {
                     searchPath = searchPath.substring(0, searchPath.length() - 1);
                 }
                 this.searchPaths.add(searchPath);
             }
+        } else {
+            // Default to searching "." (current directory)
+            searchPaths.add(".");
         }
     }
 
@@ -83,31 +98,55 @@ public class ResourceFinder {
      * @return A URL for the specified resource or null
      */
     public URL findResource(final String resource) {
+        URL url;
+        if (searchInClasspath == SearchInClasspath.BEFORE_LOCAL) {
+            url = findResourceInClasspath(resource);
+            if (url != null) {
+                return url;
+            }
+        }
+
+        url = findResourceInLocal(resource);
+        if (url != null) {
+            return url;
+        }
+
+        if (searchInClasspath == SearchInClasspath.AFTER_LOCAL) {
+            url = findResourceInClasspath(resource);
+            if (url != null) {
+                return url;
+            }
+        }
+
+        return null;
+    }
+
+    private URL findResourceInClasspath(final String resource) {
+        // Find resource using the classpath in the root of the classpath
         URL url = resourceToUrl(resource);
+        if (url != null) {
+            return url;
+        }
 
-        // try a resource in the config directory
-        if (url == null) {
-            for (final String searchPath : searchPaths) {
-                url = resourceToUrl(searchPath + "/" + resource);
-                if (url != null) {
-                    break;
-                }
+        // Find a resource using the classpath using searchPaths
+        for (final String searchPath : searchPaths) {
+            url = resourceToUrl(searchPath + "/" + resource);
+            if (url != null) {
+                return url;
             }
         }
+        return null;
+    }
 
-        if (url == null) {
-            url = fileToURL(resource);
-        }
-
-        if (url == null) {
-            for (final String searchPath : searchPaths) {
-                url = fileToURL(searchPath + IOUtils.DIR_SEPARATOR + resource);
-                if (url != null) {
-                    break;
-                }
+    private URL findResourceInLocal(final String resource) {
+        // Try to find the resource in the searchPaths
+        for (final String searchPath : searchPaths) {
+            final URL url = fileToURL(searchPath + IOUtils.DIR_SEPARATOR + resource);
+            if (url != null) {
+                return url;
             }
         }
-        return url;
+        return null;
     }
 
     /**
@@ -271,5 +310,21 @@ public class ResourceFinder {
             return result.toArray(new String[result.size()]);
         }
         throw new UnsupportedOperationException("Cannot list files for URL " + dirURL);
+    }
+
+    /**
+     * Get when to search in classpath for the resource (default is SearchInClasspath.BEFORE_LOCAL).
+     * @return the searchInClasspath value
+     */
+    public SearchInClasspath getSearchInClasspath() {
+        return searchInClasspath;
+    }
+
+    /**
+     * Set when to search in classpath for the resource.
+     * @param searchInClasspath the new searchInClasspath value
+     */
+    public void setSearchInClasspath(SearchInClasspath searchInClasspath) {
+        this.searchInClasspath = searchInClasspath;
     }
 }
