@@ -113,7 +113,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/plugins/testng/lib/testng-jdk15.jar!/" />
+          <root url="jar://$MODULE_DIR$/testsupport/junit/lib/junit-4.7.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -122,7 +122,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/testsupport/junit/lib/junit-4.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/icb-stats.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
