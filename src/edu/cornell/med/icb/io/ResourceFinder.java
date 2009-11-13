@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -286,7 +287,7 @@ public class ResourceFinder {
             if (jarPath.charAt(2) == ':') {
                 jarPath = jarPath.substring(1);
             }
-            jarPath = StringUtils.replace(jarPath, "%20", " ");
+            jarPath = URLDecoder.decode(jarPath, "UTF-8");
             final JarFile jar = new JarFile(jarPath);
             final Enumeration<JarEntry> entries = jar.entries();
             final Set<String> result = new HashSet<String>();
