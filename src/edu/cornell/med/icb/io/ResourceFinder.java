@@ -172,7 +172,7 @@ public class ResourceFinder {
             // Could not do file getCanonicalPath()
         }
         if (url != null && LOG.isDebugEnabled()) {
-            LOG.debug("... found url is [" + url.toString() + "]");
+            LOG.debug("... fo`und url is [" + url.toString() + "]");
         }
         return url;
     }
