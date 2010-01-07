@@ -21,10 +21,7 @@ package edu.cornell.med.icb.util;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -52,6 +49,11 @@ public final class ICBStringUtils {
 
     /** XML character replacement for carriage return. */
     private static final String XML_CR = "&#13;";
+
+
+    public static int RANDOM_STRING_LENGTH_DEFAULT = 7;
+
+    private final static Random RANDOM = new Random(new Date().getTime());
 
     /** HTML to console string substitution map. */
     private static final Map<String, String> HTML_TO_CONSOLE_MAP;
@@ -618,4 +620,30 @@ public final class ICBStringUtils {
         }
         return work;
     }
+
+    /**
+     * Generate a random string of characters A..Z of length RANDOM_STRING_LENGTH_DEFAULT.
+     * @return the random string of characters
+     */
+    public static String generateRandomString() {
+        return generateRandomString(RANDOM_STRING_LENGTH_DEFAULT);
+    }
+
+    /**
+     * Generate a random string of characters A..Z of length 'length'.
+     * @param length the lengt of the string to generate.
+     * @return the random string of characters
+     */
+    public static String generateRandomString(final int length) {
+        final StringBuffer newTag = new StringBuffer();
+        for (int i = 0; i < length; i++) {
+            //random character between A and Z:
+            final int characterRange = (int) 'Z' - (int) 'A';
+            final int randomValue = RANDOM.nextInt(characterRange) + 1;
+            final char c = (char) ((int) 'A' + randomValue);
+            newTag.append(c);
+        }
+        return newTag.toString();
+    }
+
 }

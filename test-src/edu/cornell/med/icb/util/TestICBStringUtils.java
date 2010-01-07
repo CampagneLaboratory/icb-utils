@@ -237,4 +237,9 @@ public class TestICBStringUtils extends TestCase {
                             + "multiplte breaks! fun eh?",
                         15, "<br/>"));
     }
+
+    public void testGenerateRandom() {
+        assertFalse(ICBStringUtils.generateRandomString().equals(ICBStringUtils.generateRandomString()));
+        assertFalse(ICBStringUtils.generateRandomString(25).equals(ICBStringUtils.generateRandomString(25)));
+    }
 }
