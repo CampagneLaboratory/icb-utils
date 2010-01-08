@@ -20,6 +20,7 @@ package edu.cornell.med.icb.util;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.RandomStringUtils;
 
 import java.util.*;
 
@@ -635,15 +636,31 @@ public final class ICBStringUtils {
      * @return the random string of characters
      */
     public static String generateRandomString(final int length) {
-        final StringBuffer newTag = new StringBuffer();
-        for (int i = 0; i < length; i++) {
-            //random character between A and Z:
-            final int characterRange = (int) 'Z' - (int) 'A';
-            final int randomValue = RANDOM.nextInt(characterRange) + 1;
-            final char c = (char) ((int) 'A' + randomValue);
-            newTag.append(c);
-        }
-        return newTag.toString();
+        return RandomStringUtils.random(length, true, false).toUpperCase();
     }
 
+    /**
+     * Fixes filenames to be "safe" removing unwanted characters.
+     * Note that this isn't for paths, just for filenames.
+     * Spaces will be replaced with "-". Characters other than
+     * A-Z, a-z, 0-9, and non _, -, and . will be replaced with _.
+     * "_" will be substituted for unwanted characters.
+     * @param inval incoming filename (not a full path)
+     * @return safer filename
+     */
+    public static String safeFilename(final String inval) {
+        if (StringUtils.isBlank(inval)) {
+            return StringUtils.EMPTY;
+        }
+        String outval = inval.trim();
+        outval = StringUtils.replace(outval, " ", "-");
+        while (outval.indexOf("--") > -1) {
+            outval = StringUtils.replace(outval, "--", "-");
+        }
+        outval = outval.replaceAll("[^a-zA-Z0-9\\-._]", "_");
+        while (outval.indexOf("__") > -1) {
+            outval = StringUtils.replace(outval, "__", "_");
+        }
+        return outval;
+    }
 }
