@@ -65,8 +65,7 @@ public final class VersionUtils {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug(clazz.getName() + " "
-                    + Attributes.Name.IMPLEMENTATION_VERSION + ": " + version);
+            LOG.debug(Attributes.Name.IMPLEMENTATION_VERSION + ": " + version);
         }
         return StringUtils.defaultString(version);
     }

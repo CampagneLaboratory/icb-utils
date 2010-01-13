@@ -62,12 +62,11 @@ public class TestVersionUtils {
      * Validates functionality of {@link VersionUtils#getImplementationVersion(Class<?> )}
      * with a null class.
      */
-    @Test(expected = NullPointerException.class)
+    @Test
     public void getNullImplementationVersion() {
         final String version = VersionUtils.getImplementationVersion(null);
         assertNotNull("Version number should never be null", version);
-        assertEquals("Version number should equal the runtime version",
-                SystemUtils.JAVA_RUNTIME_VERSION, version);
+        assertEquals("Version number should be unknown", "UNKNOWN", version);
     }
 
     /**
