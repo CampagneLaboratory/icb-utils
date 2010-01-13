@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2009 Institute for Computational Biomedicine,
- *                    Weill Medical College of Cornell University
+ * Copyright (C) 2009-2010 Institute for Computational Biomedicine,
+ *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,11 @@ import org.apache.commons.io.FilenameUtils;
  * @author Kevin Dorff
  */
 public class ICBFilenameUtils {
+    /**
+     * Private constructor for utility class.
+     */
+    private ICBFilenameUtils() {
+    }
 
     /**
      * This works somewhat differently than Apache Commons FilenameUtils.concat(). Notably
@@ -37,20 +42,20 @@ public class ICBFilenameUtils {
      * @param parts the filename parts
      * @return the path concat'd together
      */
-    public static String concatPathParts(String... parts) {
+    public static String concatPathParts(final String... parts) {
         if (parts == null || parts.length == 0) {
             return null;
         }
         int estimatedLength = parts.length;
-        for (String part : parts) {
+        for (final String part : parts) {
             if (part == null) {
                 return null;
             }
             estimatedLength += part.length();
         }
-        MutableString result = new MutableString(estimatedLength);
+        final MutableString result = new MutableString(estimatedLength);
         for (int i = 0; i < parts.length; i++) {
-            String part = FilenameUtils.separatorsToUnix(parts[i]);
+            final String part = FilenameUtils.separatorsToUnix(parts[i]);
             if (part.length() == 0) {
                 // Doesn't contribute
                 continue;

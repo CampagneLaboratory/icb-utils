@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2007-2010 Institute for Computational Biomedicine,
  *               Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 
 package edu.cornell.med.icb.io;
 
+import edu.cornell.med.icb.util.ICBStringUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.BufferedReader;
@@ -25,8 +26,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.NoSuchElementException;
-
-import edu.cornell.med.icb.util.ICBStringUtils;
 
 /**
  * Helper class to parse tab/single character delimited file.

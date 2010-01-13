@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2009 Institute for Computational Biomedicine,
- *                    Weill Medical College of Cornell University
+ * Copyright (C) 2009-2010 Institute for Computational Biomedicine,
+ *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
 
 package edu.cornell.med.icb.iterators;
 
-import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2009 Institute for Computational Biomedicine,
- *                    Weill Medical College of Cornell University
+ * Copyright (C) 2009-2010 Institute for Computational Biomedicine,
+ *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
 package edu.cornell.med.icb.util;
 
 import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import org.junit.Test;
 
 /**
@@ -29,8 +30,8 @@ import org.junit.Test;
 public class TestICBFilenameUtils {
     @Test
     public void testConcatPathParts() {
-        assertEquals(null, ICBFilenameUtils.concatPathParts(null));
-        assertEquals(null, ICBFilenameUtils.concatPathParts(new String[0]));
+        assertNull(ICBFilenameUtils.concatPathParts(null));
+        assertNull(ICBFilenameUtils.concatPathParts(new String[0]));
         assertEquals("a", ICBFilenameUtils.concatPathParts("a"));
         assertEquals("a/", ICBFilenameUtils.concatPathParts("a/"));
         assertEquals("a/b", ICBFilenameUtils.concatPathParts("a", "b"));

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2007-2010 Institute for Computational Biomedicine,
  *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,9 +20,9 @@ package edu.cornell.med.icb.io;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.NullReader;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import org.junit.Test;
 

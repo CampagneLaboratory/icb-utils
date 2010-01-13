@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2007-2010 Institute for Computational Biomedicine,
  *               Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -19,10 +19,15 @@
 package edu.cornell.med.icb.util;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  *
@@ -54,7 +59,7 @@ public final class ICBStringUtils {
 
     public static int RANDOM_STRING_LENGTH_DEFAULT = 7;
 
-    private final static Random RANDOM = new Random(new Date().getTime());
+    private static final Random RANDOM = new Random(new Date().getTime());
 
     /** HTML to console string substitution map. */
     private static final Map<String, String> HTML_TO_CONSOLE_MAP;
@@ -217,7 +222,7 @@ public final class ICBStringUtils {
             }
         }
         if (foundExt == null) {
-            // Dind't find one of the expected extensions
+            // didn't find one of the expected extensions
             return origFilename + mod;
         }
         return origFilename.substring(
@@ -347,7 +352,7 @@ public final class ICBStringUtils {
             output.append(tagEnd);
 
             // Remove the text from the source so we can
-            // find the next occurance.
+            // find the next occurrence.
             input.delete(0, pos + size);
             inputLC.delete(0, pos + size);
         }
@@ -654,11 +659,11 @@ public final class ICBStringUtils {
         }
         String outval = inval.trim();
         outval = StringUtils.replace(outval, " ", "-");
-        while (outval.indexOf("--") > -1) {
+        while (outval.contains("--")) {
             outval = StringUtils.replace(outval, "--", "-");
         }
         outval = outval.replaceAll("[^a-zA-Z0-9\\-._]", "_");
-        while (outval.indexOf("__") > -1) {
+        while (outval.contains("__")) {
             outval = StringUtils.replace(outval, "__", "_");
         }
         return outval;

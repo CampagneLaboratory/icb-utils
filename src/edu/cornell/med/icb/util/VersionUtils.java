@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2008-2010 Institute for Computational Biomedicine,
  *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -64,7 +64,10 @@ public final class VersionUtils {
             version = "UNKNOWN";
         }
 
-        LOG.info(clazz.getName() + " " + Attributes.Name.IMPLEMENTATION_VERSION + ": " + version);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(clazz.getName() + " "
+                    + Attributes.Name.IMPLEMENTATION_VERSION + ": " + version);
+        }
         return StringUtils.defaultString(version);
     }
 }

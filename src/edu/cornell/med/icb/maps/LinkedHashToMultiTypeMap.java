@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2008-2010 Institute for Computational Biomedicine,
  *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,11 @@ import java.util.LinkedHashMap;
  * @author Kevin Dorff
  */
 public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
+    /**
+     * Used during serialization.
+     */
+    private static final long serialVersionUID = -664788513228402228L;
+
     /**
      * Synonym for just using get(field). Returns the mapped value as a String
      * or null if the field doesn't exist in the map.

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2007-2010 Institute for Computational Biomedicine,
  *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,11 @@ import java.util.Random;
  *         Time: 5:41:06 PM
  */
 public class RandomAdapter extends Random {
+    /**
+     * Used during serialization.
+     */
+    private static final long serialVersionUID = 680027482734212120L;
+
     private final RandomEngine engine;
     private final AbstractRandomGenerator randomGenerator;
 

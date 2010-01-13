@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2008-2010 Institute for Computational Biomedicine,
  *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,11 +18,10 @@
 
 package edu.cornell.med.icb.io;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ClassUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -325,7 +324,7 @@ public class ResourceFinder {
      * Set when to search in classpath for the resource.
      * @param searchInClasspath the new searchInClasspath value
      */
-    public void setSearchInClasspath(SearchInClasspath searchInClasspath) {
+    public void setSearchInClasspath(final SearchInClasspath searchInClasspath) {
         this.searchInClasspath = searchInClasspath;
     }
 }

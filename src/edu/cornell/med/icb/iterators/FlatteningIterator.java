@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2008-2010 Institute for Computational Biomedicine,
  *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -59,7 +59,7 @@ public class FlatteningIterator implements Iterator {
      *  This stack stores all the iterators found so far. The head of the stack is
      * the iterator which we are currently progressing through.
      */
-    private final Stack<Iterator< ? >> iterators = new Stack<Iterator< ? >>();
+    private final Stack<Iterator<?>> iterators = new Stack<Iterator<?>>();
 
     /**
      * Storage field for the next element to be returned. blank when the next element
@@ -93,7 +93,7 @@ public class FlatteningIterator implements Iterator {
             } else {
                 final Object nextOne = iterators.peek().next();
                 if (nextOne instanceof Iterator) {
-                    iterators.push((Iterator< ? >) nextOne);
+                    iterators.push((Iterator<?>) nextOne);
                     moveToNext();
                 } else if (nextOne instanceof Iterable) {
                     iterators.push(((Iterable) nextOne).iterator());

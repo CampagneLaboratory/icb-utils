@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2008-2010 Institute for Computational Biomedicine,
  *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,17 +18,18 @@
 
 package edu.cornell.med.icb.io;
 
-import org.junit.Test;
-import org.junit.BeforeClass;
-import static org.junit.Assert.assertNotNull;import static org.junit.Assert.assertNull;
 import org.apache.commons.io.IOUtils;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import java.net.URL;
-import java.io.File;
-import java.io.Writer;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.net.URL;
 
 /**
  * Tests for ResourceFinder.

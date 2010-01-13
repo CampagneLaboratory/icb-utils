@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2008-2010 Institute for Computational Biomedicine,
  *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,11 +18,10 @@
 
 package edu.cornell.med.icb.util;
 
+import edu.cornell.med.icb.stat.LinearRegression;
 import org.apache.commons.lang.time.StopWatch;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
-import edu.cornell.med.icb.stat.LinearRegression;
 
 /**
  * Assist with estimation of time remaining for a long running process with a known number of

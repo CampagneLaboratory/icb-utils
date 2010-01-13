@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2007-2010 Institute for Computational Biomedicine,
  *               Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -18,19 +18,18 @@
 
 package edu.cornell.med.icb.io;
 
+import edu.cornell.med.icb.util.ICBStringUtils;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
-import java.io.Reader;
 import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import edu.cornell.med.icb.util.ICBStringUtils;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class is a very glorified {@link TSVReader}. This class provides

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2007-2010 Institute for Computational Biomedicine,
  *               Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@ package edu.cornell.med.icb.util;
 
 import junit.framework.TestCase;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -231,7 +232,7 @@ public class TestBoundedPriorityQueue extends TestCase {
         }
     }
 
-    private class LessThanComparator implements Comparator<Integer> {
+    private class LessThanComparator implements Comparator<Integer>, Serializable {
         public int compare(final Integer i1, final Integer i2) {
             if (i1.equals(i2)) {
                 return 0;
@@ -243,7 +244,7 @@ public class TestBoundedPriorityQueue extends TestCase {
         }
     }
 
-    private class GreaterThanComparator implements Comparator<Integer> {
+    private class GreaterThanComparator implements Comparator<Integer>, Serializable {
         public int compare(final Integer i1, final Integer i2) {
             if (i1.equals(i2)) {
                 return 0;

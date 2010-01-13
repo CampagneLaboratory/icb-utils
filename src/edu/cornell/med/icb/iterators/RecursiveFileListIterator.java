@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2008-2010 Institute for Computational Biomedicine,
  *                         Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -31,8 +31,8 @@ import java.util.Iterator;
  *
  * ------------------------------------------------------------------
  * Iterates over all non-directory files contained in some subdirectory of the
- * current one. Some modifications (such as making it Iterable<File> not just
- * Iterator<File) by Kevin Dorff.
+ * current one. Some modifications (such as making it Iterable&lt;File&gt; not just
+ * Iterator&lt;File&gt; by Kevin Dorff.
  *
  * @author David R. MacIver
  */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2009 Institute for Computational Biomedicine,
+ * Copyright (C) 2007-2010 Institute for Computational Biomedicine,
  *               Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -41,6 +41,10 @@ import java.util.PriorityQueue;
  * @param <E> the type of bounded priority queue to make
  */
 public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
+    /**
+     * Used during serialization.
+     */
+    private static final long serialVersionUID = 9150330156289560252L;
 
     /**
      * The maximum capacity for this boudned priority queue.
@@ -150,6 +154,7 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
      * if the element (or any element)  was clipped when the
      * maxCapacity of the queue was ensured.
      */
+    @Override
     public boolean add(final E e) {
         final boolean result = super.add(e);
         ensureSize();
@@ -165,7 +170,7 @@ public class BoundedPriorityQueue<E> extends PriorityQueue<E> {
      * maxCapacity of the queue was ensured.
      */
     @Override
-    public boolean addAll(final Collection< ? extends E > c) {
+    public boolean addAll(final Collection<? extends E> c) {
         final boolean result = super.addAll(c);
         ensureSize();
         return result;

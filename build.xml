@@ -29,6 +29,8 @@
 
     <!-- override fileset for checkstyle so it does not include classes not developed here -->
     <fileset dir="${src}" id="checkstyle-fileset">
+        <include name="**/*.java"/>
+        <exclude name="**/package-info.java"/>        
         <exclude name="org/apache/unicode/UnicodeCharUtil.java"/>
     </fileset>
 
