@@ -84,6 +84,7 @@ public final class TSVReader implements Closeable {
     /**
      * Create a new TSVReader based on the supplied reader
      * with a tab delimiter.
+     *
      * @param reader the reader to obtain the data from
      */
     public TSVReader(final Reader reader) {
@@ -93,7 +94,8 @@ public final class TSVReader implements Closeable {
     /**
      * Create a new TSVReader based on the supplied reader
      * with the supplied delimiter.
-     * @param reader the reader to obtain the data from
+     *
+     * @param reader       the reader to obtain the data from
      * @param delimiterVal the delimiter used to tokenize the line of text
      */
     public TSVReader(final Reader reader, final char delimiterVal) {
@@ -110,6 +112,7 @@ public final class TSVReader implements Closeable {
     /**
      * Set the comment prefix that will be used to ignore
      * commented lines.
+     *
      * @param commentPrefixVal the new comment prefix.
      * @return this TSVReader for command chaining
      */
@@ -124,6 +127,7 @@ public final class TSVReader implements Closeable {
 
     /**
      * Get the comment prefix being used.
+     *
      * @return the comment prefix being used.
      */
     public String getCommentPrefix() {
@@ -132,6 +136,7 @@ public final class TSVReader implements Closeable {
 
     /**
      * Set the escape character being used.
+     *
      * @param escapeCharVal the escape character being used.
      * @return this TSVReader for command chaining
      */
@@ -142,6 +147,7 @@ public final class TSVReader implements Closeable {
 
     /**
      * Get the escape character being used.
+     *
      * @return the escape character being used.
      */
     public Character getEscapeChar() {
@@ -150,6 +156,7 @@ public final class TSVReader implements Closeable {
 
     /**
      * Set the if the results should be unescaped.
+     *
      * @param unescapeResultsVal if results should be unescaped.
      * @return this TSVReader for command chaining
      */
@@ -160,6 +167,7 @@ public final class TSVReader implements Closeable {
 
     /**
      * Get the if the results should be unescaped.
+     *
      * @return if results should be unescaped.
      */
     public boolean getUnescapeResults() {
@@ -168,6 +176,7 @@ public final class TSVReader implements Closeable {
 
     /**
      * Check if the file has more lines.
+     *
      * @return true of there is another line of text
      * @throws java.io.IOException problem reading from file
      */
@@ -186,6 +195,7 @@ public final class TSVReader implements Closeable {
 
     /**
      * Get if the current line is a comment line.
+     *
      * @return true of the current line is a comment line
      */
     public boolean isCommentLine() {
@@ -219,6 +229,7 @@ public final class TSVReader implements Closeable {
     /**
      * Get the current field as an int.
      * Advances to the next field.
+     *
      * @return the current field as an int
      */
     public int getInt() {
@@ -227,8 +238,20 @@ public final class TSVReader implements Closeable {
     }
 
     /**
+     * Get the current field as a long.
+     * Advances to the next field.
+     *
+     * @return the current field as an long
+     */
+    public long getLong() {
+        ensureNextField();
+        return Long.parseLong(currentTokens[currentTokenIndex++]);
+    }
+
+    /**
      * Get the current field as a float.
      * Advances to the next field.
+     *
      * @return the current field as a float
      */
     public float getFloat() {
@@ -239,6 +262,7 @@ public final class TSVReader implements Closeable {
     /**
      * Get the current field as a double.
      * Advances to the next field.
+     *
      * @return the current field as a double
      */
     public double getDouble() {
@@ -249,6 +273,7 @@ public final class TSVReader implements Closeable {
     /**
      * Get the current field as a String.
      * Advances to the next field.
+     *
      * @return the current field as a String
      */
     public String getString() {
@@ -267,6 +292,7 @@ public final class TSVReader implements Closeable {
 
     /**
      * Get the number of fields on the current line.
+     *
      * @return the number of fields on the current line
      */
     public int numTokens() {
@@ -275,6 +301,7 @@ public final class TSVReader implements Closeable {
 
     /**
      * Return true if the current line is empty.
+     *
      * @return true if the current line is empty
      */
     public boolean isEmptyLine() {
