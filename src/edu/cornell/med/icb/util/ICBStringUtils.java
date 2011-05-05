@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2010 Institute for Computational Biomedicine,
+ * Copyright (C) 2007-2009 Institute for Computational Biomedicine,
  *               Weill Medical College of Cornell University
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,12 +22,12 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Date;
+import it.unimi.dsi.lang.MutableString;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  *
@@ -58,8 +58,6 @@ public final class ICBStringUtils {
 
 
     public static int RANDOM_STRING_LENGTH_DEFAULT = 7;
-
-    private static final Random RANDOM = new Random(new Date().getTime());
 
     /** HTML to console string substitution map. */
     private static final Map<String, String> HTML_TO_CONSOLE_MAP;
@@ -667,5 +665,43 @@ public final class ICBStringUtils {
             outval = StringUtils.replace(outval, "__", "_");
         }
         return outval;
+    }
+
+    /**
+     * Make byte sizes (such as file or memory sizes) human readable, such as
+     * 42,462,614 becomes 40.5 MB. This mehtod assumes 1KB = 1024B.
+     * @param bytes the number of bytes to create a human readable size for.
+     * @return human readable string
+     */
+    public static String humanMemorySize(long bytes) {
+        return humanMemorySize(bytes, 1024);
+    }
+
+    /**
+     * Make byte sizes (such as file or memory sizes) human readable, such as
+     * 42,462,614 becomes 40.5 MB. Normally for memory 1KB = 1024B but by
+     * adjusting the unit parameter you can set this to 1000 or whatever you like.
+     * @param bytes the number of bytes to create a human readable size for.
+     * @param unit normally one would supply 1024 (1KB = 1024B) but this can be
+     * changed to 1000 or whatever makes sense for your program.
+     * @return human readable string
+     */
+    public static String humanMemorySize(long bytes, int unit) {
+        MutableString result = new MutableString();
+        if (bytes < unit) {
+            result.append(bytes);
+            result.append(" B");
+        } else {
+            int exp = (int) (Math.log(bytes) / Math.log(unit));
+            result.append(String.format("%.1f", bytes / Math.pow(unit, exp)));
+            if (result.endsWith(".0")) {
+                // If the result ends in .0, strip it off
+                result.length(result.length() - 2);
+            }
+            result.append(' ');
+            result.append(("KMGTPE").charAt(exp - 1));
+            result.append('B');
+        }
+        return result.toString();
     }
 }

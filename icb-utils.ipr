@@ -10,7 +10,6 @@
       <maximumStackSize value="32" />
       <properties />
       <executeOn event="beforeRun" target="compile-tests" />
-      <executeOn event="beforeRun" target="compile-tests" runConfigurationType="JUnit" runConfigurationName="TestVersionUtils" />
     </buildFile>
   </component>
   <component name="BSFConsole">

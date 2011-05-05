@@ -242,4 +242,16 @@ public class TestICBStringUtils extends TestCase {
         assertFalse(ICBStringUtils.generateRandomString().equals(ICBStringUtils.generateRandomString()));
         assertFalse(ICBStringUtils.generateRandomString(25).equals(ICBStringUtils.generateRandomString(25)));
     }
+
+    public void testHumanMemorySize() {
+        assertEquals("16 B", ICBStringUtils.humanMemorySize(16));
+        assertEquals("1 KB", ICBStringUtils.humanMemorySize(1024));
+        assertEquals("10.3 KB", ICBStringUtils.humanMemorySize(10594));
+        assertEquals("10.3 KB", ICBStringUtils.humanMemorySize(10594));
+        assertEquals("32 KB", ICBStringUtils.humanMemorySize(32768));
+        assertEquals("35.2 KB", ICBStringUtils.humanMemorySize(36032));
+        assertEquals("36 KB", ICBStringUtils.humanMemorySize(36032, 1000));
+        assertEquals("1.2 GB", ICBStringUtils.humanMemorySize(1300000000));
+        assertEquals("1.3 GB", ICBStringUtils.humanMemorySize(1300000000, 1000));
+    }
 }
