@@ -152,7 +152,7 @@ public class TsvToFromMap {
         if (line.startsWith("#")) {
             return null;
         }
-        final String[] parts = StringUtils.split(line, '\t');
+        final String[] parts = StringUtils.splitPreserveAllTokens(line, '\t');
         if ((!lenientColumnCount) && (parts.length != numColumnHeaders)) {
             throw new IOException(String.format(
                     "Line should have %d columns but has %d",
