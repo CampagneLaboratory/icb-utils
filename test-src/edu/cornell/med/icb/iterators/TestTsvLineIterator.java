@@ -101,5 +101,35 @@ public class TestTsvLineIterator {
         assertEquals(3, lineNo);
     }
 
+    @Test
+    public void readTsvFileNoTsvToFromMapGzip() throws IOException {
+        int lineNo = 0;
+        for (final LinkedHashToMultiTypeMap<String> lines :
+                new TsvLineIterator("test-input/tsv-test-file.txt.gz")) {
+            switch (lineNo) {
+                case 0:
+                    assertEquals("cat", lines.get("one"));
+                    assertEquals(1.0, lines.getDouble("two"));
+                    assertTrue(Arrays.equals(
+                            new double[] {3.0, 4.0, 5.0}, lines.getDoubleArray("three")));
+                    break;
+                case 1:
+                    assertEquals("dog", lines.get("one"));
+                    assertEquals(2.0, lines.getDouble("two"));
+                    assertTrue(Arrays.equals(
+                            new double[] {6.0, 7.0, 8.0}, lines.getDoubleArray("three")));
+                    break;
+                case 2:
+                    assertEquals("fish", lines.get("one"));
+                    assertEquals(3.0, lines.getDouble("two"));
+                    assertTrue(Arrays.equals(
+                            new double[] {9.0, 10.0, 11.0}, lines.getDoubleArray("three")));
+                    break;
+            }
+            lineNo++;
+        }
+        assertEquals(3, lineNo);
+    }
+
 }
 

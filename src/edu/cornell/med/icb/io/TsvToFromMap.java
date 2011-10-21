@@ -18,13 +18,11 @@
 
 package edu.cornell.med.icb.io;
 
+import edu.cornell.med.icb.iterators.TextFileLineIterator;
 import edu.cornell.med.icb.maps.LinkedHashToMultiTypeMap;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -204,11 +202,10 @@ public class TsvToFromMap {
      * @throws IOException error reading file that was supposed to be a TSV file
      */
     public static TsvToFromMap createFromTsvFile(final File file) throws IOException {
-        BufferedReader in = null;
+        TextFileLineIterator in = null;
         try {
-            in = new BufferedReader(new FileReader(file));
-            String line;
-            while ((line = in.readLine()) != null) {
+            in = new TextFileLineIterator(file);
+            for (final String line : in) {
                 if (line.startsWith("#")) {
                     continue;
                 }
@@ -216,7 +213,9 @@ public class TsvToFromMap {
                 return new TsvToFromMap(parts);
             }
         } finally {
-            IOUtils.closeQuietly(in);
+            if (in != null) {
+                in.close();
+            }
         }
         // Empty file or all lines were comments (start with "#")
         return null;

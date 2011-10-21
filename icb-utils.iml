@@ -20,8 +20,8 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../../../../../java/commons-beanutils-1.7.0-src.zip!/commons-beanutils-1.7.0-src/optional/bean-collections/src/java" />
-          <root url="jar://$MODULE_DIR$/../../../../../../java/commons-beanutils-1.7.0-src.zip!/commons-beanutils-1.7.0-src/src/java" />
+          <root url="jar:///../java/commons-beanutils-1.7.0-src.zip!/commons-beanutils-1.7.0-src/optional/bean-collections/src/java" />
+          <root url="jar:///../java/commons-beanutils-1.7.0-src.zip!/commons-beanutils-1.7.0-src/src/java" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -50,7 +50,7 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../../../../../java/commons-io-1.4-src.zip!/commons-io-1.4-src/src/java" />
+          <root url="jar:///../java/commons-io-1.4-src.zip!/commons-io-1.4-src/src/java" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -61,7 +61,7 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../../../../../java/commons-lang-2.4-src.zip!/commons-lang-2.4-src/src/java" />
+          <root url="jar:///../java/commons-lang-2.4-src.zip!/commons-lang-2.4-src/src/java" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -81,7 +81,7 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/../../../../../../java/colt-1.2.0.zip!/colt/src" />
+          <root url="jar:///../java/colt-1.2.0.zip!/colt/src" />
         </SOURCES>
       </library>
     </orderEntry>
@@ -124,7 +124,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$APPLICATION_HOME_DIR$/lib/junit-4.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/testsupport/junit/lib/junit-4.8.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

@@ -18,13 +18,16 @@
 
 package edu.cornell.med.icb.iterators;
 
+import org.apache.commons.io.IOUtils;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Iterator;
+import java.util.zip.GZIPInputStream;
 
 /**
  * This class allows line-by-line iteration through a text file.
@@ -56,7 +59,7 @@ import java.util.Iterator;
  * In no event shall the author be liable for any direct or indirect
  * damages arising in any way out of the use of this software.
  */
-public class TextFileLineIterator implements Iterable<String> {
+public class TextFileLineIterator implements Iterable<String>, Closeable {
 
     /** The file being read. */
     private final BufferedReader in;
@@ -76,7 +79,9 @@ public class TextFileLineIterator implements Iterable<String> {
      * @throws IOException error opening the file to read
      */
     public TextFileLineIterator(final File fileToRead) throws IOException {
-        in = new BufferedReader(new FileReader(fileToRead));
+        this(fileToRead.toString().toLowerCase().endsWith(".gz")
+                ? new GZIPInputStream(new FileInputStream(fileToRead))
+                : new FileInputStream(fileToRead));
     }
 
     /**
@@ -96,6 +101,9 @@ public class TextFileLineIterator implements Iterable<String> {
         return new TextFileIterator();
     }
 
+    public void close() throws IOException {
+        IOUtils.closeQuietly(in);
+    }
 
     /**
      * This non-static member class is the iterator implementation.
@@ -140,7 +148,7 @@ public class TextFileLineIterator implements Iterable<String> {
                 if (nextline != null) {
                     nextline = in.readLine(); // Read another line
                     if (nextline == null) {
-                        in.close();             // And close on EOF
+                        close();
                     }
                 }
 
