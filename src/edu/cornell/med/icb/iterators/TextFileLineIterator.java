@@ -65,6 +65,12 @@ public class TextFileLineIterator implements Iterable<String>, Closeable {
     private final BufferedReader in;
 
     /**
+     * Set to true once the input closes, either manually or automatically it won't close "in"
+     * more than once.
+     */
+    private boolean closed = false;
+
+    /**
      * Create the object using a filename.
      * @param filenameToRead the filename to read
      * @throws java.io.IOException error opening the file to read
@@ -102,7 +108,10 @@ public class TextFileLineIterator implements Iterable<String>, Closeable {
     }
 
     public void close() throws IOException {
-        IOUtils.closeQuietly(in);
+        if (!closed) {
+            IOUtils.closeQuietly(in);
+            closed = true;
+        }
     }
 
     /**
