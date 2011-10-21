@@ -107,6 +107,10 @@ public class TextFileLineIterator implements Iterable<String>, Closeable {
         return new TextFileIterator();
     }
 
+    /**
+     * For either manual or automatic closing.
+     * @throws IOException won't get thrown but included for the interface
+     */
     public void close() throws IOException {
         if (!closed) {
             IOUtils.closeQuietly(in);

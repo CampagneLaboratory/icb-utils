@@ -21,6 +21,7 @@ package edu.cornell.med.icb.iterators;
 import edu.cornell.med.icb.io.TsvToFromMap;
 import edu.cornell.med.icb.maps.LinkedHashToMultiTypeMap;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,12 +32,15 @@ import java.util.Iterator;
  * non-comment line, assuming it to be a header line. This will also ignore all comment lines
  * (lines that start with '#').
  */
-public class TsvLineIterator implements Iterable<LinkedHashToMultiTypeMap<String>> {
+public class TsvLineIterator implements Iterable<LinkedHashToMultiTypeMap<String>>, Closeable {
 
     private static final String COMMENT_CHAR = "#";
 
+    /** The reader we're using. */
+    private final TextFileLineIterator textFileLineIterator;
+
     /** The file being read. */
-    private final Iterator<String> textFileIterator;
+    private final Iterator<String> iterator;
 
     /** The file being read. */
     private final TsvToFromMap tsvReader;
@@ -58,7 +62,8 @@ public class TsvLineIterator implements Iterable<LinkedHashToMultiTypeMap<String
      */
     public TsvLineIterator(final File fileToRead) throws IOException {
         this.tsvReader = TsvToFromMap.createFromTsvFile(fileToRead);
-        this.textFileIterator = new TextFileLineIterator(fileToRead).iterator();
+        this.textFileLineIterator = new TextFileLineIterator(fileToRead);
+        this.iterator = textFileLineIterator.iterator();
     }
 
     /**
@@ -78,7 +83,8 @@ public class TsvLineIterator implements Iterable<LinkedHashToMultiTypeMap<String
      * @throws java.io.IOException error opening the file to read
      */
     public TsvLineIterator(final File fileToRead, final TsvToFromMap tsvReader) throws IOException {
-        this.textFileIterator = new TextFileLineIterator(fileToRead).iterator();
+        this.textFileLineIterator = new TextFileLineIterator(fileToRead);
+        this.iterator = textFileLineIterator.iterator();
         this.tsvReader = tsvReader;
     }
 
@@ -89,7 +95,8 @@ public class TsvLineIterator implements Iterable<LinkedHashToMultiTypeMap<String
      * @throws java.io.IOException error opening the file to read
      */
     public TsvLineIterator(final InputStream stream, final TsvToFromMap tsvReader) throws IOException {
-        this.textFileIterator = new TextFileLineIterator(stream).iterator();
+        this.textFileLineIterator = new TextFileLineIterator(stream);
+        this.iterator = textFileLineIterator.iterator();
         this.tsvReader = tsvReader;
     }
 
@@ -99,6 +106,14 @@ public class TsvLineIterator implements Iterable<LinkedHashToMultiTypeMap<String
      */
     public Iterator<LinkedHashToMultiTypeMap<String>> iterator() {
         return new TsvFileIterator();
+    }
+
+    /**
+     * In case we need to close early.
+     * @throws IOException
+     */
+    public void close() throws IOException {
+        textFileLineIterator.close();
     }
 
 
@@ -138,15 +153,15 @@ public class TsvLineIterator implements Iterable<LinkedHashToMultiTypeMap<String
         public LinkedHashToMultiTypeMap<String> getNextLine(
                 final boolean skipOneLine) throws IOException {
             if (skipOneLine) {
-                while (textFileIterator.hasNext()) {
-                    final String readLine = textFileIterator.next();
+                while (iterator.hasNext()) {
+                    final String readLine = iterator.next();
                     if (!readLine.startsWith(COMMENT_CHAR)) {
                         break;
                     }
                 }
             }
-            while (textFileIterator.hasNext()) {
-                final String readLine = textFileIterator.next();
+            while (iterator.hasNext()) {
+                final String readLine = iterator.next();
                 if (!readLine.startsWith(COMMENT_CHAR)) {
                     return tsvReader.readDataToMap(readLine);
                 }
