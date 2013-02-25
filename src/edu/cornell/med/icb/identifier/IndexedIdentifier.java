@@ -94,7 +94,7 @@ public class IndexedIdentifier extends Object2IntOpenHashMap<MutableString>
      * @return a clone of this instance.
      */
     @Override
-    public Object clone() {
+    public IndexedIdentifier clone() {
         final IndexedIdentifier clone = (IndexedIdentifier) super.clone();
         clone.runningIndex = runningIndex;
         return clone;

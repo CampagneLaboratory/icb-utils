@@ -19,7 +19,7 @@
 package edu.cornell.med.icb.util;
 
 import cern.jet.random.engine.RandomEngine;
-import org.apache.commons.math.random.AbstractRandomGenerator;
+import org.apache.commons.math3.random.AbstractRandomGenerator;
 
 import java.util.Random;
 
