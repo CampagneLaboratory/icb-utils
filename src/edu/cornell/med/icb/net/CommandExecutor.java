@@ -16,6 +16,7 @@ public class CommandExecutor {
     private String remoteServer;
     private String username;
     boolean quiet;
+    final boolean local;
 
     /**
      * Turn the executor silent. Silent executor do not copy the process outputs.
@@ -35,6 +36,15 @@ public class CommandExecutor {
     public CommandExecutor(String username, String remoteServer) {
         this.remoteServer = remoteServer;
         this.username = username;
+        this.local = false;
+    }
+
+    /**
+     * Construct a command executor for local commands.
+     *
+     */
+    public CommandExecutor() {
+        this.local = true;
     }
 
     /**
@@ -47,7 +57,8 @@ public class CommandExecutor {
      * @throws InterruptedException
      */
     public int scpFromRemote(String remotePath, String localFilename) throws IOException, InterruptedException {
-
+        if (this.local)
+            throw new IOException("This instance of CommandExecutor can be used only for local commands");
         return exec(String.format("scp -o StrictHostKeyChecking=no %s@%s:%s %s", username, remoteServer, remotePath, localFilename));
     }
 
@@ -61,6 +72,8 @@ public class CommandExecutor {
      * @throws InterruptedException
      */
     public int scpDirFromRemote(String remotePath, String localPath) throws IOException, InterruptedException {
+        if (this.local)
+            throw new IOException("This instance of CommandExecutor can be used only for local commands");
 
         return exec(String.format("scp -r -o StrictHostKeyChecking=no %s@%s:%s %s", username, remoteServer, remotePath, localPath));
     }
@@ -75,6 +88,8 @@ public class CommandExecutor {
      * @throws InterruptedException
      */
     public int scpToRemote(String localFilename, String remotePath) throws IOException, InterruptedException {
+        if (this.local)
+            throw new IOException("This instance of CommandExecutor can be used only for local commands");
 
         return exec(String.format("scp -o StrictHostKeyChecking=no %s %s@%s:%s", localFilename, username, remoteServer, remotePath));
     }
@@ -91,6 +106,8 @@ public class CommandExecutor {
      * @throws InterruptedException
      */
     public int scpDirToRemote(String localPath, String remotePath) throws IOException, InterruptedException {
+        if (this.local)
+            throw new IOException("This instance of CommandExecutor can be used only for local commands");
 
         return exec(String.format("scp -r -o StrictHostKeyChecking=no %s %s@%s:%s", localPath, username, remoteServer, remotePath));
     }
@@ -105,6 +122,9 @@ public class CommandExecutor {
      * @throws InterruptedException
      */
     public int ssh(String command, String... envp) throws IOException, InterruptedException {
+        if (this.local)
+            throw new IOException("This instance of CommandExecutor can be used only for local commands");
+
         // if envp has any variable definitions, we need to send these variables to the remote host:
         StringBuilder exportStatement = new StringBuilder();
         boolean hasExports=false;
@@ -137,16 +157,28 @@ public class CommandExecutor {
         return exec(commands.toArray(new String[commands.size()]), envp);
     }
 
-    private int exec(String command, String... envp) throws IOException, InterruptedException {
-        Runtime rt = Runtime.getRuntime();
-        String[] commands = command.split(" ");
-        return exec(command, rt, commands, envp);
+    /**
+     * Execute a local command.
+     * @param command
+     * @param envp
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public int exec(String command, String... envp) throws IOException, InterruptedException {
+        return exec(command, Runtime.getRuntime(), command.split(" "), envp);
     }
 
-    private int exec(String[] commands, String... envp) throws IOException, InterruptedException {
-        Runtime rt = Runtime.getRuntime();
-
-        return exec(ObjectArrayList.wrap(commands).toString(), rt, commands, envp);
+    /**
+     * Execute a list of local commands .
+     * @param commands
+     * @param envp
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public int exec(String[] commands, String... envp) throws IOException, InterruptedException {
+        return exec(ObjectArrayList.wrap(commands).toString(), Runtime.getRuntime(), commands, envp);
     }
 
     private int exec(String command, Runtime rt, String[] commands, String[] envp) throws IOException, InterruptedException {
