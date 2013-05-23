@@ -59,7 +59,7 @@ public class CommandExecutor {
     public int scpFromRemote(String remotePath, String localFilename) throws IOException, InterruptedException {
         if (this.local)
             throw new IOException("This instance of CommandExecutor can be used only for local commands");
-        return exec(String.format("scp -o StrictHostKeyChecking=no %s@%s:%s %s", username, remoteServer, remotePath, localFilename));
+        return exec(String.format("scp -p -o StrictHostKeyChecking=no %s@%s:%s %s", username, remoteServer, remotePath, localFilename));
     }
 
     /**
@@ -75,7 +75,7 @@ public class CommandExecutor {
         if (this.local)
             throw new IOException("This instance of CommandExecutor can be used only for local commands");
 
-        return exec(String.format("scp -r -o StrictHostKeyChecking=no %s@%s:%s %s", username, remoteServer, remotePath, localPath));
+        return exec(String.format("scp -r -p -o StrictHostKeyChecking=no %s@%s:%s %s", username, remoteServer, remotePath, localPath));
     }
 
     /**
@@ -91,7 +91,7 @@ public class CommandExecutor {
         if (this.local)
             throw new IOException("This instance of CommandExecutor can be used only for local commands");
 
-        return exec(String.format("scp -o StrictHostKeyChecking=no %s %s@%s:%s", localFilename, username, remoteServer, remotePath));
+        return exec(String.format("scp -p -o trictHostKeyChecking=no %s %s@%s:%s", localFilename, username, remoteServer, remotePath));
     }
 
 
@@ -109,7 +109,7 @@ public class CommandExecutor {
         if (this.local)
             throw new IOException("This instance of CommandExecutor can be used only for local commands");
 
-        return exec(String.format("scp -r -o StrictHostKeyChecking=no %s %s@%s:%s", localPath, username, remoteServer, remotePath));
+        return exec(String.format("scp -r -p -o StrictHostKeyChecking=no %s %s@%s:%s", localPath, username, remoteServer, remotePath));
     }
 
     /**
