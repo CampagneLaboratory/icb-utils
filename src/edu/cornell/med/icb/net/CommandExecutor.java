@@ -91,7 +91,7 @@ public class CommandExecutor {
         if (this.local)
             throw new IOException("This instance of CommandExecutor can be used only for local commands");
 
-        return exec(String.format("scp -p -o trictHostKeyChecking=no %s %s@%s:%s", localFilename, username, remoteServer, remotePath));
+        return exec(String.format("scp -p -o StrictHostKeyChecking=no %s %s@%s:%s", localFilename, username, remoteServer, remotePath));
     }
 
 
