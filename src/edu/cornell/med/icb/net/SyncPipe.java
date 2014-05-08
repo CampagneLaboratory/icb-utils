@@ -1,5 +1,6 @@
 package edu.cornell.med.icb.net;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import java.io.InputStream;
@@ -41,6 +42,9 @@ public class SyncPipe implements Runnable {
             }
         } catch (Exception e) {
             logger.error(e);
+        }
+        finally {
+            IOUtils.closeQuietly(istrm_);
         }
     }
 
