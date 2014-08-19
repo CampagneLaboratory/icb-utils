@@ -20,12 +20,13 @@ package edu.cornell.med.icb.iterators;
 
 import edu.cornell.med.icb.io.TsvToFromMap;
 import edu.cornell.med.icb.maps.LinkedHashToMultiTypeMap;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * Test the tsv line iterator.
@@ -57,6 +58,39 @@ public class TestTsvLineIterator {
                     break;
                 case 2:
                     assertEquals("fish", lines.get("one"));
+                    assertEquals(3.0, lines.getDouble("two"));
+                    assertTrue(Arrays.equals(
+                            new double[] {9.0, 10.0, 11.0}, lines.getDoubleArray("three")));
+                    break;
+            }
+            lineNo++;
+        }
+        assertEquals(3, lineNo);
+    } /**
+     * Read a tsv file  with an empty column.
+     * @throws IOException
+     */
+    @Test
+    public void readTsvFileWithEmpties() throws IOException {
+        final TsvToFromMap tsvReader = new TsvToFromMap("one", "two", "three");
+        int lineNo = 0;
+        for (final LinkedHashToMultiTypeMap<String> lines :
+                new TsvLineIterator("test-input/tsv-test-file-with-empty-col.txt", tsvReader)) {
+            switch (lineNo) {
+                case 0:
+                    assertEquals("cat", lines.get("one"));
+                    assertEquals(null, lines.getDouble("two"));
+                    assertTrue(Arrays.equals(
+                            new double[] {3.0, 4.0, 5.0}, lines.getDoubleArray("three")));
+                    break;
+                case 1:
+                    assertEquals("dog", lines.get("one"));
+                    assertEquals(2.0, lines.getDouble("two"));
+                    assertTrue(Arrays.equals(
+                            null, lines.getDoubleArray("three")));
+                    break;
+                case 2:
+                    assertEquals("", lines.get("one"));
                     assertEquals(3.0, lines.getDouble("two"));
                     assertTrue(Arrays.equals(
                             new double[] {9.0, 10.0, 11.0}, lines.getDoubleArray("three")));
