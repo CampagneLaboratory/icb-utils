@@ -4,11 +4,11 @@
     <parent>
         <groupId>org.campagnelab.build-utils</groupId>
         <artifactId>maven-parent</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.5</version>
     </parent>
     <groupId>edu.cornell.med.icb</groupId>
     <artifactId>icb-util</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.6</version>
     <packaging>jar</packaging>
 
     <name>icb-util</name>
@@ -61,7 +61,7 @@
         <dependency>
             <groupId>com.martiansoftware</groupId>
             <artifactId>jsap</artifactId>
-            <version>2.1</version>
+            <version>2.1.2</version>
         </dependency>
 
         <dependency>
