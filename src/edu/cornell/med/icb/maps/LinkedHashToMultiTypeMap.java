@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 /**
  * An extension of LinkedHashMap[T, String]. Internally, all values are stored as strings
  * but they can be retrieved directly as String, Integer, Double, in[], or double[].
+ *
  * @author Kevin Dorff
  */
 public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
@@ -37,7 +38,8 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
     /**
      * Synonym for just using get(field). Returns the mapped value as a String
      * or null if the field doesn't exist in the map.
-     * @param field the field to get
+     *
+     * @param field the field to get. Returns the empty string when the field is not present.
      * @return the String value for the field
      */
     public String getString(final T field) {
@@ -46,7 +48,8 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
 
     /**
      * Returns the mapped value as a Double or null if the field doesn't exist in the map.
-     * @param field the field to get
+     *
+     * @param field the field to get. Returns null when the field is not present.
      * @return the Double value for the field
      */
     public Double getDouble(final T field) {
@@ -54,17 +57,24 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
         if (value == null) {
             return null;
         }
+        if (value.length()==0) {
+            return null;
+        }
         return NumberUtils.toDouble(value);
     }
 
     /**
      * Returns the mapped value as a Integer or null if the field doesn't exist in the map.
-     * @param field the field to get
+     *
+     * @param field the field to get. Returns null when the field is not present.
      * @return the Integer value for the field
      */
     public Integer getInt(final T field) {
         final String value = get(field);
         if (value == null) {
+            return null;
+        }
+        if (value.length()==0) {
             return null;
         }
         return NumberUtils.toInt(value);
@@ -73,7 +83,8 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
     /**
      * Returns the mapped value as a double[] or null if the field doesn't exist in the map.
      * This will try to split the doubles with the ',' character.
-     * @param field the field to get
+     *
+     * @param field the field to get. Returns null when the field is not present.
      * @return the double[] value for the field
      */
     public double[] getDoubleArray(final T field) {
@@ -82,7 +93,8 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
 
     /**
      * Returns the mapped value as a double[] or null if the field doesn't exist in the map.
-     * @param field the field to get
+     *
+     * @param field     the field to get. Returns null when the field is not present.
      * @param splitChar the char to split the doubles, often ',' or '\t' is a good choice.
      * @return the double[] value for the field
      */
@@ -91,11 +103,14 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
         if (value == null) {
             return null;
         }
+        if (value.length()==0) {
+            return null;
+        }
         final String[] splits;
         if (value.indexOf(splitChar) != -1) {
             splits = StringUtils.split(value, splitChar);
         } else {
-            return new double[] {getDouble(field)};
+            return new double[]{getDouble(field)};
         }
         final double[] result = new double[splits.length];
         int i = 0;
@@ -111,7 +126,8 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
     /**
      * Returns the mapped value as a int[] or null if the field doesn't exist in the map.
      * This will try to split the ints with the ',' character.
-     * @param field the field to get
+     *
+     * @param field the field to get. Returns null when the field is not present.
      * @return the int[] value for the field
      */
     public int[] getIntArray(final T field) {
@@ -120,7 +136,8 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
 
     /**
      * Returns the mapped value as a int[] or null if the field doesn't exist in the map.
-     * @param field the field to get
+     *
+     * @param field     the field to get
      * @param splitChar the char to split the ints, often ',' or '\t' is a good choice.
      * @return the int[] value for the field
      */
@@ -129,11 +146,14 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
         if (value == null) {
             return null;
         }
+        if (value.length()==0) {
+            return null;
+        }
         final String[] splits;
         if (value.indexOf(splitChar) != -1) {
             splits = StringUtils.split(value, splitChar);
         } else {
-            return new int[] {getInt(field)};
+            return new int[]{getInt(field)};
         }
         final int[] result = new int[splits.length];
         int i = 0;
@@ -148,8 +168,9 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
 
     /**
      * Put a Double into the map.
-     * @param field the field to assocate with the value
-     * @param val the value to store as a double
+     *
+     * @param field the field to associate with the value
+     * @param val   the value to store as a double
      */
     public void put(final T field, final Double val) {
         if (val == null) {
@@ -161,8 +182,9 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
 
     /**
      * Put a double[] into the map.
+     *
      * @param field the field to assocate with the value
-     * @param val the value to store as a double[]
+     * @param val   the value to store as a double[]
      */
     public void put(final T field, final double[] val) {
         if (val == null) {
@@ -181,8 +203,9 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
 
     /**
      * Put an Integer into the map.
+     *
      * @param field the field to assocate with the value
-     * @param val the value to store as a Integer
+     * @param val   the value to store as a Integer
      */
     public void put(final T field, final Integer val) {
         if (val == null) {
@@ -194,8 +217,9 @@ public class LinkedHashToMultiTypeMap<T> extends LinkedHashMap<T, String> {
 
     /**
      * Put an int[] into the map.
+     *
      * @param field the field to assocate with the value
-     * @param val the value to store as a int[]
+     * @param val   the value to store as a int[]
      */
     public void put(final T field, final int[] val) {
         if (val == null) {
