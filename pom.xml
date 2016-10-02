@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.campagnelab.icb</groupId>
     <artifactId>icb-utils</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 
     <name>icb-utils</name>
     <description>A set of ICB Util classes shared by several projects at Campagne Laboratory.</description>
@@ -180,9 +180,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.martiansoftware</groupId>
+            <groupId>org.campagnelab.ext</groupId>
             <artifactId>jsap</artifactId>
-            <version>2.1.2</version>
+            <version>3.0.0</version>
         </dependency>
 
         <dependency>
